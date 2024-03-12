@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Recursively gets the shape (length of every dimension) of the Tensor.
  * @param {object} data - Iterable containing the data to be stored in the Tensor.
  * @param {object} shape - Length of every dimension of the Tensor.
