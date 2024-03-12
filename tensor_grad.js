@@ -98,15 +98,14 @@ class Tensor {
         this._grad = new Tensor(_add(this._grad.data, grad.data));
         
         if (this.operation != null){
-            // console.log('')
-            // console.log('')
-            // console.log('CURRENT TENSOR')
-            // console.log(this)
-            // console.log(grad.data)
             // When all the children have been visited, propagate further back:
             if (this.children.length === 0){
                 // Mark current tensor as visited in all of its parents:
-                // console.log('BACKWARD')
+                //console.log('')
+                // console.log('CURRENT TENSOR')
+                // console.log(this.operation.constructor.name)
+                // console.log(grad.data[0][0])
+                // console.log(grad.shape)
                 this.removeNodeFromParents()
                 this.operation.backward(this._grad)
             }  else {
@@ -121,6 +120,12 @@ class Tensor {
     zero_grad() {
         this._grad = zeros(this.shape);
         this.children = [];
+        this.parents = [];
+        this.operation = null;
+        if (this.m) {
+            this.m.zero_grad_graph();
+            this.v.zero_grad_graph();
+        };
     };
 
     /**
@@ -157,6 +162,28 @@ class Tensor {
     };
 
     /**
+     * Gets the mean of the Tensor over a specified dimention.
+     * @param {number} dim - Dimention to get mean over.
+     * @param {boolean} keepdims - Wether to keep dimentions of original tensor.
+     * @returns {Tensor} - Final tensor.
+     */
+    mean(dim=-1, keepdims=false) {
+        const operation = new Mean();
+        return operation.forward(this, dim, keepdims);
+    };
+
+    /**
+     * Gets the variance of the Tensor over a specified dimention.
+     * @param {number} dim - Dimention to get variance over.
+     * @param {boolean} keepdims - Wether to keep dimentions of original tensor.
+     * @returns {Tensor} - Final tensor.
+     */
+    variance(dim=-1, keepdims=false) {
+        const operation = new Variance();
+        return operation.forward(this, dim, keepdims);
+    };
+
+    /**
      * Add integer or other Tensor to this Tensor.
      * @param {any} other - Tensor or integer to be added to this Tensor.
      * @returns {object} New tensor.
@@ -165,6 +192,17 @@ class Tensor {
         const operation = new Add();
         return operation.forward(this, other);
     };
+
+    /**
+     * Subtract integer or other Tensor from this Tensor.
+     * @param {any} other - Tensor or integer to be subtracted from this Tensor.
+     * @returns {object} New tensor.
+     */
+    sub(other) {
+        if (typeof other === 'number') {return this.add(-other)};
+        return this.add(other.neg());
+    };
+
 
     /**
      * Get element-wise opposite of given tensor ( every element * (-1) )
@@ -216,6 +254,15 @@ class Tensor {
     };
 
     /**
+     * Get element-wise square root of given tensor.
+     * @returns {object} New tensor.
+     */
+    sqrt() {
+        const operation = new Sqrt();
+        return operation.forward(this);   
+    };
+    
+    /**
      * Get element-wise exponentiation of given tensor ( e^(every element) )
      * @returns {object} New tensor.
      */
@@ -245,9 +292,9 @@ class Tensor {
     };
 
     /**
-     * In a 2D tensor, returns a list of elements in [index1][index2];
+     * In a tensor, returns a list of elements in [index1], or [index1][index2];
      * @param {object} index1 - List containing indexes to extract data from in first dimension.
-     * @param {object} index2 - List containing indexes to extract data from in second dimension
+     * @param {object} index2 - List containing indexes to extract data from in second dimension [OPTIONAL].
      * @returns {object} New tensor.
      * @example 
      * let a = tensor([[1,1,2,3],
@@ -255,12 +302,41 @@ class Tensor {
      * 
      * // Returns tensor([2,6,9]):
      * a.at([0,1,1], [2,0,3])
+     * 
+     * // Returns tensor([[1,1,2,3],
+     *                    [6,7,8,9],
+     *                    [1,1,2,3]])
+     * a.at([0,1,0])
      */
     at(index1, index2) {
         let operation = new At();
         return operation.forward(this, index1, index2);
     }
 
+    /**
+     * Where the "condition" function returns True in "mask" Tensor, the "value" will fill the "this" Tensor.
+     * @param {Tensor} mask - "condition" will be applied in this tensor element-wise.
+     * @param {function} condition - Function that returns True or False element-wise.
+     * @param {number} value - Value to fill Tensor when condition is met.
+     * @returns {object} New tensor.
+     * @example 
+     * let a = tensor([[1,5,2,3],
+     *                 [6,7,2,9]])
+     * 
+     * // Returns tensor([[1,0,2,3],
+     * //                 [0,0,2,0]])
+     * a.masked_fill(mask, (el) => {return el > 3}, 0)
+     */
+    masked_fill(mask, condition, value) {
+        let operation = new MaskedFill();
+        return operation.forward(this, mask, condition, value);
+    }
+
+    /**
+     * Reshape the tensor into the new shape:
+     * @param {object} shape - New tensor's shape.
+     * @returns {object} New tensor.
+     */  
     reshape(shape) {
         let operation = new Reshape();
         return operation.forward(this, shape);
@@ -337,6 +413,35 @@ function ones(shape, requires_grad=false) {
 };
 
 /**
+ * Creates new instance of a lower-triangular 2D Tensor.
+ * @param {object} shape - List containing the shape of the new tensor Tensor.
+ * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+ * @returns {object} New tensor.
+ */
+function tril(shape, requires_grad=false) {
+    let z = ones(shape, requires_grad)
+    for (let i=0 ; i < shape[0] ; i++){
+        for (let j=0 ; j < shape[0] ; j++) {
+            if (j>i) {
+                z._data[i][j] = 0;
+            };
+        };
+    };
+
+    return new Tensor(z._data, requires_grad);
+};
+
+/**
+ * Creates new instance of the Tensor class filled with numbers in a uniform distribution in ]0,1[.
+ * @param {object} shape - List containing the shape of the new tensor Tensor.
+ * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+ * @returns {object} New tensor.
+ */
+function rand(shape, requires_grad=false) {
+    return new Tensor(_tensorInitializer(shape, () => Math.random()), requires_grad);
+};
+
+/**
  * Creates new instance of the Tensor class filled with numbers in a normal distribution.
  * @param {object} shape - List containing the shape of the new tensor Tensor.
  * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
@@ -344,8 +449,6 @@ function ones(shape, requires_grad=false) {
  * @returns {object} New tensor.
  */
 function randn(shape, requires_grad=false, xavier=false,) {
-    console.log(requires_grad)
-    console.log('^^^^^^^^^^')
     return new Tensor(_tensorInitializer(shape, () => {
         let mean = Math.random() + 0.00001;
         let variance = Math.random() + 0.00001;
@@ -353,6 +456,7 @@ function randn(shape, requires_grad=false, xavier=false,) {
         if (xavier) {
             // Apply Xavier initialization to control scalar sizes:
             return num / Math.sqrt(shape[0]);
+            
         } else {
             return num;
         };
@@ -381,14 +485,14 @@ function randint(low=0, high=1, shape=[1,], requires_grad=false) {
 class Sum {
     /**
      * Gets the sum of a Tensor over a specified dimention.
-     * @param {object} a - Tensor to sum.
+     * @param {Tensor} a - Tensor to sum.
      * @param {dim} dim - Dimention to sum over.
      * @param {keepdims} keepdims - Wether to keep dimentions of original tensor.
      * @returns {Tensor} - Final tensor.
      */
     forward(a, dim, keepdims=false) {
         // Build cache to use in backward step:
-        this.cache = [a]
+        this.cache = [a, dim, keepdims]
 
         // Account for negative dimension index:
         if (dim < 0) {
@@ -398,11 +502,65 @@ class Sum {
         if (dim >= a.shape.length) {
             throw Error('Dimension larger than array.')
         };
+        // Create output tensor:
+        let z = new Tensor(
+            _sum(a._data, dim, keepdims=keepdims), // New data.
+            (a.requires_grad), // requires_grad.
+            );
+
+        // console.log("OUTPUT")
+        // console.log(z.data)
+        
+        // Connect nodes in graph:
+        z.parents.push(a);
+        a.children.push(z);
+        z.operation = this;
+        return z;
+    };
+    
+    backward(dz) {
+        // Get data from cache:
+        let [a, dim, keepdims] = this.cache;
+        
+        // Find gradients relative to "a", and pass them downstream:
+        if (a.requires_grad) {
+            
+            if (keepdims){
+                dz = dz.sum(dim);
+            };
+            
+            let da = broadcast(dz, a);
+            
+            a.backward(da);
+        };
+    };
+};
+
+class Mean {
+    /**
+     * Gets the mean of a Tensor over a specified dimention.
+     * @param {Tensor} a - Tensor to get mean from.
+     * @param {dim} dim - Dimention to get mean over.
+     * @param {keepdims} keepdims - Wether to keep dimentions of original tensor.
+     * @returns {Tensor} - Final tensor.
+     */
+    forward(a, dim, keepdims=false) {
+        // Account for negative dimension index:
+        if (dim < 0) {
+            dim = a.shape.length + dim;
+        };
+        // Return error if dimention is out of bounds:
+        if (dim >= a.shape.length) {
+            throw Error('Dimension larger than array.')
+        };
+
+        // Build cache to use in backward step:
+        this.cache = [a, dim]
 
         // Create output tensor:
         let z = new Tensor(
-            _sum(a._data, dim, keepdims),
-            (a.requires_grad),
+            _mean(a._data, dim, keepdims), // New data.
+            (a.requires_grad), // keep_dims.
             );
         
         // Connect nodes in graph:
@@ -415,12 +573,67 @@ class Sum {
     
     backward(dz) {
         // Get data from cache:
-        let [a] = this.cache;
+        let [a, dim] = this.cache;
         
+        // Find gradients relative to "a", and pass them downstream:
+        if (a.requires_grad) {
+            // Backprop through mean:
+            let da = new Tensor (_div(dz.data, a.shape[dim]));
+            // Expand upstream gradients to the shape of "a":
+            da = broadcast(da, a);
+            a.backward(da);
+        };
+    };
+};
+
+class Variance {
+    /**
+     * Gets the variance of a Tensor over a specified dimention.
+     * @param {Tensor} a - Tensor to get variance of.
+     * @param {dim} dim - Dimention to get variance over.
+     * @param {keepdims} keepdims - Wether to keep dimentions of original tensor.
+     * @returns {Tensor} - Final tensor.
+     */
+    forward(a, dim, keepdims=false) {
+        // Account for negative dimension index:
+        if (dim < 0) {
+            dim = a.shape.length + dim;
+        };
+        // Return error if dimention is out of bounds:
+        if (dim >= a.shape.length) {
+            throw Error('Dimension larger than array.')
+        };
+
+        // Build cache to use in backward step:
+        this.cache = [a, dim];
+
+        // Create output tensor:
+        let z = new Tensor(
+            _variance(a._data, dim, keepdims), // New data.
+            (a.requires_grad), // keep_dims.
+            );
+        
+        // Connect nodes in graph:
+        z.parents.push(a);
+        a.children.push(z);
+        z.operation = this;
+
+        return z;
+    };
+    
+    backward(dz) {
+        // Get data from cache:
+        let [a, dim] = this.cache;
         // Find gradients relative to "a", and pass them downstream:
         if (a.requires_grad) {
             // Expand upstream gradients to the shape of "a":
             let da = broadcast(dz, a);
+            // Backprop through variance:
+            let err = _add(a._data, _neg(_mean(a._data, dim, true)));
+            let var_err = _mul(_mul(da._data, 2), err)
+            da = _div(var_err, a.shape[dim]);
+            // Create new "da" Tensor:
+            da = new Tensor(da);
             a.backward(da);
         };
     };
@@ -589,12 +802,17 @@ class Div {
 
         let aData = utils.getData(a); 
         let bData = utils.getData(b);
+        // console.log("INTO DIVV <<<<<<<<<<<<<<.>>>>>>>>>>>>>>")
+        // console.log(bData)
 
         // Call recursive function:
         let z = new Tensor(
             _div(aData, bData), // data;
             (a.requires_grad || b.requires_grad), // requires_grad;
             );
+        // console.log("DONE DIVV <<<<<<<<<<<<<<.>>>>>>>>>>>>>> //////////")
+        // console.log(z.shape)
+        // console.log(z.data[0])
 
         // Connect nodes in graph:
         if (a instanceof Tensor){
@@ -607,8 +825,6 @@ class Div {
         };
         z.operation = this;
 
-    
-
         return z;
     };
 
@@ -616,11 +832,18 @@ class Div {
         // Get data from cache:
         let [a, b] = this.cache;
 
-
         // Find gradients relative to "a", and pass it downstream:
         if (a.requires_grad) {
             // d/da(a/b) = (1/b), apply chain rule:
             let da = new Tensor (_mul(dz.data, _div(1, utils.getData(b))));
+
+            // console.log("BACKWARD DIVVV <<<<<<<<.>>>>>>>>")
+            // console.log(dz.data[0])
+            // console.log('da =======')
+            // console.log(da.data[0])
+            // console.log('bbbbbbbb')
+            // console.log(utils.getData(b))
+
             // Rescale gradient to have the same shape as "a":
             da = broadcast(da, a);
             a.backward(da);
@@ -631,51 +854,17 @@ class Div {
             // d/db(a/b) = -(a/b^2), apply chain rule:
             let db = new Tensor(_mul(dz.data, _neg(_div(utils.getData(a), _pow(utils.getData(b), 2)))));
             // Rescale gradient to have the same shape as "b":
-            // console.log('db >>>>>>>')
-            // console.log(db.shape)
-            // console.log('b> >> > >')
-            // console.log(b.shape)
             db = broadcast(db, b);
+            
+            // console.log("BACKWARD DIVVV <<<<<<<<.>>>>>>>>")
+            // console.log(dz.data[0])
+            // console.log('da =======')
+            // console.log(db.data[0])
+            // console.log('db BROADCASTED =======++++++++++++')
+            // console.log(db.data)
+            
             b.backward(db);
         };  
-    };
-};
-
-class Exp {
-    /**
-     * Get element-wise exponentiation of given tensor ( e^(every element) )
-     * @param {object} a - Tensor to be exponentiated.
-     * @returns {object} New tensor.
-     */
-    forward(a) {
-        // Build cache to use in backward step:
-        this.cache = a;
-
-        // Call recursive function:
-        let z = new Tensor(
-            _exp(a._data), // data;
-            a.requires_grad // requires_grad;
-            );
-
-        // Connect nodes in graph:
-        z.parents.push(a)
-        z.operation = this;
-        a.children.push(z)
-        
-
-        return z;
-    };
-
-    backward(dz) {
-        // Get data from cache:
-        let a = this.cache;
-        
-        // Find gradients relative to "a", and pass them downstream:
-        if (a.requires_grad) {
-            // d/da(e^a) = e^a, apply the chain rule to the derivative of e^a:
-            let da = new Tensor(_mul(_exp(a.data), dz.data));
-            a.backward(da);
-        };
     };
 };
 
@@ -713,6 +902,82 @@ class Pow {
         if (a.requires_grad) {
             // d/da(e^a) = e^a, apply the chain rule to the derivative of e^a:
             let da = new Tensor (_mul(2, _mul(a.data, dz.data)));
+            a.backward(da);
+        };
+    };
+};
+
+class Sqrt {
+    /**
+     * Get element-wise square root of given tensor
+     * @param {object} a - Tensor to be square rooted.
+     * @returns {object} New tensor.
+     */
+    forward(a) {
+        // Build cache to use in backward step:
+        this.cache = a;
+
+        // Call recursive function:
+        let z = new Tensor(
+            _sqrt(a._data), // data;
+            a.requires_grad // requires_grad;
+            );
+
+        // Connect nodes in graph:
+        z.parents.push(a)
+        z.operation = this;
+        a.children.push(z)
+        
+
+        return z;
+    };
+
+    backward(dz) {
+        // Get data from cache:
+        let a = this.cache;
+        
+        // Find gradients relative to "a", and pass them downstream:
+        if (a.requires_grad) {
+            // d/da(sqrt(a)) = (1/2) *  (1/sqrt(a)), apply the chain rule to the derivative of e^a:
+            let da = new Tensor(_mul(_mul(_div(1,2), _div(1,_sqrt(a.data))), dz.data));
+            a.backward(da);
+        };
+    };
+};
+
+class Exp {
+    /**
+     * Get element-wise exponentiation of given tensor ( e^(every element) )
+     * @param {object} a - Tensor to be exponentiated.
+     * @returns {object} New tensor.
+     */
+    forward(a) {
+        // Build cache to use in backward step:
+        this.cache = a;
+
+        // Call recursive function:
+        let z = new Tensor(
+            _exp(a._data), // data;
+            a.requires_grad // requires_grad;
+            );
+
+        // Connect nodes in graph:
+        z.parents.push(a)
+        z.operation = this;
+        a.children.push(z)
+        
+
+        return z;
+    };
+
+    backward(dz) {
+        // Get data from cache:
+        let a = this.cache;
+        
+        // Find gradients relative to "a", and pass them downstream:
+        if (a.requires_grad) {
+            // d/da(e^a) = e^a, apply the chain rule to the derivative of e^a:
+            let da = new Tensor(_mul(_exp(a.data), dz.data));
             a.backward(da);
         };
     };
@@ -878,7 +1143,7 @@ class MatMul {
 }
 
 class At {
-    forward(a, idx1, idx2) {
+    forward(a, idx1, idx2=null) {
         // Make sure index lists are JavaScript arrays:
         idx1 = utils.assureArray(idx1);
         idx2 = utils.assureArray(idx2);
@@ -910,17 +1175,48 @@ class At {
 
             // Add derivatives to the original places from a:
             for (let i=0 ; i < dz.length ; i++) {
-                // console.log('===========')
-                // console.log(i)
-                // console.log(idx1[i])
-                // console.log(idx2[i])
-                // console.log(dz._data[i])
-                da._data[idx1[i]][idx2[i]] = dz._data[i];
+                // If there is a second index, add to each [i][j] coordinate (2D):
+                if (idx2 != null) {
+                    da._data[idx1[i]][idx2[i]] = dz._data[i];
+                // If there is not a second index, add to each [i] coordinate (1D):
+                } else {
+                    da._data[idx1[i]] = dz._data[i];
+                }
+                
             }
-            // console.log('=========================== <<<<<<<<<<<<<DDDDDAAAAA>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-            // console.log(da.data)
-            // console.log(dz.data)
-            // console.log('<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<dz>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+            a.backward(da);
+        };
+    };
+};
+
+class MaskedFill {
+    forward(a, mask, condition, value) {
+        // Build cache to use in backward step:
+        this.cache = [a, mask, condition];
+
+        // Call function:
+        let z = new Tensor(
+            _masked_fill(a._data, mask._data, condition, value), // data;
+            a.requires_grad // requires_grad;
+            );
+
+        // Connect nodes in graph:
+        z.parents.push(a);
+        z.operation = this;
+        a.children.push(z);
+        
+
+        return z;
+    };
+
+    backward(dz) {
+        // Get data from cache:
+        let [a, mask, condition] = this.cache;
+        // Find gradients relative to "a", and pass them downstream:
+        if (a.requires_grad) {
+            // Set gradients of all reset values to zero: 
+            let da = new Tensor (_masked_fill(dz._data, mask._data, condition, 0));
+            
             a.backward(da);
         };
     };
@@ -965,21 +1261,56 @@ class Reshape {
 
 /**
  * Gets the sum of the Tensor over a specified dimention.
+ * @param {Tensor} a - Original Tensor.
  * @param {number} dim - Dimention to sum over.
  * @param {boolean} keepdims - Wether to keep dimentions of original tensor.
  * @returns {Tensor} - Final tensor.
  */
 function sum(a, dim=-1, keepdims=false) {
-    return a.sum(dim=-1, keepdims=keepdims)
+    return a.sum(dim, keepdims)
 };
 
 /**
+ * Gets the mean of the Tensor over a specified dimention.
+ * @param {Tensor} a - Original Tensor.
+ * @param {number} dim - Dimention to get mean over.
+ * @param {boolean} keepdims - Wether to keep dimentions of original tensor.
+ * @returns {Tensor} - Final tensor.
+ */
+function mean(a, dim=-1, keepdims=false) {
+    return a.mean(dim, keepdims)
+};
+
+/**
+ * Gets the variance of the Tensor over a specified dimention.
+ * @param {Tensor} a - Original Tensor.
+ * @param {number} dim - Dimention to get variance over.
+ * @param {boolean} keepdims - Wether to keep dimentions of original tensor.
+ * @returns {Tensor} - Final tensor.
+ */
+function variance(a, dim=-1, keepdims=false) {
+    return a.variance(dim, keepdims)
+};
+
+
+/**
  * Add integer or other Tensor to this Tensor.
- * @param {any} other - Tensor or integer to be added to this Tensor.
+ * @param {Tensor} a - Original Tensor.
+ * @param {any} b - Tensor or integer to be added to this Tensor.
  * @returns {object} New tensor.
  */
-function add(a, b, keepdims=false) {
+function add(a, b) {
     return a.add(b);
+};
+
+/**
+ * Subtract integer or other Tensor from this Tensor.
+ * @param {Tensor} a - Original Tensor.
+ * @param {any} b - Tensor or integer to be subtracted from this Tensor.
+ * @returns {object} New tensor.
+ */
+function sub(a, b) {
+    return a.sub(b);
 };
 
 /**
@@ -1021,6 +1352,15 @@ function pow(a, n) {
 };
 
 /**
+ * Get element-wise square root of given tensor.
+ * @param {object} a - Tensor to be square rooted.
+ * @returns {object} New tensor.
+ */
+function sqrt(a) {
+    return a.sqrt();
+};
+
+/**
  * Get element-wise exponentiation of given tensor ( e^(every element) )
  * @param {object} a - Tensor to be exponentiated.
  * @returns {object} New tensor.
@@ -1059,10 +1399,10 @@ function transpose(a, dim1, dim2) {
 };
 
 /**
- * In a 2D tensor, returns a list of elements in [index1][index2];
- * @param {Tensor} a - Tensor to be sliced.
- * @param {object} idx1 - List containing indexes to extract data from in first dimension.
- * @param {object} idx2 - List containing indexes to extract data from in second dimension
+ * In a tensor, returns a list of elements in [index1], or [index1][index2];
+ * @param {Tensor} a - Original Tensor.
+ * @param {object} index1 - List containing indexes to extract data from in first dimension.
+ * @param {object} index2 - List containing indexes to extract data from in second dimension [OPTIONAL].
  * @returns {object} New tensor.
  * @example 
  * let a = tensor([[1,1,2,3],
@@ -1070,9 +1410,33 @@ function transpose(a, dim1, dim2) {
  * 
  * // Returns tensor([2,6,9]):
  * a.at([0,1,1], [2,0,3])
+ * 
+ * // Returns tensor([[1,1,2,3],
+ * //                 [6,7,8,9],
+ * //                 [1,1,2,3]])
+ * a.at([0,1,0])
  */
 function at(a, idx1, idx2) {
     return a.at(idx1, idx2);
+};
+
+/**
+ * Where the "condition" function returns True in the "mask" Tensor, the "value" will fill the "a" Tensor.
+ * @param {Tensor} a - Original Tensor.
+ * @param {Tensor} mask - "condition" will be applied in this tensor element-wise.
+ * @param {function} condition - Function that returns True or False element-wise.
+ * @param {number} value - Value to fill Tensor when condition is met.
+ * @returns {object} New tensor.
+ * @example 
+ * let a = tensor([[1,5,2,3],
+ *                 [6,7,2,9]])
+ * 
+ * // Returns tensor([[1,0,2,3],
+ * //                 [0,0,2,0]])
+ * masked_fill(a, mask, (el) => {return el > 3}, 0)
+ */
+function masked_fill(a, mask, condition, value) {
+    return a.masked_fill(mask, condition, value);
 };
 
 /**
@@ -1088,7 +1452,6 @@ function reshape(a, shape) {
 
 
 
-
 // <<< Recursive functions for lists >>> //
 
 function _sum(a, dim, keepdims) {
@@ -1097,14 +1460,57 @@ function _sum(a, dim, keepdims) {
     // When we reach the dimention intended (dim === 0),
     // we add all elements in this dimension.
     if ( dim == 0 ) {
-        let reduced = a.reduce((a,b) => _add(a, b), 0);
+        let sum = a.reduce((a,b) => _add(a, b), 0);
+        if (keepdims) {
+            return Array(a.length).fill(sum);
+        } else {
+            return sum;
+        };
+    } else if (typeof a === 'object') {
+        return a.map((element) => _sum(element, dim - 1, keepdims))
+    } else {
+        throw Error('Dimension invalid.')
+    };
+};
+
+function _mean(a, dim, keepdims) {
+            
+    // In recursive call, when depth increases, subtract one from dim. 
+    // When we reach the dimention intended (dim === 0),
+    // we add all elements in this dimension.
+    if ( dim == 0 ) {
+        let reduced = _div(a.reduce((a,b) => _add(a, b), 0), a.length);
         if (keepdims) {
             return Array(a.length).fill(reduced);
         } else {
             return reduced;
         };
     } else if (typeof a === 'object') {
-        return a.map((element) => _sum(element, dim - 1))
+        return a.map((element) => _mean(element, dim - 1, /*, keepdims*/))
+    } else {
+        throw Error('Dimension invalid.')
+    };
+};
+
+function _variance(a, dim, keepdims) {
+            
+    // In recursive call, when depth increases, subtract one from dim. 
+    // When we reach the dimention intended (dim === 0),
+    // we add all elements in this dimension.
+    if ( dim == 0 ) {
+        // Get mean over current dim:
+        let mean = _div(a.reduce((a,b) => _add(a, b), 0), a.length);
+        // Get square difference to mean over current dim:
+        let squares = a.map((el) => (el-mean)**2);
+        // Get mean of square differences over current dim:
+        let variance = _div(squares.reduce((a,b) => _add(a, b), 0), a.length);
+        if (keepdims) {
+            return Array(a.length).fill(variance);
+        } else {
+            return variance;
+        };
+    } else if (typeof a === 'object') {
+        return a.map((element) => _variance(element, dim - 1, /*keepdims*/))
     } else {
         throw Error('Dimension invalid.')
     };
@@ -1322,6 +1728,17 @@ function _pow(a, n) {
     return z;
 };
 
+function _sqrt(a) {
+    // If a is a number, take square root of it. If not, take root of all of its elements:
+    if (typeof a === 'number') {
+        return Math.sqrt(a);
+    } else if (typeof a === 'object') {
+        return a.map((element) => _sqrt(element));
+    } else {
+        throw new TypeError('the input data is not a number.');
+    };
+};
+
 function _exp(a) {
     // If a is a number, exponentiate it. If not, exponentiate all of its elements:
     if (typeof a === 'number') {
@@ -1370,8 +1787,27 @@ function _at(a, idx1, idx2) {
     if (idx2 instanceof Tensor) {
         idx2 = idx2.data;
     };
-    // Fill a new array in position "N" with a[idx1[N]][idx2[N]]
-    return Array(idx1.length).fill(0).map((_, i) => a[idx1[i]][idx2[i]]);
+    // If there is a second index, fill a new array in position "N" with a[idx1[N]][idx2[N]] (2 Dims):
+    if (idx2 != null) {
+        return Array(idx1.length).fill(0).map((_, i) => a[idx1[i]][idx2[i]]);
+    // If there is no second index, fill a new array in position "N" with a[idx1[N]] (1 Dim):
+    } else {
+        return Array(idx1.length).fill(0).map((_, i) => a[idx1[i]]);
+    }
+};
+
+function _masked_fill(a, mask, condition, value) {
+    // If a is a number, test "condition" on it. If not, recursive step to all of its elements:
+    if (typeof mask === 'number') {
+        if (typeof a != 'number') { throw new Error('Tensor and Mask not broadcastable') };
+        if (condition(mask)) {
+            return value;
+        } else {
+            return a;
+        };
+    } else if (typeof a === 'object') {
+        return a.map((element, idx) => _masked_fill(element, mask[idx], condition, value));
+    } else { throw new Error('The input data is not a number.') };
 };
 
 function _reshape(a, shape) {
@@ -1412,19 +1848,6 @@ function _reshape(a, shape) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 // <<< Helper Functions >>> //
 
 /**
@@ -1440,84 +1863,6 @@ function _reshape(a, shape) {
  * // Returns tensor with shape [4,5,3,1]:
  * broadcast(ones([5,3,2]), ones([4,5,3,1]));
  */
-// function broadcast(a, b){
-//     // Define variable to be broadcast:
-//     let out = new Tensor(a.data);
-//     // While shapes are different, keep stretching/contracting:
-//     while (JSON.stringify(out.shape) != JSON.stringify(b.shape)) {
-//         // console.log('<shapes>')
-//         // console.log(out.shape)
-//         // console.log(b.shape)
-//         // console.log('</shapes>')
-//         // Get dimentions of input and output:
-//         let aDim = out.shape.length;
-//         let bDim = b.shape.length;
-//         // Broadcast down (compress/sum) if output is smaller:
-//         if (bDim < aDim) {
-//             for (let _ = 0; _ < (aDim - bDim); _++) {
-//                 out = out.sum(0);
-//             };
-                
-//             for (let n=0; n <  a.shape.length ; n++) {
-//                 if (a.shape[n] === 1) {
-//                     out = out.sum(n, keepdims=true);
-//                 };
-//             };
-//         // Broadcast up (expand) if output is larger:
-//         } else if (bDim > aDim) {
-//             // Define recursive function to search for missing dimension:
-//             function _broadcast (outElement, bElement) {
-//                 if (bElement.length != outElement.length) {
-//                     // Base case, create new dimention:
-//                     emptyArray = Array(bElement.length).fill(zeros);
-//                     return emptyArray.map(() => outElement);
-//                 } else {
-//                     // Recursive case:
-//                     if (typeof outElement === 'object'){
-//                         // Keep looking inside each element:
-//                         return outElement.map((element, idx) => _broadcast(element, bElement[idx]));
-//                     } else if (typeof outElement === 'number') {
-//                         return [null].map((element, idx) => _broadcast(element, bElement[idx]));
-//                     };
-//                 };
-//             };
-//             out = new Tensor(_broadcast(out.data, b.data), requires_grad = a.requires_grad);
-//         // Expand or contract within dimention:
-//         } else if (bDim === aDim) {
-//             // Define recursive function to find dimension with length 1:
-//             function _broadcast (outElement, bElement) {
-//                 if (bElement.length != outElement.length) {
-//                     if (bElement.length === 1){
-//                         // Base case, contract existing dimention:
-//                         return [_sum(outElement, 0),];
-//                     } else if (outElement.length === 1){
-//                         // Base case, expand existing dimention:
-//                         emptyArray = Array(bElement.length).fill(zeros);
-//                         return emptyArray.map(() => outElement[0]);
-//                     } else { Error(`Shapes ${out.shape} and ${b.shape} not broadcastable.`) }
-//                 } else {
-//                     // Recursive case:
-//                     if (typeof outElement === 'object'){
-//                         // Keep looking inside each element:
-//                         return outElement.map((element, idx) => _broadcast(element, bElement[idx]));
-//                     } else if (typeof outElement === 'number') {
-//                         // In case the element is a number:
-//                         return [null].map((element, idx) => _broadcast(element, bElement[idx]));
-//                     };
-//                 };
-//             };
-//             // Return final broadcast tensor:
-//             out = new Tensor(_broadcast(out.data, b.data), requires_grad = a.requires_grad);
-//         };
-//     };
-//     return out;
-// }
-
-
-
-
-
-
 function broadcast (a,b) {
     function _broadcast(out, b) {
         // console.log('new ITER >>>><<<<')
@@ -1609,12 +1954,6 @@ function broadcast (a,b) {
     return new Tensor(out);
 };
 
-
-
-
-
-
-
 /**
  * Adds new dimensions to "a" until it's depth matches "b".
  * @param {object} a - First tensor, will be broadcast into dims of second.
@@ -1643,18 +1982,5 @@ function broadcastUp (inElement, outElement) {
     return inElement;
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-module.exports = { Tensor, add, neg, mul, div, matMul, exp, log, transpose, at, reshape, _reshape, tensor, zeros, ones, randn, randint, broadcast  };
+module.exports = { Tensor, Parameter, add, neg, mul, div, matMul, exp, log, sqrt, pow, transpose, at, reshape, _reshape, tensor, zeros, ones, tril, rand, randn, randint, broadcast  };
 
