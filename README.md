@@ -4,8 +4,8 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/eduardoleao052/autograd-from-scratch/actions/workflows/test.yml/badge.svg" alt="Unit Tests">
-        <img src="https://github.com/eduardoleao052/autograd-from-scratch/actions/workflows/test.yml/badge.svg" /></a>
+    <a href="https://github.com/eduardoleao052/js-torch/actions/workflows/test.yml/badge.svg" alt="Unit Tests">
+        <img src="https://github.com/eduardoleao052/js-torch/actions/workflows/test.yml/badge.svg" /></a>
     <a href="https://github.com/eduardoleao052/autograd-from-scratch/pulse" alt="Activity">
         <img src="https://img.shields.io/github/commit-activity/m/eduardoleao052/autograd-from-scratch" /></a>
     <a href="https://github.com/eduardoleao052/autograd-from-scratch/graphs/contributors" alt="Contributors">
