@@ -28,9 +28,11 @@ JS-Torch is a Deep Learning __JavaScript library__ built from scratch, to closel
 - Various Functions.
 - Automatic Differentiation.
 
+Feel free to browse through the implemented operations, all capable of automatic backpropagation:
+
 <br/>
 <details>
-<summary> Feel free to browse through the implemented <b>basic operations</b>: </summary>
+<summary> <b>Basic operations</b>: </summary>
 
 
 <br/>
