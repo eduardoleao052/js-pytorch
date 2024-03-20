@@ -385,7 +385,7 @@ class Parameter extends Tensor {
 
 
 
-// <<< Tensor Operations >>> //
+// <<< Basic Operations >>> //
 
 class Add {
 
@@ -684,6 +684,171 @@ class MatMul {
     };
 }
 
+class Pow {
+    /**
+     * Get tensor to element-wise power of n.
+     * @param {object} a - Tensor to be elevated to the power of n.
+     * @param {number} n - Exponent.
+     * @returns {object} New tensor.
+     */
+    forward(a, n) {
+        // Build cache to use in backward step:
+        this.cache = a;
+
+        // Call recursive function:
+        let z = new Tensor(
+            _pow(a._data, n), // data;
+            a.requires_grad // requires_grad;
+            );
+
+        // Connect nodes in graph:
+        if (a.requires_grad) {
+            z.parents.push(a);
+            a.children.push(z);
+            z.operation = this;
+        };
+        
+
+        return z;
+    };
+
+    backward(dz, z) {
+        // Get data from cache:
+        let a = this.cache;
+        
+        // Find gradients relative to "a", and pass them downstream:
+        if (a.requires_grad) {
+            // d/da(e^a) = e^a, apply the chain rule to the derivative of e^a:
+            let da = new Tensor (_mul(2, _mul(a.data, dz.data)));
+            a.backward(da, z);
+        };
+    };
+};
+
+class Sqrt {
+    /**
+     * Get element-wise square root of given tensor
+     * @param {object} a - Tensor to be square rooted.
+     * @returns {object} New tensor.
+     */
+    forward(a) {
+        // Build cache to use in backward step:
+        this.cache = a;
+
+        // Call recursive function:
+        let z = new Tensor(
+            _sqrt(a._data), // data;
+            a.requires_grad // requires_grad;
+            );
+
+        // Connect nodes in graph:
+        if (a.requires_grad) {
+            z.parents.push(a);
+            a.children.push(z);
+            z.operation = this;
+        };
+        
+
+        return z;
+    };
+
+    backward(dz, z) {
+        // Get data from cache:
+        let a = this.cache;
+        
+        // Find gradients relative to "a", and pass them downstream:
+        if (a.requires_grad) {
+            // d/da(sqrt(a)) = (1/2) *  (1/sqrt(a)), apply the chain rule to the derivative of e^a:
+            let da = new Tensor(_mul(_mul(_div(1,2), _div(1,_sqrt(a.data))), dz.data));
+            a.backward(da, z);
+        };
+    };
+};
+
+class Exp {
+    /**
+     * Get element-wise exponentiation of given tensor ( e^(every element) )
+     * @param {object} a - Tensor to be exponentiated.
+     * @returns {object} New tensor.
+     */
+    forward(a) {
+        // Build cache to use in backward step:
+        this.cache = a;
+
+        // Call recursive function:
+        let z = new Tensor(
+            _exp(a._data), // data;
+            a.requires_grad // requires_grad;
+            );
+
+        // Connect nodes in graph:
+        if (a.requires_grad) {
+            z.parents.push(a);
+            a.children.push(z);
+            z.operation = this;
+        };
+        
+
+        return z;
+    };
+
+    backward(dz, z) {
+        // Get data from cache:
+        let a = this.cache;
+        
+        // Find gradients relative to "a", and pass them downstream:
+        if (a.requires_grad) {
+            // d/da(e^a) = e^a, apply the chain rule to the derivative of e^a:
+            let da = new Tensor(_mul(_exp(a.data), dz.data));
+            a.backward(da, z);
+        };
+    };
+};
+
+class Log {
+    /**
+     * Get element-wise natural log of given tensor ( ln(every element) )
+     * @param {object} a - Tensor we will take the log of.
+     * @returns {object} New tensor.
+     */
+    forward(a) {
+        // Build cache to use in backward step:
+        this.cache = a;
+
+        // Call recursive function:
+        let z = new Tensor(
+            _log(a._data), // data;
+            a.requires_grad // requires_grad;
+            );
+
+        // Connect nodes in graph:
+        if (a.requires_grad) {
+            z.parents.push(a);
+            a.children.push(z);
+            z.operation = this;
+        };
+        
+
+        return z;
+    };
+
+    backward(dz, z) {
+        // Get data from cache:
+        let a = this.cache;
+        
+        // Find gradients relative to "a", and pass them downstream:
+        if (a.requires_grad) {
+            // d/da(ln(a)) = (1/a), apply the chain rule to the derivative of the natural log:
+            let da = new Tensor (_mul(_div(1, a.data), dz.data));
+
+            a.backward(da, z);
+        };
+    };
+};
+
+// <<< Tensor Statistics >>> //
+
+
 class Sum {
     /**
      * Gets the sum of a Tensor over a specified dimention.
@@ -848,167 +1013,7 @@ class Variance {
     };
 };
 
-class Pow {
-    /**
-     * Get tensor to element-wise power of n.
-     * @param {object} a - Tensor to be elevated to the power of n.
-     * @param {number} n - Exponent.
-     * @returns {object} New tensor.
-     */
-    forward(a, n) {
-        // Build cache to use in backward step:
-        this.cache = a;
-
-        // Call recursive function:
-        let z = new Tensor(
-            _pow(a._data, n), // data;
-            a.requires_grad // requires_grad;
-            );
-
-        // Connect nodes in graph:
-        if (a.requires_grad) {
-            z.parents.push(a);
-            a.children.push(z);
-            z.operation = this;
-        };
-        
-
-        return z;
-    };
-
-    backward(dz, z) {
-        // Get data from cache:
-        let a = this.cache;
-        
-        // Find gradients relative to "a", and pass them downstream:
-        if (a.requires_grad) {
-            // d/da(e^a) = e^a, apply the chain rule to the derivative of e^a:
-            let da = new Tensor (_mul(2, _mul(a.data, dz.data)));
-            a.backward(da, z);
-        };
-    };
-};
-
-class Sqrt {
-    /**
-     * Get element-wise square root of given tensor
-     * @param {object} a - Tensor to be square rooted.
-     * @returns {object} New tensor.
-     */
-    forward(a) {
-        // Build cache to use in backward step:
-        this.cache = a;
-
-        // Call recursive function:
-        let z = new Tensor(
-            _sqrt(a._data), // data;
-            a.requires_grad // requires_grad;
-            );
-
-        // Connect nodes in graph:
-        if (a.requires_grad) {
-            z.parents.push(a);
-            a.children.push(z);
-            z.operation = this;
-        };
-        
-
-        return z;
-    };
-
-    backward(dz, z) {
-        // Get data from cache:
-        let a = this.cache;
-        
-        // Find gradients relative to "a", and pass them downstream:
-        if (a.requires_grad) {
-            // d/da(sqrt(a)) = (1/2) *  (1/sqrt(a)), apply the chain rule to the derivative of e^a:
-            let da = new Tensor(_mul(_mul(_div(1,2), _div(1,_sqrt(a.data))), dz.data));
-            a.backward(da, z);
-        };
-    };
-};
-
-class Exp {
-    /**
-     * Get element-wise exponentiation of given tensor ( e^(every element) )
-     * @param {object} a - Tensor to be exponentiated.
-     * @returns {object} New tensor.
-     */
-    forward(a) {
-        // Build cache to use in backward step:
-        this.cache = a;
-
-        // Call recursive function:
-        let z = new Tensor(
-            _exp(a._data), // data;
-            a.requires_grad // requires_grad;
-            );
-
-        // Connect nodes in graph:
-        if (a.requires_grad) {
-            z.parents.push(a);
-            a.children.push(z);
-            z.operation = this;
-        };
-        
-
-        return z;
-    };
-
-    backward(dz, z) {
-        // Get data from cache:
-        let a = this.cache;
-        
-        // Find gradients relative to "a", and pass them downstream:
-        if (a.requires_grad) {
-            // d/da(e^a) = e^a, apply the chain rule to the derivative of e^a:
-            let da = new Tensor(_mul(_exp(a.data), dz.data));
-            a.backward(da, z);
-        };
-    };
-};
-
-class Log {
-    /**
-     * Get element-wise natural log of given tensor ( ln(every element) )
-     * @param {object} a - Tensor we will take the log of.
-     * @returns {object} New tensor.
-     */
-    forward(a) {
-        // Build cache to use in backward step:
-        this.cache = a;
-
-        // Call recursive function:
-        let z = new Tensor(
-            _log(a._data), // data;
-            a.requires_grad // requires_grad;
-            );
-
-        // Connect nodes in graph:
-        if (a.requires_grad) {
-            z.parents.push(a);
-            a.children.push(z);
-            z.operation = this;
-        };
-        
-
-        return z;
-    };
-
-    backward(dz, z) {
-        // Get data from cache:
-        let a = this.cache;
-        
-        // Find gradients relative to "a", and pass them downstream:
-        if (a.requires_grad) {
-            // d/da(ln(a)) = (1/a), apply the chain rule to the derivative of the natural log:
-            let da = new Tensor (_mul(_div(1, a.data), dz.data));
-
-            a.backward(da, z);
-        };
-    };
-};
+// <<< Tensor Operations >>> //
 
 class Transpose {
     /**
