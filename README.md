@@ -1,4 +1,4 @@
-<img src="./assets/icon.png" alt="js-torch" height="125">
+<img src="./assets/icon.png" align="center" alt="js-torch" height="125">
 
 # js-torch
 A JavaScript library built from scratch to closely follow Pytorch's syntax.
