@@ -10,7 +10,7 @@
         <img src="https://img.shields.io/github/commit-activity/m/eduardoleao052/js-torch" /></a>
     <a href="https://github.com/eduardoleao052/js-torch/graphs/contributors" alt="Contributors">
         <img src="https://img.shields.io/github/contributors/eduardoleao052/js-torch" /></a>
-    <a href="https://www.javascript.org/">
+    <a href="https://https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/">
         <img src="https://img.shields.io/badge/language-JavaScript-yellow">
     </a>
     <a href="mailto:eduardoleao052@usp.br">
