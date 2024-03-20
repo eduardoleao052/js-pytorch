@@ -6,12 +6,12 @@
 <p align="center">
     <a href="https://github.com/eduardoleao052/js-torch/actions/workflows/test.yml/badge.svg" alt="Unit Tests">
         <img src="https://github.com/eduardoleao052/js-torch/actions/workflows/test.yml/badge.svg" /></a>
-    <a href="https://github.com/eduardoleao052/autograd-from-scratch/pulse" alt="Activity">
-        <img src="https://img.shields.io/github/commit-activity/m/eduardoleao052/autograd-from-scratch" /></a>
-    <a href="https://github.com/eduardoleao052/autograd-from-scratch/graphs/contributors" alt="Contributors">
-        <img src="https://img.shields.io/github/contributors/eduardoleao052/autograd-from-scratch" /></a>
-    <a href="https://www.python.org/">
-        <img src="https://img.shields.io/badge/language-Python-blue">
+    <a href="https://github.com/eduardoleao052/js-torch/pulse" alt="Activity">
+        <img src="https://img.shields.io/github/commit-activity/m/eduardoleao052/js-torch" /></a>
+    <a href="https://github.com/eduardoleao052/js-torch/graphs/contributors" alt="Contributors">
+        <img src="https://img.shields.io/github/contributors/eduardoleao052/js-torch" /></a>
+    <a href="https://www.javascript.org/">
+        <img src="https://img.shields.io/badge/language-JavaScript-yellow">
     </a>
     <a href="mailto:eduardoleao052@usp.br">
         <img src="https://img.shields.io/badge/-Email-red?style=flat-square&logo=gmail&logoColor=white">
