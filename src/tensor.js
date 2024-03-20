@@ -385,289 +385,7 @@ class Parameter extends Tensor {
 
 
 
-
-// <<< Tensor Initialization Methods >>> //
-
-/**
- * Generic initializer, creates new instance of the Tensor class, filling up a shape with a value.
- * @param {object} shape - List containing the shape of the new tensor Tensor.
- * @param {function} valueFunc - Function that returns number to fill up the Tensor.
- * @returns {object} New tensor.
- */
-function _tensorInitializer(shape, valueFunc) {
-    if (shape.length === 1) {
-        let emptyArray = Array(shape[0]).fill(0)
-        return emptyArray.map(() => valueFunc())
-    } else {
-        let currentSize = shape[0]
-        let emptyArray = Array(currentSize).fill(0)
-        return emptyArray.map(() => _tensorInitializer(shape.slice(1), valueFunc))
-    }
-}
-
-/**
- * Creates new instance of the Tensor class.
- * @param {object} data - Iterable containing the data to be stored in the Tensor.
- * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
- * @returns {object} New tensor.
- */
-function tensor(data, requires_grad=false) {
-    return new Tensor(data, requires_grad);
-};
-
-/**
- * Creates new instance of the Tensor class filled with only zeros.
- * @param {object} shape - List containing the shape of the new tensor Tensor.
- * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
- * @returns {object} New tensor.
- */
-function zeros(shape, requires_grad=false) {
-    return new Tensor(_tensorInitializer(shape, () => 0), requires_grad);
-};
-
-/**
- * Creates new instance of the Tensor class filled with only ones.
- * @param {object} shape - List containing the shape of the new tensor Tensor.
- * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
- * @returns {object} New tensor.
- */
-function ones(shape, requires_grad=false) {
-    return new Tensor(_tensorInitializer(shape, () => 1), requires_grad);
-};
-
-/**
- * Creates new instance of a lower-triangular 2D Tensor.
- * @param {object} shape - List containing the shape of the new tensor Tensor.
- * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
- * @returns {object} New tensor.
- */
-function tril(shape, requires_grad=false) {
-    let z = ones(shape, requires_grad)
-    for (let i=0 ; i < shape[0] ; i++){
-        for (let j=0 ; j < shape[0] ; j++) {
-            if (j>i) {
-                z._data[i][j] = 0;
-            };
-        };
-    };
-
-    return new Tensor(z._data, requires_grad);
-};
-
-/**
- * Creates new instance of the Tensor class filled with numbers in a uniform distribution in ]0,1[.
- * @param {object} shape - List containing the shape of the new tensor Tensor.
- * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
- * @returns {object} New tensor.
- */
-function rand(shape, requires_grad=false) {
-    return new Tensor(_tensorInitializer(shape, () => Math.random()), requires_grad);
-};
-
-/**
- * Creates new instance of the Tensor class filled with numbers in a normal distribution.
- * @param {object} shape - List containing the shape of the new tensor Tensor.
- * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
- * @param {boolean} xavier - Wether to use xavier initialization (divide by square root of first input dimension).
- * @returns {object} New tensor.
- */
-function randn(shape, requires_grad=false, xavier=false,) {
-    return new Tensor(_tensorInitializer(shape, () => {
-        let mean = Math.random() + 0.00001;
-        let variance = Math.random() + 0.00001;
-        let num = Math.sqrt( -2.0 * Math.log( mean ) ) * Math.cos( 2.0 * Math.PI * variance );
-        if (xavier) {
-            // Apply Xavier initialization to control scalar sizes:
-            return num / Math.sqrt(shape[0]);
-            
-        } else {
-            return num;
-        };
-        }), requires_grad);
-};
-
-/**
- * Creates new instance of the Tensor class filled with random integers between low and high.
- * @param {number} low - Lowest number that can be sampled.
- * @param {number} high - One above highest number that can be sampled.
- * @param {object} shape - List containing the shape of the new tensor Tensor.
- * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
- * @returns {object} New tensor.
- */
-function randint(low=0, high=1, shape=[1,], requires_grad=false) {
-    return new Tensor(
-        _tensorInitializer(shape, () => {return Math.floor(Math.random() * (high - low)) + low}),
-        requires_grad=requires_grad);
-};
-
-
-
-
 // <<< Tensor Operations >>> //
-
-class Sum {
-    /**
-     * Gets the sum of a Tensor over a specified dimention.
-     * @param {Tensor} a - Tensor to sum.
-     * @param {dim} dim - Dimention to sum over.
-     * @param {keepdims} keepdims - Wether to keep dimentions of original tensor.
-     * @returns {Tensor} - Final tensor.
-     */
-    forward(a, dim, keepdims=false) {
-        // Build cache to use in backward step:
-        this.cache = [a, dim, keepdims]
-
-        // Account for negative dimension index:
-        if (dim < 0) {
-            dim = a.shape.length + dim;
-        };
-        // Return error if dimention is out of bounds:
-        if (dim >= a.shape.length) {
-            throw Error('Dimension larger than array.')
-        };
-        // Create output tensor:
-        let z = new Tensor(
-            _sum(a._data, dim, keepdims=keepdims), // New data.
-            (a.requires_grad), // requires_grad.
-            );
-
-        // console.log("OUTPUT")
-        // console.log(z.data)
-        
-        // Connect nodes in graph:
-        if (a.requires_grad) {
-            z.parents.push(a);
-            a.children.push(z);
-            z.operation = this;
-        };
-        
-        return z;
-    };
-    
-    backward(dz, z) {
-        // Get data from cache:
-        let [a, dim, keepdims] = this.cache;
-        
-        // Find gradients relative to "a", and pass them downstream:
-        if (a.requires_grad) {
-            
-            if (keepdims){
-                dz = dz.sum(dim);
-            };
-            
-            let da = broadcast(dz, a);
-            
-            a.backward(da, z);
-        };
-    };
-};
-
-class Mean {
-    /**
-     * Gets the mean of a Tensor over a specified dimention.
-     * @param {Tensor} a - Tensor to get mean from.
-     * @param {dim} dim - Dimention to get mean over.
-     * @param {keepdims} keepdims - Wether to keep dimentions of original tensor.
-     * @returns {Tensor} - Final tensor.
-     */
-    forward(a, dim, keepdims=false) {
-        // Account for negative dimension index:
-        if (dim < 0) {
-            dim = a.shape.length + dim;
-        };
-        // Return error if dimention is out of bounds:
-        if (dim >= a.shape.length) {
-            throw Error('Dimension larger than array.')
-        };
-
-        // Build cache to use in backward step:
-        this.cache = [a, dim]
-
-        // Create output tensor:
-        let z = new Tensor(
-            _mean(a._data, dim, keepdims), // New data.
-            (a.requires_grad), // keep_dims.
-            );
-        
-        // Connect nodes in graph:
-        if (a.requires_grad) {
-            z.parents.push(a);
-            a.children.push(z);
-            z.operation = this;
-        };
-
-        return z;
-    };
-    
-    backward(dz, z) {
-        // Get data from cache:
-        let [a, dim] = this.cache;
-        
-        // Find gradients relative to "a", and pass them downstream:
-        if (a.requires_grad) {
-            // Backprop through mean:
-            let da = new Tensor (_div(dz.data, a.shape[dim]));
-            // Expand upstream gradients to the shape of "a":
-            da = broadcast(da, a);
-            a.backward(da, z);
-        };
-    };
-};
-
-class Variance {
-    /**
-     * Gets the variance of a Tensor over a specified dimention.
-     * @param {Tensor} a - Tensor to get variance of.
-     * @param {dim} dim - Dimention to get variance over.
-     * @param {keepdims} keepdims - Wether to keep dimentions of original tensor.
-     * @returns {Tensor} - Final tensor.
-     */
-    forward(a, dim, keepdims=false) {
-        // Account for negative dimension index:
-        if (dim < 0) {
-            dim = a.shape.length + dim;
-        };
-        // Return error if dimention is out of bounds:
-        if (dim >= a.shape.length) {
-            throw Error('Dimension larger than array.')
-        };
-
-        // Build cache to use in backward step:
-        this.cache = [a, dim];
-
-        // Create output tensor:
-        let z = new Tensor(
-            _variance(a._data, dim, keepdims), // New data.
-            (a.requires_grad), // keep_dims.
-            );
-        
-        // Connect nodes in graph:
-        if (a.requires_grad) {
-            z.parents.push(a);
-            a.children.push(z);
-            z.operation = this;
-        };
-
-        return z;
-    };
-    
-    backward(dz, z) {
-        // Get data from cache:
-        let [a, dim] = this.cache;
-        // Find gradients relative to "a", and pass them downstream:
-        if (a.requires_grad) {
-            // Expand upstream gradients to the shape of "a":
-            let da = broadcast(dz, a);
-            // Backprop through variance:
-            let err = _add(a._data, _neg(_mean(a._data, dim, true)));
-            let var_err = _mul(_mul(da._data, 2), err)
-            da = _div(var_err, a.shape[dim]);
-            // Create new "da" Tensor:
-            da = new Tensor(da);
-            a.backward(da, z);
-        };
-    };
-};
 
 class Add {
 
@@ -901,6 +619,235 @@ class Div {
     };
 };
 
+class MatMul {
+    forward(a, b) {
+        // Build cache to use in backward step:
+        this.cache = [a, b];
+
+        let aData = a.data;
+        let bData = b.data;
+        // Broadcast smaller tensor to match size of larger:
+        if (a.shape.length < b.shape.length) {
+            aData = broadcastUp(aData, bData)
+        } else {
+            bData = broadcastUp(bData, aData)
+        };
+
+        // Call recursive function:
+        let z = new Tensor(
+            _matmul(aData, bData), // data;
+            (a.requires_grad || b.requires_grad), // requires_grad;
+            );
+
+        // Connect nodes in graph to parents:
+        z.parents.push(a)
+        z.parents.push(b)
+        z.operation = this;
+
+        // Connect nodes in graph to children:
+        a.children.push(z)
+        b.children.push(z)
+
+        return z;
+    };
+
+    backward(dz, z) {
+        // Get data from cache: 
+        let [a, b] = this.cache;
+        // Find gradients relative to "a", and pass it downstream:
+        if (a.requires_grad) {
+            // Define Operands:
+            let dzData = dz.data;
+            let b_T = _transpose(b.data, b.ndims-2);
+            // Broadcast smaller tensor to match size of larger:
+            b_T = broadcastUp(b_T, dzData)
+            // Backprop through the matmul:
+            let da = new Tensor (_matmul(dzData, b_T));
+            // Rescale gradient to have the same shape as "a":
+            da = broadcast(da, a)
+
+            a.backward(da, z)
+        };
+        // Find gradients relative to "a", and pass it downstream:
+        if (b.requires_grad) {
+            // Define Operands:
+            let dzData = dz.data;
+            let a_T = _transpose(a.data, a.ndims-2);
+            // Broadcast smaller tensor to match size of larger:
+            a_T = broadcastUp(a_T, dzData)
+            // Backprop through the matmul:
+            let db = new Tensor (_matmul(a_T, dzData));
+            // Rescale gradient to have the same shape as "b":
+            db = broadcast(db, b)
+            b.backward(db, z)
+        };
+    };
+}
+
+class Sum {
+    /**
+     * Gets the sum of a Tensor over a specified dimention.
+     * @param {Tensor} a - Tensor to sum.
+     * @param {dim} dim - Dimention to sum over.
+     * @param {keepdims} keepdims - Wether to keep dimentions of original tensor.
+     * @returns {Tensor} - Final tensor.
+     */
+    forward(a, dim, keepdims=false) {
+        // Build cache to use in backward step:
+        this.cache = [a, dim, keepdims]
+
+        // Account for negative dimension index:
+        if (dim < 0) {
+            dim = a.shape.length + dim;
+        };
+        // Return error if dimention is out of bounds:
+        if (dim >= a.shape.length) {
+            throw Error('Dimension larger than array.')
+        };
+        // Create output tensor:
+        let z = new Tensor(
+            _sum(a._data, dim, keepdims=keepdims), // New data.
+            (a.requires_grad), // requires_grad.
+            );
+
+        // console.log("OUTPUT")
+        // console.log(z.data)
+        
+        // Connect nodes in graph:
+        if (a.requires_grad) {
+            z.parents.push(a);
+            a.children.push(z);
+            z.operation = this;
+        };
+        
+        return z;
+    };
+    
+    backward(dz, z) {
+        // Get data from cache:
+        let [a, dim, keepdims] = this.cache;
+        
+        // Find gradients relative to "a", and pass them downstream:
+        if (a.requires_grad) {
+            
+            if (keepdims){
+                dz = dz.sum(dim);
+            };
+            
+            let da = broadcast(dz, a);
+            
+            a.backward(da, z);
+        };
+    };
+};
+
+class Mean {
+    /**
+     * Gets the mean of a Tensor over a specified dimention.
+     * @param {Tensor} a - Tensor to get mean from.
+     * @param {dim} dim - Dimention to get mean over.
+     * @param {keepdims} keepdims - Wether to keep dimentions of original tensor.
+     * @returns {Tensor} - Final tensor.
+     */
+    forward(a, dim, keepdims=false) {
+        // Account for negative dimension index:
+        if (dim < 0) {
+            dim = a.shape.length + dim;
+        };
+        // Return error if dimention is out of bounds:
+        if (dim >= a.shape.length) {
+            throw Error('Dimension larger than array.')
+        };
+
+        // Build cache to use in backward step:
+        this.cache = [a, dim]
+
+        // Create output tensor:
+        let z = new Tensor(
+            _mean(a._data, dim, keepdims), // New data.
+            (a.requires_grad), // keep_dims.
+            );
+        
+        // Connect nodes in graph:
+        if (a.requires_grad) {
+            z.parents.push(a);
+            a.children.push(z);
+            z.operation = this;
+        };
+
+        return z;
+    };
+    
+    backward(dz, z) {
+        // Get data from cache:
+        let [a, dim] = this.cache;
+        
+        // Find gradients relative to "a", and pass them downstream:
+        if (a.requires_grad) {
+            // Backprop through mean:
+            let da = new Tensor (_div(dz.data, a.shape[dim]));
+            // Expand upstream gradients to the shape of "a":
+            da = broadcast(da, a);
+            a.backward(da, z);
+        };
+    };
+};
+
+class Variance {
+    /**
+     * Gets the variance of a Tensor over a specified dimention.
+     * @param {Tensor} a - Tensor to get variance of.
+     * @param {dim} dim - Dimention to get variance over.
+     * @param {keepdims} keepdims - Wether to keep dimentions of original tensor.
+     * @returns {Tensor} - Final tensor.
+     */
+    forward(a, dim, keepdims=false) {
+        // Account for negative dimension index:
+        if (dim < 0) {
+            dim = a.shape.length + dim;
+        };
+        // Return error if dimention is out of bounds:
+        if (dim >= a.shape.length) {
+            throw Error('Dimension larger than array.')
+        };
+
+        // Build cache to use in backward step:
+        this.cache = [a, dim];
+
+        // Create output tensor:
+        let z = new Tensor(
+            _variance(a._data, dim, keepdims), // New data.
+            (a.requires_grad), // keep_dims.
+            );
+        
+        // Connect nodes in graph:
+        if (a.requires_grad) {
+            z.parents.push(a);
+            a.children.push(z);
+            z.operation = this;
+        };
+
+        return z;
+    };
+    
+    backward(dz, z) {
+        // Get data from cache:
+        let [a, dim] = this.cache;
+        // Find gradients relative to "a", and pass them downstream:
+        if (a.requires_grad) {
+            // Expand upstream gradients to the shape of "a":
+            let da = broadcast(dz, a);
+            // Backprop through variance:
+            let err = _add(a._data, _neg(_mean(a._data, dim, true)));
+            let var_err = _mul(_mul(da._data, 2), err)
+            da = _div(var_err, a.shape[dim]);
+            // Create new "da" Tensor:
+            da = new Tensor(da);
+            a.backward(da, z);
+        };
+    };
+};
+
 class Pow {
     /**
      * Get tensor to element-wise power of n.
@@ -1119,71 +1066,6 @@ class Transpose {
         };
     };
 };
-
-class MatMul {
-    forward(a, b) {
-        // Build cache to use in backward step:
-        this.cache = [a, b];
-
-        let aData = a.data;
-        let bData = b.data;
-        // Broadcast smaller tensor to match size of larger:
-        if (a.shape.length < b.shape.length) {
-            aData = broadcastUp(aData, bData)
-        } else {
-            bData = broadcastUp(bData, aData)
-        };
-
-        // Call recursive function:
-        let z = new Tensor(
-            _matmul(aData, bData), // data;
-            (a.requires_grad || b.requires_grad), // requires_grad;
-            );
-
-        // Connect nodes in graph to parents:
-        z.parents.push(a)
-        z.parents.push(b)
-        z.operation = this;
-
-        // Connect nodes in graph to children:
-        a.children.push(z)
-        b.children.push(z)
-
-        return z;
-    };
-
-    backward(dz, z) {
-        // Get data from cache: 
-        let [a, b] = this.cache;
-        // Find gradients relative to "a", and pass it downstream:
-        if (a.requires_grad) {
-            // Define Operands:
-            let dzData = dz.data;
-            let b_T = _transpose(b.data, b.ndims-2);
-            // Broadcast smaller tensor to match size of larger:
-            b_T = broadcastUp(b_T, dzData)
-            // Backprop through the matmul:
-            let da = new Tensor (_matmul(dzData, b_T));
-            // Rescale gradient to have the same shape as "a":
-            da = broadcast(da, a)
-
-            a.backward(da, z)
-        };
-        // Find gradients relative to "a", and pass it downstream:
-        if (b.requires_grad) {
-            // Define Operands:
-            let dzData = dz.data;
-            let a_T = _transpose(a.data, a.ndims-2);
-            // Broadcast smaller tensor to match size of larger:
-            a_T = broadcastUp(a_T, dzData)
-            // Backprop through the matmul:
-            let db = new Tensor (_matmul(a_T, dzData));
-            // Rescale gradient to have the same shape as "b":
-            db = broadcast(db, b)
-            b.backward(db, z)
-        };
-    };
-}
 
 class At {
     forward(a, idx1, idx2=null) {
@@ -1903,6 +1785,123 @@ function _flatten(a, flat=[]) {
     };
     return flat;
 };
+
+
+
+// <<< Tensor Initialization Methods >>> //
+
+/**
+ * Generic initializer, creates new instance of the Tensor class, filling up a shape with a value.
+ * @param {object} shape - List containing the shape of the new tensor Tensor.
+ * @param {function} valueFunc - Function that returns number to fill up the Tensor.
+ * @returns {object} New tensor.
+ */
+function _tensorInitializer(shape, valueFunc) {
+    if (shape.length === 1) {
+        let emptyArray = Array(shape[0]).fill(0)
+        return emptyArray.map(() => valueFunc())
+    } else {
+        let currentSize = shape[0]
+        let emptyArray = Array(currentSize).fill(0)
+        return emptyArray.map(() => _tensorInitializer(shape.slice(1), valueFunc))
+    }
+}
+
+/**
+ * Creates new instance of the Tensor class.
+ * @param {object} data - Iterable containing the data to be stored in the Tensor.
+ * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+ * @returns {object} New tensor.
+ */
+function tensor(data, requires_grad=false) {
+    return new Tensor(data, requires_grad);
+};
+
+/**
+ * Creates new instance of the Tensor class filled with only zeros.
+ * @param {object} shape - List containing the shape of the new tensor Tensor.
+ * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+ * @returns {object} New tensor.
+ */
+function zeros(shape, requires_grad=false) {
+    return new Tensor(_tensorInitializer(shape, () => 0), requires_grad);
+};
+
+/**
+ * Creates new instance of the Tensor class filled with only ones.
+ * @param {object} shape - List containing the shape of the new tensor Tensor.
+ * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+ * @returns {object} New tensor.
+ */
+function ones(shape, requires_grad=false) {
+    return new Tensor(_tensorInitializer(shape, () => 1), requires_grad);
+};
+
+/**
+ * Creates new instance of a lower-triangular 2D Tensor.
+ * @param {object} shape - List containing the shape of the new tensor Tensor.
+ * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+ * @returns {object} New tensor.
+ */
+function tril(shape, requires_grad=false) {
+    let z = ones(shape, requires_grad)
+    for (let i=0 ; i < shape[0] ; i++){
+        for (let j=0 ; j < shape[0] ; j++) {
+            if (j>i) {
+                z._data[i][j] = 0;
+            };
+        };
+    };
+
+    return new Tensor(z._data, requires_grad);
+};
+
+/**
+ * Creates new instance of the Tensor class filled with numbers in a uniform distribution in ]0,1[.
+ * @param {object} shape - List containing the shape of the new tensor Tensor.
+ * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+ * @returns {object} New tensor.
+ */
+function rand(shape, requires_grad=false) {
+    return new Tensor(_tensorInitializer(shape, () => Math.random()), requires_grad);
+};
+
+/**
+ * Creates new instance of the Tensor class filled with numbers in a normal distribution.
+ * @param {object} shape - List containing the shape of the new tensor Tensor.
+ * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+ * @param {boolean} xavier - Wether to use xavier initialization (divide by square root of first input dimension).
+ * @returns {object} New tensor.
+ */
+function randn(shape, requires_grad=false, xavier=false,) {
+    return new Tensor(_tensorInitializer(shape, () => {
+        let mean = Math.random() + 0.00001;
+        let variance = Math.random() + 0.00001;
+        let num = Math.sqrt( -2.0 * Math.log( mean ) ) * Math.cos( 2.0 * Math.PI * variance );
+        if (xavier) {
+            // Apply Xavier initialization to control scalar sizes:
+            return num / Math.sqrt(shape[0]);
+            
+        } else {
+            return num;
+        };
+        }), requires_grad);
+};
+
+/**
+ * Creates new instance of the Tensor class filled with random integers between low and high.
+ * @param {number} low - Lowest number that can be sampled.
+ * @param {number} high - One above highest number that can be sampled.
+ * @param {object} shape - List containing the shape of the new tensor Tensor.
+ * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+ * @returns {object} New tensor.
+ */
+function randint(low=0, high=1, shape=[1,], requires_grad=false) {
+    return new Tensor(
+        _tensorInitializer(shape, () => {return Math.floor(Math.random() * (high - low)) + low}),
+        requires_grad=requires_grad);
+};
+
 
 
 
