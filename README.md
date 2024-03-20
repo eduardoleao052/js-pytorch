@@ -58,10 +58,9 @@ JS-Torch is a Deep Learning __JavaScript library__ built from scratch, to closel
 <br/>
 
 
-- [Sum](https://github.com/eduardoleao052/Autograd-from-scratch/blob/c8c9b697815bc2c9efb1e9ce4d9ee490b43f19a2/neuralforge/tensor_operations.py#L492-L519)
-- [Mean](https://github.com/eduardoleao052/Autograd-from-scratch/blob/c8c9b697815bc2c9efb1e9ce4d9ee490b43f19a2/neuralforge/tensor_operations.py#L521-L549)
-- [Max](https://github.com/eduardoleao052/Autograd-from-scratch/blob/c8c9b697815bc2c9efb1e9ce4d9ee490b43f19a2/neuralforge/tensor_operations.py#L454-L490)
-- [Variance](https://github.com/eduardoleao052/Autograd-from-scratch/blob/c8c9b697815bc2c9efb1e9ce4d9ee490b43f19a2/neuralforge/tensor_operations.py#L551-L579)
+- [Sum](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L790-L842)
+- [Mean](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L844-L894)
+- [Variance](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L896-L949)
 
 <br/>
 
@@ -74,13 +73,10 @@ JS-Torch is a Deep Learning __JavaScript library__ built from scratch, to closel
 
 <br/>
 
-
-- [Reshape](https://github.com/eduardoleao052/Autograd-from-scratch/blob/4b7083149a8dd8e9bdb2b0c93fe130d9be516bf0/neuralforge/tensor_operations.py#L682-L710)
-- [Transpose](https://github.com/eduardoleao052/Autograd-from-scratch/blob/4b7083149a8dd8e9bdb2b0c93fe130d9be516bf0/neuralforge/tensor_operations.py#L713-L741)
-- [Concatenate](https://github.com/eduardoleao052/Autograd-from-scratch/blob/4b7083149a8dd8e9bdb2b0c93fe130d9be516bf0/neuralforge/tensor_operations.py#L744-L780)
-- [Stack](https://github.com/eduardoleao052/Autograd-from-scratch/blob/4b7083149a8dd8e9bdb2b0c93fe130d9be516bf0/neuralforge/tensor_operations.py#L783-L820)
-- [MaskedFill](https://github.com/eduardoleao052/Autograd-from-scratch/blob/4b7083149a8dd8e9bdb2b0c93fe130d9be516bf0/neuralforge/tensor_operations.py#L823-L851)
-- [Slice](https://github.com/eduardoleao052/Autograd-from-scratch/blob/4b7083149a8dd8e9bdb2b0c93fe130d9be516bf0/neuralforge/tensor_operations.py#L854-L882)
+- [Transpose](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L953-L1008)
+- [At](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L1010-L1060)
+- [MaskedFill](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L1062-L1095)
+- [Reshape](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L1097-L1129)
 
 <br/>
 
