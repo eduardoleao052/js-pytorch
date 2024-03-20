@@ -36,14 +36,15 @@ JS-Torch is a Deep Learning __JavaScript library__ built from scratch, to closel
 <br/>
 
 
-- [Addition]()
-- [Subtraction]()
-- [Multiplication](https://github.com/eduardoleao052/Autograd-from-scratch/blob/97b5d4e9d9c118375e53699043556e4d68d7fce7/neuralforge/tensor_operations.py#L288-L342)
-- [Division](https://github.com/eduardoleao052/Autograd-from-scratch/blob/c8c9b697815bc2c9efb1e9ce4d9ee490b43f19a2/neuralforge/tensor_operations.py#L344-L398)
-- [Matrix multiplication](https://github.com/eduardoleao052/Autograd-from-scratch/blob/c8c9b697815bc2c9efb1e9ce4d9ee490b43f19a2/neuralforge/tensor_operations.py#L400-L451)
-- [Exponentiation](https://github.com/eduardoleao052/Autograd-from-scratch/blob/c8c9b697815bc2c9efb1e9ce4d9ee490b43f19a2/neuralforge/tensor_operations.py#L582-L609)
-- [Log](https://github.com/eduardoleao052/Autograd-from-scratch/blob/c8c9b697815bc2c9efb1e9ce4d9ee490b43f19a2/neuralforge/tensor_operations.py#L611-L638)
-- [Square Root](https://github.com/eduardoleao052/Autograd-from-scratch/blob/c8c9b697815bc2c9efb1e9ce4d9ee490b43f19a2/neuralforge/tensor_operations.py#L640-L667)
+- [Addition](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L346-L401)
+- [Subtraction](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L404-L438)
+- [Multiplication](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L441-L496)
+- [Division](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L498-L557)
+- [Matrix multiplication](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L560-L621)
+- [Power](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L625-L663)
+- [Square Root](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L666-L704)
+- [Exponentiation](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#706-L744)
+- [Log](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L746-L785)
 
 <br/>
   
