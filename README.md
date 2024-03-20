@@ -21,5 +21,5 @@
     </a>
 </p>
 
-# PyTorch, from scratch, in JavaScript
+# PyTorch in JavaScript from scratch
 A JavaScript library built from scratch to closely follow Pytorch's syntax.
