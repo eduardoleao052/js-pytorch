@@ -52,7 +52,7 @@ JS-Torch is a Deep Learning __JavaScript library__ built from scratch, to closel
 
 
 <details>
-<summary> The <b>implemented statistics</b>: </summary>
+<summary> The <b>statistics</b>: </summary>
 
 
 <br/>
@@ -68,7 +68,7 @@ JS-Torch is a Deep Learning __JavaScript library__ built from scratch, to closel
 
 
 <details>
-<summary> And the <b>implemented tensor operations</b>: </summary>
+<summary> And the <b>tensor operations</b>: </summary>
 
 
 <br/>
