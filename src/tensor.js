@@ -15,12 +15,12 @@ class Tensor {
             this._data = data;
         } else if (typeof data === 'number') {
             this._data = [data,];
-        }
+        };
         this.shape = utils.getShape(data);
         this.requires_grad = requires_grad;
         if (this.requires_grad) {
             this._grad = zeros(this.shape);
-        }
+        };
         // Graph connections:
         this.children = [];
         this.parents = [];
@@ -55,38 +55,13 @@ class Tensor {
      */
     get grad() {
         return this._grad.data;
-    }
-    
-    /**
-     * Removes this node from it's parents list of unvisited children.
-     */
-    removeNodeFromParents() {
-        // console.log('remove FROM PARENTS =================+>>>>')
-        // console.log('parent >>>>')
-        // console.log(this.parents)
-        for (let i=0 ; i < this.parents.length ; i++) {
-            const idx = this.parents[i].children.indexOf(this);
-            // console.log('before >>>>>')
-            // console.log(this.parents[i].children)
-            this.parents[i].children.splice(idx, idx + 1);
-            // console.log('after >>>>>')
-            // console.log(this.parents[i].children)
-            // console.log('')
-            // console.log('')
-            // console.log('')
-            // console.log('')
-        }
-    }
+    };
 
     /**
      * Performs backward pass from THIS tensor backwards.
      * It fills every tensor that originated this one and that has requires_grad=true's gradients to their gradients relative to THIS tensor.
      */
     backward(grad=null, child=null) {
-        //console.log('------')
-        //console.log(`${this.children.length} childs`)
-        // console.log('backward <<<<<<<<<<<<.>>>>>>>>>>>>')
-        // console.log(this.operation)
         // Guarantee that this tensor requires grad:
         if (!this.requires_grad){
             throw new Error("this tensor has requires_grad set to False");
@@ -95,7 +70,6 @@ class Tensor {
         // If this is the root tensor, grad is just ones,
         // and we remove all children from this point on from the Graph:
         if (grad === null) {
-            //console.log('start back >>>>>>>>>>')
             grad = ones(this.shape);
             this.children = [];
         };
@@ -105,33 +79,16 @@ class Tensor {
         
         if (child != null) {
             const idx = this.children.indexOf(child);
-            //console.log(idx);
             this.children.splice(idx, 1);
-            //console.log(`${this.children.length} new childs`)
         };
 
-        if (this.visited) {
-            console.log("<<<<<<<<<<<<<<<<<<<<<<<<========>>>>>>>>>>>>>>>>>>>>>>>>")
-        }
-        
-        
-
+        // If this Tensor is the product of an Operation:
         if (this.operation != null){
-            // console.log(this.operation.constructor.name)
+
             // When all the children have been visited, propagate further back:
             if (this.children.length === 0){
-                this.visited = true;
-                // Mark current tensor as visited in all of its parents:
-                // console.log('VVVVVVV')
-                // console.log('CURRENT TENSOR')
-                // console.log(this.operation.constructor.name)
-                // console.log(grad.data[0][0])
-                // console.log(grad.shape)
-                // this.removeNodeFromParents() //<<<<<----------------#####
                 this.operation.backward(this._grad, this)
-            }  else {
-                //console.log(this.children[0]._data)
-            } 
+            };
         };
     };
 
@@ -156,7 +113,6 @@ class Tensor {
         this.zero_grad()
         if (this.operation != null) {
             for (let parent of this.parents) {
-                //console.log(parent)
                 parent.zero_grad_graph();
                 parent.parents = [];
             };
@@ -242,7 +198,7 @@ class Tensor {
      * @returns {object} New tensor.
      */
     mul(other) {
-        const operation = new Mul()
+        const operation = new Mul();
         return operation.forward(this, other);
     };
 
@@ -252,7 +208,7 @@ class Tensor {
      * @returns {object} New tensor.
      */
     div(other) {
-        const operation = new Div()
+        const operation = new Div();
         return operation.forward(this, other);
     };
 
@@ -262,7 +218,7 @@ class Tensor {
      * @returns {object} New tensor.
      */
     matMul(other) {
-        const operation = new MatMul()
+        const operation = new MatMul();
         return operation.forward(this, other);
     };
     
@@ -334,7 +290,7 @@ class Tensor {
     at(index1, index2) {
         let operation = new At();
         return operation.forward(this, index1, index2);
-    }
+    };
 
     /**
      * Where the "condition" function returns True in "mask" Tensor, the "value" will fill the "this" Tensor.
@@ -353,7 +309,7 @@ class Tensor {
     masked_fill(mask, condition, value) {
         let operation = new MaskedFill();
         return operation.forward(this, mask, condition, value);
-    }
+    };
 
     /**
      * Reshape the tensor into the new shape:
@@ -363,7 +319,7 @@ class Tensor {
     reshape(shape) {
         let operation = new Reshape();
         return operation.forward(this, shape);
-    }
+    };
 
 };
 
@@ -397,7 +353,7 @@ class Add {
      */
     forward(a, b) {
         // Build cache to use in backward step:
-        this.cache = [a,b]
+        this.cache = [a,b];
 
         let aData = utils.getData(a); 
         let bData = utils.getData(b);
@@ -410,12 +366,12 @@ class Add {
 
         // Connect nodes in graph:
         if (a instanceof Tensor & a.requires_grad){
-            z.parents.push(a)
-            a.children.push(z)
+            z.parents.push(a);
+            a.children.push(z);
         };
         if (b instanceof Tensor & b.requires_grad){
-            z.parents.push(b)
-            b.children.push(z)
+            z.parents.push(b);
+            b.children.push(z);
         };
         z.operation = this;
 
@@ -431,7 +387,7 @@ class Add {
         if (a.requires_grad) {
             let da = dz;
             // Rescale gradient to have the same shape as "a":
-            da = broadcast(da, a)
+            da = broadcast(da, a);
             a.backward(da, z);
         };
 
@@ -439,7 +395,7 @@ class Add {
         if (b.requires_grad) {
             let db = dz;
             // Rescale gradient to have the same shape as "b":
-            db = broadcast(db, b)
+            db = broadcast(db, b);
             b.backward(db, z);
         };  
     };
@@ -478,8 +434,8 @@ class Neg {
         if (a.requires_grad) {
             let da = neg(dz);
             a.backward(da, z);
-        }
-    }
+        };
+    };
 };
 
 class Mul {
@@ -504,12 +460,12 @@ class Mul {
 
         // Connect nodes in graph:
         if (a instanceof Tensor & a.requires_grad){
-            z.parents.push(a)
-            a.children.push(z)
+            z.parents.push(a);
+            a.children.push(z);
         };
         if (b instanceof Tensor & b.requires_grad){
-            z.parents.push(b)
-            b.children.push(z)
+            z.parents.push(b);
+            b.children.push(z);
         };
         z.operation = this;
 
@@ -533,7 +489,7 @@ class Mul {
         if (b.requires_grad) {
             let db = new Tensor (_mul(dz.data, utils.getData(a)));
             // Rescale gradient to have the same shape as "b":
-            db = broadcast(db, b)
+            db = broadcast(db, b);
             b.backward(db, z);
         };  
     };
@@ -553,26 +509,21 @@ class Div {
 
         let aData = utils.getData(a); 
         let bData = utils.getData(b);
-        // console.log("INTO DIVV <<<<<<<<<<<<<<.>>>>>>>>>>>>>>")
-        // console.log(bData)
 
         // Call recursive function:
         let z = new Tensor(
             _div(aData, bData), // data;
             (a.requires_grad || b.requires_grad), // requires_grad;
             );
-        // console.log("DONE DIVV <<<<<<<<<<<<<<.>>>>>>>>>>>>>> //////////")
-        // console.log(z.shape)
-        // console.log(z.data[0])
 
         // Connect nodes in graph:
         if (a instanceof Tensor & a.requires_grad){
-            z.parents.push(a)
-            a.children.push(z)
+            z.parents.push(a);
+            a.children.push(z);
         };
         if (b instanceof Tensor & b.requires_grad){
-            z.parents.push(b)
-            b.children.push(z)
+            z.parents.push(b);
+            b.children.push(z);
         };
         z.operation = this;
 
@@ -588,15 +539,9 @@ class Div {
             // d/da(a/b) = (1/b), apply chain rule:
             let da = new Tensor (_mul(dz.data, _div(1, utils.getData(b))));
 
-            // console.log("BACKWARD DIVVV <<<<<<<<.>>>>>>>>")
-            // console.log(dz.data[0])
-            // console.log('da =======')
-            // console.log(da.data[0])
-            // console.log('bbbbbbbb')
-            // console.log(utils.getData(b))
-
             // Rescale gradient to have the same shape as "a":
             da = broadcast(da, a);
+
             a.backward(da, z);
         };
 
@@ -606,13 +551,6 @@ class Div {
             let db = new Tensor(_mul(dz.data, _neg(_div(utils.getData(a), _pow(utils.getData(b), 2)))));
             // Rescale gradient to have the same shape as "b":
             db = broadcast(db, b);
-            
-            // console.log("BACKWARD DIVVV <<<<<<<<.>>>>>>>>")
-            // console.log(dz.data[0])
-            // console.log('da =======')
-            // console.log(db.data[0])
-            // console.log('db BROADCASTED =======++++++++++++')
-            // console.log(db.data)
             
             b.backward(db, z);
         };  
@@ -628,9 +566,9 @@ class MatMul {
         let bData = b.data;
         // Broadcast smaller tensor to match size of larger:
         if (a.shape.length < b.shape.length) {
-            aData = broadcastUp(aData, bData)
+            aData = broadcastUp(aData, bData);
         } else {
-            bData = broadcastUp(bData, aData)
+            bData = broadcastUp(bData, aData);
         };
 
         // Call recursive function:
@@ -640,13 +578,13 @@ class MatMul {
             );
 
         // Connect nodes in graph to parents:
-        z.parents.push(a)
-        z.parents.push(b)
+        z.parents.push(a);
+        z.parents.push(b);
         z.operation = this;
 
         // Connect nodes in graph to children:
-        a.children.push(z)
-        b.children.push(z)
+        a.children.push(z);
+        b.children.push(z);
 
         return z;
     };
@@ -660,13 +598,13 @@ class MatMul {
             let dzData = dz.data;
             let b_T = _transpose(b.data, b.ndims-2);
             // Broadcast smaller tensor to match size of larger:
-            b_T = broadcastUp(b_T, dzData)
+            b_T = broadcastUp(b_T, dzData);
             // Backprop through the matmul:
             let da = new Tensor (_matmul(dzData, b_T));
             // Rescale gradient to have the same shape as "a":
-            da = broadcast(da, a)
+            da = broadcast(da, a);
 
-            a.backward(da, z)
+            a.backward(da, z);
         };
         // Find gradients relative to "a", and pass it downstream:
         if (b.requires_grad) {
@@ -674,15 +612,15 @@ class MatMul {
             let dzData = dz.data;
             let a_T = _transpose(a.data, a.ndims-2);
             // Broadcast smaller tensor to match size of larger:
-            a_T = broadcastUp(a_T, dzData)
+            a_T = broadcastUp(a_T, dzData);
             // Backprop through the matmul:
             let db = new Tensor (_matmul(a_T, dzData));
             // Rescale gradient to have the same shape as "b":
-            db = broadcast(db, b)
-            b.backward(db, z)
+            db = broadcast(db, b);
+            b.backward(db, z);
         };
     };
-}
+};
 
 class Pow {
     /**
@@ -874,9 +812,6 @@ class Sum {
             _sum(a._data, dim, keepdims=keepdims), // New data.
             (a.requires_grad), // requires_grad.
             );
-
-        // console.log("OUTPUT")
-        // console.log(z.data)
         
         // Connect nodes in graph:
         if (a.requires_grad) {
@@ -973,7 +908,7 @@ class Variance {
         };
         // Return error if dimention is out of bounds:
         if (dim >= a.shape.length) {
-            throw Error('Dimension larger than array.')
+            throw Error('Dimension larger than array.');
         };
 
         // Build cache to use in backward step:
@@ -1004,7 +939,7 @@ class Variance {
             let da = broadcast(dz, a);
             // Backprop through variance:
             let err = _add(a._data, _neg(_mean(a._data, dim, true)));
-            let var_err = _mul(_mul(da._data, 2), err)
+            let var_err = _mul(_mul(da._data, 2), err);
             da = _div(var_err, a.shape[dim]);
             // Create new "da" Tensor:
             da = new Tensor(da);
@@ -1075,7 +1010,7 @@ class Transpose {
 class At {
     forward(a, idx1, idx2=null) {
         // Get shape of outgoing tensor:
-        let B = utils.getShape(utils.assureArray(idx1))[0]
+        let B = utils.getShape(utils.assureArray(idx1))[0];
 
         // Make sure index lists are flat JavaScript arrays:
         if (idx1) {idx1 = _flatten(utils.assureArray(idx1))};
@@ -1106,7 +1041,7 @@ class At {
         let [a, idx1, idx2] = this.cache;
         // Find gradients relative to "a", and pass them downstream:
         if (a.requires_grad) {
-            let da = zeros(a.shape)
+            let da = zeros(a.shape);
 
             // Add derivatives to the original places from a:
             for (let i=0 ; i < dz.length ; i++) {
@@ -1206,7 +1141,7 @@ class Reshape {
  * @returns {Tensor} - Final tensor.
  */
 function sum(a, dim=-1, keepdims=false) {
-    return a.sum(dim, keepdims)
+    return a.sum(dim, keepdims);
 };
 
 /**
@@ -1217,7 +1152,7 @@ function sum(a, dim=-1, keepdims=false) {
  * @returns {Tensor} - Final tensor.
  */
 function mean(a, dim=-1, keepdims=false) {
-    return a.mean(dim, keepdims)
+    return a.mean(dim, keepdims);
 };
 
 /**
@@ -1228,7 +1163,7 @@ function mean(a, dim=-1, keepdims=false) {
  * @returns {Tensor} - Final tensor.
  */
 function variance(a, dim=-1, keepdims=false) {
-    return a.variance(dim, keepdims)
+    return a.variance(dim, keepdims);
 };
 
 
@@ -1406,9 +1341,9 @@ function _sum(a, dim, keepdims) {
             return sum;
         };
     } else if (typeof a === 'object') {
-        return a.map((element) => _sum(element, dim - 1, keepdims))
+        return a.map((element) => _sum(element, dim - 1, keepdims));
     } else {
-        throw Error('Dimension invalid.')
+        throw Error('Dimension invalid.');
     };
 };
 
@@ -1425,9 +1360,9 @@ function _mean(a, dim, keepdims) {
             return reduced;
         };
     } else if (typeof a === 'object') {
-        return a.map((element) => _mean(element, dim - 1, /*, keepdims*/))
+        return a.map((element) => _mean(element, dim - 1, /*, keepdims*/));
     } else {
-        throw Error('Dimension invalid.')
+        throw Error('Dimension invalid.');
     };
 };
 
@@ -1449,9 +1384,9 @@ function _variance(a, dim, keepdims) {
             return variance;
         };
     } else if (typeof a === 'object') {
-        return a.map((element) => _variance(element, dim - 1, /*keepdims*/))
+        return a.map((element) => _variance(element, dim - 1, /*keepdims*/));
     } else {
-        throw Error('Dimension invalid.')
+        throw Error('Dimension invalid.');
     };
 };
 
@@ -1621,13 +1556,12 @@ function _div(a, b) {
                 return b.map((element) => _div(a, element));
             };
         };
-    
     };
 };
 
 function _matmul(a, b) {
     if (typeof a === 'number') {
-        throw new Error('Cannot perform MatMul with given shapes.')
+        throw new Error('Cannot perform MatMul with given shapes.');
     }
     // If this dimension has equal lengths, keep searching:
     if (typeof a[0][0] === 'object') { // ==============================>>>>> typeof a[0][0] === 'object' [NOVO] ou a.length === b.length [ANTIGO]
@@ -1643,9 +1577,6 @@ function _matmul(a, b) {
                     let currentIndex = 0;
                     for (let k=0 ; k < b.length ; k++) {
                         currentIndex += a[i][k] * b[k][j];
-                        if ((a[i][k] * b[k][j] === NaN) || (a[i][k] * b[k][j] === undefined)) {
-                            throw new Error("HAHAHAHAHHAHAHHAH")
-                        }
                     };
                     out[i][j] = currentIndex;
                 };
@@ -1653,9 +1584,9 @@ function _matmul(a, b) {
             return out;
         // If not, throw error:
         } else {
-            throw Error(`Cannot perform Matrix Multiplication: cannot broadcast ${[a.length, a[0].length]} and ${[b.length, b[0].length]}`)
-        }
-    }
+            throw Error(`Cannot perform Matrix Multiplication: cannot broadcast ${[a.length, a[0].length]} and ${[b.length, b[0].length]}`);
+        };
+    };
 };
 
 function _pow(a, n) {
@@ -1708,14 +1639,14 @@ function _transpose(a, dim){
 
         for (i=0 ; i<a.length ; i++) {
             for (j=0 ; j<a[i].length ;  j++) {
-                newArray[j][i] = a[i][j]
+                newArray[j][i] = a[i][j];
             };
         };
         return newArray;
     } else if (typeof a === 'object') {
-        return a.map((element) => _transpose(element, dim - 1))
+        return a.map((element) => _transpose(element, dim - 1));
     } else {
-        throw Error('ValueError: dimensions are invalid.')
+        throw Error('ValueError: dimensions are invalid.');
     };
 };
 
@@ -1732,7 +1663,7 @@ function _at(a, idx1, idx2) {
     // If there is no second index, fill a new array in position "N" with a[idx1[N]] (1 Dim):
     } else {
         return Array(idx1.length).fill(0).map((_, i) => a[idx1[i]]);
-    }
+    };
 };
 
 function _masked_fill(a, mask, condition, value) {
@@ -1803,14 +1734,14 @@ function _flatten(a, flat=[]) {
  */
 function _tensorInitializer(shape, valueFunc) {
     if (shape.length === 1) {
-        let emptyArray = Array(shape[0]).fill(0)
-        return emptyArray.map(() => valueFunc())
+        let emptyArray = Array(shape[0]).fill(0);
+        return emptyArray.map(() => valueFunc());
     } else {
-        let currentSize = shape[0]
-        let emptyArray = Array(currentSize).fill(0)
-        return emptyArray.map(() => _tensorInitializer(shape.slice(1), valueFunc))
-    }
-}
+        let currentSize = shape[0];
+        let emptyArray = Array(currentSize).fill(0);
+        return emptyArray.map(() => _tensorInitializer(shape.slice(1), valueFunc));
+    };
+};
 
 /**
  * Creates new instance of the Tensor class.
@@ -1927,17 +1858,13 @@ function randint(low=0, high=1, shape=[1,], requires_grad=false) {
  */
 function broadcast (a,b) {
     function _broadcast(out, b) {
-        // console.log('new ITER >>>><<<<')
-        // console.log(out)
-        // console.log(b)
-        // console.log(JSON.stringify(utils.getShape(out)),JSON.stringify(utils.getShape(b)))
         if (typeof out === 'number' && typeof b === 'number') {
             return out;
         } else if (typeof out === 'number') {
             newArray = Array(b.length).fill(out);
             return _broadcast(newArray, b);
         } else if (typeof b ==='number') {
-            return _broadcast(_sum(out,0), b)
+            return _broadcast(_sum(out,0), b);
         } else if (JSON.stringify(utils.getShape(out)) === JSON.stringify(utils.getShape(b))) {
             return out;
         }
@@ -1947,7 +1874,6 @@ function broadcast (a,b) {
         let bShape = utils.getShape(b);
         // If out's shape is larger, we need to find b's shape inside out's shape:
         if (outShape.length > bShape.length) {
-            //console.log('first large')
             let idx;
             // Look for b's shape:
             for (let i=0 ; i < outShape.length ; i++) {
@@ -1965,7 +1891,6 @@ function broadcast (a,b) {
             };
         // If b's shape is larger, we need to find out's shape inside b's shape:
         } else if (outShape.length < bShape.length)  {
-            //console.log('later larger')
             let idx;
             // Look for out's shape:
             for (let i=0 ; i < bShape.length ; i++) {
@@ -1981,7 +1906,6 @@ function broadcast (a,b) {
                 return Array(b.length).fill(0).map(() => _broadcast(out, b[0]))
             };
         } else {
-            //console.log('Same larger')
             // Define recursive function to find dimension with length 1:
             function _broadcastSideways (out, b) {
                 if (b.length != out.length) {
@@ -1992,7 +1916,7 @@ function broadcast (a,b) {
                         // Base case, expand existing dimention:
                         emptyArray = Array(b.length).fill(zeros);
                         return emptyArray.map(() => out[0]);
-                    } else { Error(`Shapes ${utils.getShape(out)} and ${utils.getShape(b)} not broadcastable.`) }
+                    } else { Error(`Shapes ${utils.getShape(out)} and ${utils.getShape(b)} not broadcastable.`) };
                 } else {
                     // Recursive case:
                     if (typeof out === 'object'){
@@ -2044,5 +1968,5 @@ function broadcastUp (inElement, outElement) {
     return inElement;
 };
 
-module.exports = { Tensor, Parameter, add, neg, mul, div, matMul, exp, log, sqrt, pow, transpose, at, reshape, _reshape, tensor, zeros, ones, tril, rand, randn, randint, broadcast  };
+module.exports = { Tensor, Parameter, add, neg, mul, div, matMul, exp, log, sqrt, pow, mean, masked_fill, variance, at, reshape, transpose, transpose, at, reshape, _reshape, tensor, zeros, ones, tril, rand, randn, randint, broadcast  };
 
