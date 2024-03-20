@@ -3,7 +3,7 @@
   <img src="./assets/icon.png" alt="js-torch" height="135">
 </p>
 
-<p align="left">
+<p align="center">
     <a href="https://github.com/eduardoleao052/autograd-from-scratch/actions/workflows/test.yml/badge.svg" alt="Unit Tests">
         <img src="https://github.com/eduardoleao052/autograd-from-scratch/actions/workflows/test.yml/badge.svg" /></a>
     <a href="https://github.com/eduardoleao052/autograd-from-scratch/pulse" alt="Activity">
