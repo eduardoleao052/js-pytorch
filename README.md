@@ -1,4 +1,3 @@
-
 <p align="center">
   <img src="./assets/icon.png" alt="js-torch" height="135">
 </p>
