@@ -1,6 +1,9 @@
-﻿const torch = require("../src/tensor.js");
-const nn = require("../src/layers.js")
-const optim = require('../src/optim.js')
+﻿
+if (typeof window === 'undefined'){
+    globalThis.torch = require("../src/tensor.js");
+    globalThis.nn = require("../src/layers.js")
+    globalThis.optim = require('../src/optim.js')
+};
 
 // <<< Tests >>> //
 
