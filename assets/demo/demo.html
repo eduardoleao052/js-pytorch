@@ -20,17 +20,29 @@
     <div style="height: 20px;"></div>
     <div class="container">
         <div class="separator" id="right-separator">
-            <img class='icon' src="../../assets/icon_gray_bg.png">
+            <img style="display: block;" class='icon' src="../../assets/icon_gray_bg.png">
+        </div>
+    
+        <div class="separator" id="right-separator" style="margin-top: 10px;">
+            <ul> 
+                <li><span>DATASET:</span> This model was trained on a <b>Dummy dataset</b>, composed of <b>randomly generated images</b>. </li>
+                <br>
+                <li><span>INPUT:</span> The batch size is <b>8</b>, and the images have a dimension of <b>32x32</b>. </li>
+                <br>
+                <li><span>OUTPUT:</span> The output is a number from 0 to 31.</li>
+                <br>
+                <li><span>TRAINING:</span> The Model is trained using an <b>Adam Optimizer</b> and a <b>Cross Entropy Loss</b>.</li>
+            </ul>
         </div>
     </div>
 
     <div class="container" id="upper-container">
         <div class="left-div">
-            <h2 style="display: inline-block;">Training Parameters</h2>
+            <h2 style="display: inline-block; margin-left: 20px; margin-top: 2px; margin-bottom: 10px;">Training Parameters</h2>
             <div class="separator" id="left-separator">
 
-                <!-- <label for="batch-size">Batch Size:</label>
-                <input type="number" id="batch-size" name="batch-size" min="1" value="32" required> -->
+                <label for="batch-size">Batch Size:</label>
+                <input type="number" id="batch-size" name="batch-size" min="1" value="8" max="64" onchange="checkInput(this)"> 
 
                 <label for="learning-rate">Learning Rate:</label>
                 <input type="number" id="learning-rate" name="learning-rate" step="0.001" min="0" value="0.001" required>
@@ -51,7 +63,7 @@
         </div>
         <div class="right-div">
             <div>
-                <h2 style="display: inline-block; margin-right: 15px;">Model Layers</h2>
+                <h2 style="display: inline-block; margin-right: 15px; margin-left: 20px;">Model Layers</h2>
                 <button class='layer-button' onclick="addBox()">+</button>
                 <button class='layer-button' onclick="removeBox()">-</button>
                 <div class="separator" id="layersBox">
@@ -70,11 +82,9 @@
         <h2>Graph</h2>
         <!-- This is where the graph will be displayed -->
         <canvas id="graph" width="700" height="350"></canvas>
-        <div class="separator" style="width: 91.5%;">
-            <p> 
-                This model was trained on a <b>Dummy dataset</b>, composed of <b>randomly generated images</b>. The batch size is <b>8</b>, and the images have a dimension of <b>32x32</b>. The output is a number from 0 to 31.
-            </p>
-        </div>
+            <p id="iter"> Iteration: </p>
+            <p id="total-visited"> Total Training Examples: </p>
+            <p id="loss"> Loss: </p>
     </div>
 
     <script>
@@ -82,6 +92,9 @@
         let data = [];
         let training = false;
         let in_loop = true;
+        let overFlow = 1;
+        let iter = 0;
+        let total_visited = 0;
 
         function addBox() {
             if (boxCount.length < 5 && !training) {
@@ -121,6 +134,25 @@
                 el.value = 128;
             };
             boxCount[el.idx] = Number(el.value);                
+        };
+
+        function checkInput(el){
+            if (el.value > 64) {
+                el.value = 64;
+            };
+        }
+
+        function get_batch(x, y, batch_size) {
+            // Instantiate x_batch and y_batch as empty tensors:
+            let x_batch = [];
+            let y_batch = [];
+            // Iteratively add instances to batch:
+            for (let i=0 ; i < batch_size ; i++) {
+                p = Math.floor(Math.random() * x.length);
+                x_batch.push(x.data[p])
+                y_batch.push(y.data[p])
+            };
+            return [torch.tensor(x_batch), torch.tensor(y_batch)];
         };
 
         function trainLoopInitializer() {
@@ -202,21 +234,26 @@
 
             }; 
 
-            // Build optimizer with live learning rate and regularization values.
-            lr = Number(document.getElementById('learning-rate').value)
-            reg = Number(document.getElementById('regularization').value )
-            beta1 = Number(document.getElementById('beta1').value )
-            beta2 = Number(document.getElementById('beta2').value )
-            eps = Number(document.getElementById('epsilon').value )
+            // Get live learning rate and regularization values.
+            let batch_size = Number(document.getElementById('batch-size').value)
+            let lr = Number(document.getElementById('learning-rate').value)
+            let reg = Number(document.getElementById('regularization').value )
+            let beta1 = Number(document.getElementById('beta1').value )
+            let beta2 = Number(document.getElementById('beta2').value )
+            let eps = Number(document.getElementById('epsilon').value )
+
+            // Build optimizer:
             let optimizer = new optim.Adam(model.parameters(), lr=lr, reg=reg, betas=[beta1, beta2], eps=eps)
             let loss;
 
             // Training Loop:
             for(let i=0 ; i < 1 ; i++) {
-                let z = model.forward(x)
+                let [x_batch, y_batch] = get_batch(x, y, batch_size)
+
+                let z = model.forward(x_batch)
 
                 // Get loss:
-                loss = loss_func.forward(z, y)
+                loss = loss_func.forward(z, y_batch)
 
                 // Backpropagate the loss using neuralforge.tensor's backward() method:
                 loss.backward()
@@ -227,10 +264,19 @@
                 // Reset the gradients to zero after each training step:
                 optimizer.zero_grad()
 
+                // If loss went to infinity (model way too large for training size), represent that in the graph:
                 if (isNaN(loss.data[0])) {
-                    data.push(12 + (Math.random() - 0.5) * 15)
-                }
-                else {data.push(loss.data)}
+                    overFlow = overFlow * 1.5;
+                    data.push(overFlow + (Math.random() - 0.5) * 15);
+                // If not, just keep adding the loss to the graph:
+                } else {data.push(loss.data)}
+                
+                // Display iteration and loss on the screen:
+                document.getElementById('iter').innerHTML = `Iteration: ${iter}`;
+                document.getElementById('total-visited').innerHTML = `Total Training Examples: ${total_visited}`;
+                document.getElementById('loss').innerHTML = `Loss: ${loss.data[0].toFixed(3)}`;
+                iter += 1;
+                total_visited += batch_size;
             
                 plotGraph()
             };
@@ -243,6 +289,8 @@
         function resetTraining() {
             in_loop = false;
             training = false;
+            iter = 0;
+            total_visited = 0;
             data = [];
             plotGraph();
             let boxCount = [];

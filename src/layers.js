@@ -1,6 +1,6 @@
 ﻿if (typeof window === 'undefined'){
     globalThis.utils = require('./utils.js');
-    globalThis.torch = require('./tensor.js')
+    globalThis.torch = require('./tensor.js');
 };
 
 var nn = (function(exports){

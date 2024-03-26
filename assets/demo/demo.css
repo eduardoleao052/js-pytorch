@@ -18,6 +18,7 @@ h1 {
 h2 {
     text-align: center;
     margin: auto;
+    color: #0d0d0d;
 }
 
 .container {
@@ -39,7 +40,7 @@ h2 {
     max-width: 800px;
     background-color: #f4f4f4;
     padding: 20px;
-    margin-top: 15px;
+    margin-top: 11px;
     margin-left: 15px;
     border-radius: 10px;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -68,7 +69,7 @@ h2 {
 
 #left-separator {
     width: 70%;
-    margin-top: 15px;
+    margin-top: 11px;
     margin-left: 15px;
     margin-bottom: 20px;
     align-self: bottom;
@@ -141,7 +142,7 @@ button:active {
 }
 
 .icon {
-    width: 70%;
+    width: 72%;
     margin: auto;
 }
 
@@ -164,4 +165,42 @@ button:active {
 
 #graph {
     width: 100%;
+}
+
+li{
+    font-size: 15px;
+    color: #464646;
+}
+
+span {
+    font-size: 16px;
+    font-weight: bold;
+    color: #0d0d0d;
+}
+
+input {
+    font-size: 14.5px;
+}
+
+#iter {
+    margin-left: 50px;
+    margin-top: 0px;
+    font-size: 16px;
+    font-weight: bold;
+    color:#1b1b1b;
+}
+
+#total-visited {
+    margin-left: 50px;
+    margin-top: 0px;
+    font-size: 16px;
+    font-weight: bold;
+    color:#1b1b1b;
+}
+
+#loss {
+    margin-left: 50px;
+    font-size: 16px;
+    font-weight: bold;
+    color:#1b1b1b;
 }

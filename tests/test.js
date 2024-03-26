@@ -12,6 +12,9 @@ if (typeof window === 'undefined'){
  * This function does not use the "".nn" package. No optimizers or layers are employed.
  */
 function test_autograd() {
+    // Get start time (to calculate elapsed time):
+    let start_time = new Date();
+
     // Define loss function as Cross Entropy Loss and learning rate:
     let loss_func = new nn.CrossEntropyLoss()
     let learning_rate = 3e-3;
@@ -58,6 +61,9 @@ function test_autograd() {
     if (loss.data > 0.1) {
         throw new Error('Autograd engine did not converge in Unit Test #1.')
     };
+
+    // Return elapsed time:
+    return new Date() - start_time;
 };
 
 /**
@@ -65,6 +71,9 @@ function test_autograd() {
  * (Fully-Connected, three layers, with ReLU non-linearities), which uses the custom nn.Module superclass.
  */
 function test_module() {
+    // Get start time (to calculate elapsed time):
+    let start_time = new Date();
+
     // Implement dummy nn.Module class:
     class NeuralNet extends nn.Module {
         constructor(hidden_size) {
@@ -120,12 +129,18 @@ function test_module() {
     if (loss.data > 0.1) {
         throw new Error('Module did not converge in Unit Test #2.')
     };
+
+    // Return elapsed time:
+    return new Date() - start_time;
 };
 
 /**
  * This function tests if the loss converges to zero in a mock Transformer
  */
 function test_transformer() {
+    // Get start time (to calculate elapsed time):
+    let start_time = new Date();
+    
     // Implement dummy nn.Module class:
     class Transformer extends nn.Module {
         constructor(vocab_size, hidden_size, n_timesteps, n_heads, p) {
@@ -191,6 +206,9 @@ function test_transformer() {
     if (loss > 0.1) {
         throw new Error('Transformer did not converge in Unit Test #3.')
     };
+
+    // Return elapsed time:
+    return new Date() - start_time;
 };
 
 
@@ -198,12 +216,14 @@ function test_transformer() {
  * This function runs the three different tests, throwing an error if any of the module's features is not working.
  */
 function unit_test() {
-    test_autograd();
-    console.log('\n---> Passed Autograd Convergence Test');
-    test_module();
-    console.log('\n---> Passed Module Convergence Test');
-    test_transformer();
-    console.log('\n---> Passed Transformer Convergence Test\n');
+    // Create variable to store elapsed time:
+    let dt;
+    dt = test_autograd();
+    console.log(`\n---> Passed Autograd Convergence Test (${dt}ms)`);
+    dt = test_module();
+    console.log(`\n---> Passed Module Convergence Test (${dt}ms)`);
+    dt = test_transformer();
+    console.log(`\n---> Passed Transformer Convergence Test (${dt}ms)\n`);
 };
 
 unit_test();

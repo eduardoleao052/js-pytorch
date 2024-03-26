@@ -1,0 +1,23 @@
+{
+  "name": "js-pytorch",
+  "version": "0.1.0",
+  "description": "A JavaScript library like PyTorch, built from scratch.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "node ./tests/test.js"
+  },
+  "keywords": ["deep-learning", "machine-learning", "PyTorch"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eduardoleao052/js-torch.git"
+  },
+  "author": "Eduardo Leitao da Cunha Opice Leao",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/eduardoleao052/js-torch/issues"
+  },
+  "homepage": "https://github.com/eduardoleao052/js-torch#readme"
+}

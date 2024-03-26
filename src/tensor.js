@@ -1976,7 +1976,6 @@ var torch = (function(exports){
     // Add all functions to exports:
     exports.Tensor = Tensor;
     exports.Parameter = Parameter;
-
     exports.add = add;
     exports.neg = neg;
     exports.mul = mul;
