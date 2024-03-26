@@ -110,7 +110,7 @@
                 inputField.type = 'number';
                 // The next Box has as many neurons as last current Box:
                 inputField.value = boxCount[boxCount.length -1] || '10';
-                inputField.max = '128';
+                inputField.max = '100';
                 inputField.idx = boxCount.length;
                 inputField.id = `box-input`;
                 inputField.onchange = function() {
@@ -131,15 +131,15 @@
         };
 
         function changeDim(el, boxCount) {
-            if (el.value > 128) {
-                el.value = 128;
+            if (el.value > 100) {
+                el.value = 100;
             };
             boxCount[el.idx] = Number(el.value);                
         };
 
         function checkInput(el){
-            if (el.value > 64) {
-                el.value = 64;
+            if (el.value > 32) {
+                el.value = 32;
             };
         }
 
