@@ -168,14 +168,14 @@ button:active {
 }
 
 li{
-    font-size: 15px;
-    color: #464646;
+    font-size: 16px;
+    color: #2e2e2e;
 }
 
 span {
     font-size: 16px;
-    font-weight: bold;
-    color: #0d0d0d;
+    font-weight: bolder;
+    color: #181818;
 }
 
 input {
