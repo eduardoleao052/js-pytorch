@@ -19,8 +19,10 @@
 <body>
     <div style="height: 20px;"></div>
     <div class="container">
-        <div class="separator" id="right-separator">
+        <div class="separator" id="right-separator" style="display: block; padding-bottom: 0px;">
             <img style="display: block;" class='icon' src="../../assets/icon_gray_bg.png">
+            <a target="_blank" href="https://github.com/eduardoleao052/js-torch"><img class="logos" src="../../assets/github.png"></a>
+            <a target="_blank" href="https://www.linkedin.com/in/eduardo-leao-368bb6259/"><img class="logos" src="../../assets/linkedin.png"></a>
         </div>
     
         <div class="separator" id="right-separator" style="margin-top: 10px; display: block;">
@@ -79,13 +81,19 @@
         </div>
     </div>
 
-    <div class="container">
+    <div class="container" style="padding-bottom: 0px;">
         <h2>Graph</h2>
         <!-- This is where the graph will be displayed -->
         <canvas id="graph" width="700" height="350"></canvas>
+        <div style="display: inline-block; width: 90%; margin-bottom: 15px;">
             <p id="iter"> Iteration: </p>
             <p id="total-visited"> Total Training Examples: </p>
             <p id="loss"> Loss: </p>
+        </div>
+        <divs tyle="display: inline-block;">
+            <a target="_blank" href="https://github.com/eduardoleao052/js-torch"><img class="logos" src="../../assets/github.png" style="margin-bottom: 0px;"></a>
+            <a target="_blank" href="https://www.linkedin.com/in/eduardo-leao-368bb6259/"><img class="logos" src="../../assets/linkedin.png" style="margin-bottom: 0px;"></a>
+        </div>
     </div>
 
     <script>
