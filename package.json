@@ -1,8 +1,8 @@
 {
   "name": "js-pytorch",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A JavaScript library like PyTorch, built from scratch.",
-  "main": "index.js",
+  "main": "src/index.js",
   "directories": {
     "test": "tests"
   },
