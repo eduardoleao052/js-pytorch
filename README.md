@@ -25,7 +25,7 @@ JS-Torch is a Deep Learning __JavaScript library__ built from scratch, to closel
 <br><br>
 
 ### Web Demo
-Feel free to try the [demo](https://eduardoleao052.github.io/js-torch/assets/demo/demo.html) out!
+Feel free to try the [demo](https://eduardoleao052.github.io/js-torch/assets/demo/demo.html){:target="_blank"} out!
 <br><br>
 
 
