@@ -251,10 +251,7 @@ var nn = (function(exports){
 
             idx = utils.assureArray(idx);
             let x = this.E.at(idx);
-            // for (el of x.data){
-            //     console.log(el[0])
-            // }
-            // console.log('END >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+
             // Assure output tensor has desired shape:
             x = x.reshape([B,T,this.E.shape[1]]);
 
@@ -394,7 +391,6 @@ var nn = (function(exports){
             let var_x = x.variance(-1, true); // (B, T)
             let norm_x = x.sub(x.mean(-1, true)).div(torch.sqrt(var_x)); // (B, T, D)
             let z = torch.mul(norm_x, this.gamma).add(this.beta); // (B, T, D)
-            //console.log('im norman')
             return z;
         };
     };
@@ -463,7 +459,3 @@ var nn = (function(exports){
 
     return exports;
 })(typeof module != 'undefined' && module.exports);
-
-// if (typeof window === 'undefined'){
-//     module.exports = { Module, Linear, Embedding, PositionalEmbedding, ReLU, Softmax, Dropout, LayerNorm, Block, FullyConnected, MultiHeadSelfAttention, CrossEntropyLoss };
-// };

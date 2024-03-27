@@ -360,9 +360,6 @@ var torch = (function(exports){
             let aData = utils.getData(a); 
             let bData = utils.getData(b);
 
-            //console.log(aData);
-            //console.log(bData);
-
             // Call recursive function:
             let z = new Tensor(
                 _add(aData, bData), // data;
@@ -1657,25 +1654,7 @@ var torch = (function(exports){
         if (idx2 instanceof Tensor) {
             idx2 = idx2.data;
         };
-        // if (!idx2){
-        //     console.log('else')
-        //     let i = 0
-        //     for (el of a) {
-        //         console.log(i)
-        //         console.log(el[0]);
-        //         i += 1
-        //     };
 
-        //     let z = Array(idx1.length).fill(0).map((_, i) => a[idx1[i]])
-        //     console.log('else')
-        //     i = 0
-        //     for (el of z) {
-        //         console.log(idx1[i])
-        //         console.log(el[0]);
-        //         i += 1
-        //     };
-        //     console.log(utils.getShape(z))
-        // };
         // If there is a second index, fill a new array in position "N" with a[idx1[N]][idx2[N]] (2 Dims):
         if (idx2 != null) {
             return Array(idx1.length).fill(0).map((_, i) => a[idx1[i]][idx2[i]]);
@@ -2024,8 +2003,4 @@ var torch = (function(exports){
 
 })(typeof module != 'undefined' && module.exports);
 
-
-// if (typeof window === 'undefined'){
-//     module.exports = { Tensor, Parameter, add, neg, mul, div, matMul, exp, log, sqrt, pow, mean, masked_fill, variance, at, transpose, at, reshape, _reshape, tensor, zeros, ones, tril, rand, randn, randint, broadcast  };
-// };
 

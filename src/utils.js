@@ -86,7 +86,3 @@
     return exports;
 
 })(typeof module != 'undefined' && module.exports);
-
-// if (typeof window === 'undefined'){
-//     module.exports = { getShape, assureArray, getData };
-// };

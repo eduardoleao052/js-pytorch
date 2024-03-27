@@ -35,8 +35,7 @@ function test_autograd() {
 
     // Training Loop:
     for (let i=0; i < 128 ; i++) {
-        //console.log(x.shape)
-        //console.log(w1.data)
+
         let z = torch.matMul(x, w1);
         z = relu1.forward(z);
         z = torch.add(z,torch.matMul(z, w2));
@@ -111,7 +110,7 @@ function test_module() {
     // Training Loop:
     for(let i=0 ; i < 100 ; i++) {
         let z = model.forward(x)
-        //console.log(z)
+
         // Get loss:
         loss = loss_func.forward(z, y)
 
@@ -225,9 +224,3 @@ function unit_test() {
 };
 
 unit_test();
-
-/* PROBLEMAS:
-    1 - Gradientes grandes (?)
-    2 - NaN quando uso 64 no hidden_size
-    3 - 64 hidden_size tem resultados EXCELENTES. So precisa parar o NaN.
-*/

@@ -39,7 +39,7 @@ var optim = (function(exports){
 
                 let update_tensor = (this.params[i].m.mul(this.lr)).div(this.params[i].v.sqrt().add(this.eps)).neg()
                 let regularization_tensor = this.params[i].mul(this.reg * this.lr).neg()
-                //console.log(this.params[i]._data[0])
+
                 this.params[i]._data = this.params[i].add(update_tensor.add(regularization_tensor))._data
 
             };
@@ -65,7 +65,3 @@ var optim = (function(exports){
     
 
 })(typeof module != 'undefined' && module.exports);
-
-// if (typeof window === 'undefined'){
-//     module.exports = { Adam };
-// };
