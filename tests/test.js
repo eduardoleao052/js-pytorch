@@ -197,8 +197,6 @@ function test_transformer() {
         
         // Reset the gradients to zero after each training step:
         optimizer.zero_grad()
-        console.log(i)
-        console.log(loss.data)
         
     };
 
