@@ -182,7 +182,7 @@ function test_transformer() {
     let loss;
 
     // Training Loop:
-    for(let i=0 ; i < 40 ; i++) {
+    for(let i=0 ; i < 50 ; i++) {
         let z = model.forward(x)
 
         // Get loss:
