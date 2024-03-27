@@ -9,7 +9,11 @@
   "scripts": {
     "test": "node ./tests/test.js"
   },
-  "keywords": ["deep-learning", "machine-learning", "PyTorch"],
+  "keywords": [
+    "deep-learning",
+    "machine-learning",
+    "PyTorch"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/eduardoleao052/js-torch.git"
