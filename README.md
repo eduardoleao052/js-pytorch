@@ -110,66 +110,69 @@ console.log(b.grad);
 ```
 
 ### Complex Autograd Example (Transformer): 
-```python
-import neuralforge as forge
-import neuralforge.nn as nn
+```javascript
+const torch = require("js-pytorch");
+const nn = torch.nn;
 
-# Implement Transformer class inheriting from forge.nn.Module:
-class Transformer(nn.Module):
-    def __init__(self, vocab_size: int, hidden_size: int, n_timesteps: int, n_heads: int, p: float):
-        super().__init__()
-        # Instantiate Transformer's Layers:
-        self.embed = nn.Embedding(vocab_size, hidden_size)
-        self.pos_embed = nn.PositionalEmbedding(n_timesteps, hidden_size)
-        self.b1 = nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_prob=p) 
-        self.b2 = nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_prob=p)
-        self.ln = nn.LayerNorm(hidden_size)
-        self.linear = nn.Linear(hidden_size, vocab_size)
+class Transformer extends nn.Module {
+    constructor(vocab_size, hidden_size, n_timesteps, n_heads, p) {
+        super();
+        // Instantiate Transformer's Layers:
+        this.embed = new nn.Embedding(vocab_size, hidden_size);
+        this.pos_embed = new nn.PositionalEmbedding(n_timesteps, hidden_size);
+        this.b1 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p=p);
+        this.b2 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p=p);
+        this.ln = new nn.LayerNorm(hidden_size);
+        this.linear = new nn.Linear(hidden_size, vocab_size);
+    };
 
-    def forward(self, x):
-        z = self.embed(x) + self.pos_embed(x)
-        z = self.b1(z)
-        z = self.b2(z)
-        z = self.ln(z)
-        z = self.linear(z)
+    forward(x) {
+        let z;
+        z = torch.add(this.embed.forward(x), this.pos_embed.forward(x));
+        z = this.b1.forward(z);
+        z = this.b2.forward(z);
+        z = this.ln.forward(z);
+        z = this.linear.forward(z);
+        return z;
+    };
+};
 
-        return z
+// Instantiate your custom nn.Module:
+const model = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p);
 
-# Get tiny Shakespeare test data:
-text = load_text_data(f'{PATH}/data/shakespeare.txt')
+// Define loss function and optimizer:
+const loss_func = new nn.CrossEntropyLoss();
+const optimizer = new optim.Adam(model.parameters(), lr=5e-3, reg=0);
 
-# Create Transformer instance:
-model = Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p)
+// Instantiate sample input and output:
+let x = torch.randint(0,vocab_size,[batch_size,n_timesteps,1]);
+let y = torch.randint(0,vocab_size,[batch_size,n_timesteps]);
+let loss;
 
-# Define loss function and optimizer:
-loss_func = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.01, reg=0)
-        
-# Training Loop:
-for _ in range(n_iters):
-    x, y = get_batch(test_data, n_timesteps, batch_size)
+// Training Loop:
+for(let i=0 ; i < 40 ; i++) {
+    // Forward pass through the Transformer:
+    let z = model.forward(x);
 
-    z = model.forward(x)
+    // Get loss:
+    loss = loss_func.forward(z, y);
 
-    # Get loss:
-    loss = loss_func(z, y)
+    // Backpropagate the loss using torch.tensor's backward() method:
+    loss.backward();
 
-    # Backpropagate the loss using forge.tensor's backward() method:
-    loss.backward()
-
-    # Update the weights:
-    optimizer.step()
-
-    # Reset the gradients to zero after each training step:
-    optimizer.zero_grad()
+    // Update the weights:
+    optimizer.step();
+    
+    // Reset the gradients to zero after each training step:
+    optimizer.zero_grad();
+    
+};
 ```
-> **Note:** You can install the framework locally with: `pip install neuralforge`
-<details>
-<summary> <b> Requirements </b> </summary>
+> **Note:** You can install the package locally with: `npm install js-pytorch`
 
 <br/>
-<br/>
 
-
-</details>
-<br/>
+## 3. Results
+- The models implemented in the [unit tests](tests/test.js) all converged to __near-zero losses__.
+- This package is not as optimized as PyTorch yet, but I tried making it more interpretable. Efficiency improvements are incoming!
+- Hope you enjoy!
