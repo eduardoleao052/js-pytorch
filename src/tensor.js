@@ -360,6 +360,9 @@ var torch = (function(exports){
             let aData = utils.getData(a); 
             let bData = utils.getData(b);
 
+            //console.log(aData);
+            //console.log(bData);
+
             // Call recursive function:
             let z = new Tensor(
                 _add(aData, bData), // data;
@@ -1011,16 +1014,13 @@ var torch = (function(exports){
 
     class At {
         forward(a, idx1, idx2=null) {
-            // Get shape of outgoing tensor:
-            let B = utils.getShape(utils.assureArray(idx1))[0];
-
             // Make sure index lists are flat JavaScript arrays:
             if (idx1) {idx1 = _flatten(utils.assureArray(idx1))};
             if (idx2) {idx2 = _flatten(utils.assureArray(idx2))};
 
             // Build cache to use in backward step:
             this.cache = [a, idx1, idx2];
-            
+
             // Call function:
             let z = new Tensor(
                 _at(a._data, idx1, idx2), // data;
@@ -1044,18 +1044,16 @@ var torch = (function(exports){
             // Find gradients relative to "a", and pass them downstream:
             if (a.requires_grad) {
                 let da = zeros(a.shape);
-
                 // Add derivatives to the original places from a:
                 for (let i=0 ; i < dz.length ; i++) {
                     // If there is a second index, add to each [i][j] coordinate (2D):
                     if (idx2 != null) {
-                        da._data[idx1[i]][idx2[i]] = dz._data[i];
+                        da._data[idx1[i]][idx2[i]] = _add(da._data[idx1[i]][idx2[i]], dz._data[i]);
                     // If there is not a second index, add to each [i] coordinate (1D):
                     } else {
-                        da._data[idx1[i]] = dz._data[i];
-                    }
-                    
-                }
+                        da._data[idx1[i]] = _add(da._data[idx1[i]], dz._data[i]);
+                    };
+                };
                 a.backward(da, z);
             };
         };
@@ -1281,16 +1279,16 @@ var torch = (function(exports){
      * @param {object} index2 - List containing indexes to extract data from in second dimension [OPTIONAL].
      * @returns {object} New tensor.
      * @example 
-     * let a = tensor([[1,1,2,3],
-     *                 [6,7,8,9]])
+     * let a = tensor([[1,4,2],
+     *                 [6,7,8]])
      * 
-     * // Returns tensor([2,6,9]):
-     * a.at([0,1,1], [2,0,3])
-     * 
-     * // Returns tensor([[1,1,2,3],
-     * //                 [6,7,8,9],
-     * //                 [1,1,2,3]])
+     * // Returns tensor([[1,4,2],
+     * //                 [6,7,8],
+     * //                 [1,4,2]])
      * a.at([0,1,0])
+     * 
+     * // Returns tensor([2,6,8]):
+     * a.at([0,1,1], [2,0,2])
      */
     function at(a, idx1, idx2) {
         return a.at(idx1, idx2);
@@ -1659,6 +1657,25 @@ var torch = (function(exports){
         if (idx2 instanceof Tensor) {
             idx2 = idx2.data;
         };
+        // if (!idx2){
+        //     console.log('else')
+        //     let i = 0
+        //     for (el of a) {
+        //         console.log(i)
+        //         console.log(el[0]);
+        //         i += 1
+        //     };
+
+        //     let z = Array(idx1.length).fill(0).map((_, i) => a[idx1[i]])
+        //     console.log('else')
+        //     i = 0
+        //     for (el of z) {
+        //         console.log(idx1[i])
+        //         console.log(el[0]);
+        //         i += 1
+        //     };
+        //     console.log(utils.getShape(z))
+        // };
         // If there is a second index, fill a new array in position "N" with a[idx1[N]][idx2[N]] (2 Dims):
         if (idx2 != null) {
             return Array(idx1.length).fill(0).map((_, i) => a[idx1[i]][idx2[i]]);

@@ -86,9 +86,9 @@
         <!-- This is where the graph will be displayed -->
         <canvas id="graph" width="700" height="350"></canvas>
         <div style="display: inline-block; width: 90%; margin-bottom: 15px;">
-            <p id="iter"> Iteration: </p>
-            <p id="total-visited"> Total Training Examples: </p>
-            <p id="loss"> Loss: </p>
+            <p id="iter"> <b>Iteration:</b> </p>
+            <p id="total-visited"> <b>Total Training Examples:</b> </p>
+            <p id="loss"> <b>Loss:</b> </p>
         </div>
         <divs tyle="display: inline-block;">
             <a target="_blank" href="https://github.com/eduardoleao052/js-torch"><img class="logos" src="../../assets/github.png"  style="width: 25px; height: 25px; display: inline-block; margin-bottom: 0px;"></a>
@@ -131,7 +131,7 @@
         };
 
         function removeBox() {
-            if (boxCount.length > 0 && !training) {
+            if (boxCount.length > 1 && !training) {
                 const container = document.getElementById('layersBox');
                 container.removeChild(container.lastChild);
                 boxCount.pop();
@@ -151,7 +151,7 @@
             };
         }
 
-        function get_batch(x, y, batch_size) {
+        function getBatch(x, y, batch_size) {
             // Instantiate x_batch and y_batch as empty tensors:
             let x_batch = [];
             let y_batch = [];
@@ -257,7 +257,7 @@
 
             // Training Loop:
             for(let i=0 ; i < 1 ; i++) {
-                let [x_batch, y_batch] = get_batch(x, y, batch_size)
+                let [x_batch, y_batch] = getBatch(x, y, batch_size)
 
                 let z = model.forward(x_batch)
 
@@ -281,9 +281,9 @@
                 } else {data.push(loss.data)}
                 
                 // Display iteration and loss on the screen:
-                document.getElementById('iter').innerHTML = `Iteration: ${iter}`;
-                document.getElementById('total-visited').innerHTML = `Total Training Examples: ${total_visited}`;
-                document.getElementById('loss').innerHTML = `Loss: ${loss.data[0].toFixed(3)}`;
+                document.getElementById('iter').innerHTML = `<b>Iteration:</b> ${iter}`;
+                document.getElementById('total-visited').innerHTML = `<b>Total Training Examples:</b> ${total_visited}`;
+                document.getElementById('loss').innerHTML = `<b>Loss:</b> ${loss.data[0].toFixed(3)}`;
                 iter += 1;
                 total_visited += batch_size;
             
@@ -302,13 +302,6 @@
             total_visited = 0;
             data = [];
             plotGraph();
-            let boxCount = [];
-            removeBox();
-            removeBox();
-            removeBox();
-            removeBox();
-            removeBox();
-            addBox()
             buttons = document.getElementsByClassName('layer-button');
             for (button of buttons) {
                 button.style.backgroundColor = '';

@@ -150,22 +150,20 @@ function test_transformer() {
             this.pos_embed = new nn.PositionalEmbedding(n_timesteps, hidden_size)
             this.b1 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p=p) 
             this.b2 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p=p) 
-            //this.b3 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p=p) 
             this.ln = new nn.LayerNorm(hidden_size)
             this.linear = new nn.Linear(hidden_size, vocab_size)
         };
 
         forward(x) {
-            // z = torch.add(this.embed.forward(x), this.pos_embed.forward(x))
-            let z = this.b1.forward(x)
+            let z;
+            z = torch.add(this.embed.forward(x), this.pos_embed.forward(x));
+            z = this.b1.forward(z)
             z = this.b2.forward(z)
-            //z = this.b3.forward(z)
             z = this.ln.forward(z)
             z = this.linear.forward(z)
             return z;
         };
     };
-
 
     let vocab_size = 52;
     let hidden_size = 32;
@@ -180,12 +178,12 @@ function test_transformer() {
     let loss_func = new nn.CrossEntropyLoss()
     let optimizer = new optim.Adam(model.parameters(), lr=5e-3, reg=0)
     // Instantiate input and output:
-    let x = torch.randn([batch_size,n_timesteps,hidden_size])
+    let x = torch.randint(0,vocab_size,[batch_size,n_timesteps,1])
     let y = torch.randint(0,vocab_size,[batch_size,n_timesteps])
     let loss;
 
     // Training Loop:
-    for(let i=0 ; i < 32 ; i++) {
+    for(let i=0 ; i < 40 ; i++) {
         let z = model.forward(x)
 
         // Get loss:
@@ -199,11 +197,13 @@ function test_transformer() {
         
         // Reset the gradients to zero after each training step:
         optimizer.zero_grad()
-        //x.children = [];
+        console.log(i)
+        console.log(loss.data)
+        
     };
 
     // Assert that the model converged:
-    if (loss > 0.1) {
+    if (loss.data > 0.1) {
         throw new Error('Transformer did not converge in Unit Test #3.')
     };
 

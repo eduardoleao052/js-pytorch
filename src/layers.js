@@ -237,7 +237,7 @@ var nn = (function(exports){
          */  
         constructor(in_size, embed_size) {
             super()
-            this.E = torch.randn([in_size, embed_size], true, true);
+            this.E = torch.randn([in_size, embed_size], true, false);
         };
 
         /**
@@ -251,7 +251,10 @@ var nn = (function(exports){
 
             idx = utils.assureArray(idx);
             let x = this.E.at(idx);
-
+            // for (el of x.data){
+            //     console.log(el[0])
+            // }
+            // console.log('END >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
             // Assure output tensor has desired shape:
             x = x.reshape([B,T,this.E.shape[1]]);
 
@@ -268,7 +271,7 @@ var nn = (function(exports){
          */  
         constructor (n_timesteps, embed_size) {
             super()
-            this.E = torch.randn([n_timesteps, embed_size], true, true);
+            this.E = torch.randn([n_timesteps, embed_size], true, false);
         };
 
         /**
@@ -280,12 +283,12 @@ var nn = (function(exports){
             // Get num_timesteps dimension:
             let [B, T] = idx.shape;
             // Creates positional embeddings: (Batch, Timesteps) => (Batch, Timesteps, Embed)
-            let x = this.E.at([...Array(T).keys()]) 
+            let x = this.E.at([...Array(T).keys()]);
+            // let x = this.E.at(Array(B).fill([...Array(T).keys()])); 
             
-            // Assure output tensor has desired shape:
-            x = x.reshape([B,T]);
+            // // Assure output tensor has desired shape:
+            // x = x.reshape([B,T,this.E.shape[1]]);
             
-
             return x
         };
     };
