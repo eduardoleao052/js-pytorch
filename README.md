@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/icon.png" alt="js-torch" height="135">
+  <img src="./assets/logo.png" alt="js-torch" height="135">
 </p>
 
 <p align="center">
