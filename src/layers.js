@@ -79,7 +79,7 @@ var nn = (function(exports){
          * @returns {torch.Tensor} new Tensor. Out = (In @ W) + b.
          */
         forward(x) {
-            let z = x.matMul(this.W )
+            let z = x.matmul(this.W )
             if (this.has_bias) {
                 z = z.add(this.b);
             };
@@ -137,7 +137,7 @@ var nn = (function(exports){
 
             // Compute attention activation:
             let kT = k.transpose(-2, -1);
-            let att = q.matMul(kT); // (B, nh, T, H) @ (B, nh, H, T) -> (B, nh, T, T)
+            let att = q.matmul(kT); // (B, nh, T, H) @ (B, nh, H, T) -> (B, nh, T, T)
 
             // Reduce module before going into softmax:
             att = att.div(H**(.5))
@@ -149,7 +149,7 @@ var nn = (function(exports){
             att = this.att_dropout.forward(att);
 
             // Compute weighted sum between values:
-            let out = att.matMul(v) // (B, nh, T, T) @ (B, nh, T, H) -> (B, nh, T, H)
+            let out = att.matmul(v) // (B, nh, T, T) @ (B, nh, T, H) -> (B, nh, T, H)
 
             // Restack heads in D dimension:
             out = out.transpose(1, 2).reshape([B, T, D]) // (B, nh, T, H) -> (B, T, D)

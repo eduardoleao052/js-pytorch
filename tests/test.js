@@ -1,8 +1,8 @@
 ﻿
 if (typeof window === 'undefined'){
     globalThis.torch = require("../src/tensor.js");
-    globalThis.nn = require("../src/layers.js")
-    globalThis.optim = require('../src/optim.js')
+    globalThis.nn = require("../src/layers.js");
+    globalThis.optim = require('../src/optim.js');
 };
 
 // <<< Tests >>> //
@@ -16,36 +16,36 @@ function test_autograd() {
     let start_time = new Date();
 
     // Define loss function as Cross Entropy Loss and learning rate:
-    let loss_func = new nn.CrossEntropyLoss()
+    let loss_func = new nn.CrossEntropyLoss();
     let learning_rate = 3e-3;
 
     //  Instantiate input and output:
-    let x = torch.randn([8,4,16])
-    let y = torch.randint(0,10,[8,4])
+    let x = torch.randn([8,4,16]);
+    let y = torch.randint(0,10,[8,4]);
     let loss;
 
     // Instantiate Neural Network's Layers:
-    let w1 = torch.randn([16,64], requires_grad=true, xavier=true) 
-    let relu1 = new nn.ReLU()
-    let w2 = torch.randn([64,64], requires_grad=true, xavier=true) 
-    let relu2 = new nn.ReLU()
-    let w3 = torch.randn([64,50], requires_grad=true, xavier=true)
+    let w1 = torch.randn([16,64], requires_grad=true, xavier=true);
+    let relu1 = new nn.ReLU();
+    let w2 = torch.randn([64,64], requires_grad=true, xavier=true);
+    let relu2 = new nn.ReLU();
+    let w3 = torch.randn([64,50], requires_grad=true, xavier=true);
 
 
 
     // Training Loop:
     for (let i=0; i < 128 ; i++) {
 
-        let z = torch.matMul(x, w1);
+        let z = torch.matmul(x, w1);
         z = relu1.forward(z);
-        z = torch.add(z,torch.matMul(z, w2));
+        z = torch.add(z,torch.matmul(z, w2));
         z = relu2.forward(z);
-        z = torch.matMul(z, w3);
+        z = torch.matmul(z, w3);
 
         // Get loss:
         loss = loss_func.forward(z, y);
         // Backpropagate the loss using neuralforge.tensor:
-        loss.backward()
+        loss.backward();
 
         // Update the weights:
         w1._data = w1.add(w1._grad.mul(learning_rate).neg()).data;
@@ -53,12 +53,12 @@ function test_autograd() {
         w3._data = w3.add(w3._grad.mul(learning_rate).neg()).data;
 
         // Reset the gradients to zero after each training step:
-        loss.zero_grad_graph()
+        loss.zero_grad_graph();
     };
 
     // Assert that the model converged:
     if (loss.data > 0.1) {
-        throw new Error('Autograd engine did not converge in Unit Test #1.')
+        throw new Error('Autograd engine did not converge in Unit Test #1.');
     };
 
     // Return elapsed time:
@@ -99,34 +99,34 @@ function test_module() {
     let model = new NeuralNet(32);
 
     // Define loss function and optimizer:
-    let loss_func = new nn.CrossEntropyLoss()
-    let optimizer = new optim.Adam(model.parameters(), lr=3e-3, reg=0)
+    let loss_func = new nn.CrossEntropyLoss();
+    let optimizer = new optim.Adam(model.parameters(), lr=3e-3, reg=0);
 
     // Instantiate input and output:
-    let x = torch.randn([8,4,16])
-    let y = torch.randint(0,10,[8,4])
+    let x = torch.randn([8,4,16]);
+    let y = torch.randint(0,10,[8,4]);
     let loss;
 
     // Training Loop:
     for(let i=0 ; i < 100 ; i++) {
-        let z = model.forward(x)
+        let z = model.forward(x);
 
         // Get loss:
-        loss = loss_func.forward(z, y)
+        loss = loss_func.forward(z, y);
 
         // Backpropagate the loss using neuralforge.tensor's backward() method:
-        loss.backward()
+        loss.backward();
 
         // Update the weights:
-        optimizer.step()
+        optimizer.step();
         
         // Reset the gradients to zero after each training step:
-        optimizer.zero_grad()
+        optimizer.zero_grad();
     };
 
     // Assert that the model converged:
     if (loss.data > 0.1) {
-        throw new Error('Module did not converge in Unit Test #2.')
+        throw new Error('Module did not converge in Unit Test #2.');
     };
 
     // Return elapsed time:
@@ -143,23 +143,23 @@ function test_transformer() {
     // Implement dummy nn.Module class:
     class Transformer extends nn.Module {
         constructor(vocab_size, hidden_size, n_timesteps, n_heads, p) {
-            super()
+            super();
             // Instantiate Transformer's Layers:
-            this.embed = new nn.Embedding(vocab_size, hidden_size)
-            this.pos_embed = new nn.PositionalEmbedding(n_timesteps, hidden_size)
-            this.b1 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p=p) 
-            this.b2 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p=p) 
-            this.ln = new nn.LayerNorm(hidden_size)
-            this.linear = new nn.Linear(hidden_size, vocab_size)
+            this.embed = new nn.Embedding(vocab_size, hidden_size);
+            this.pos_embed = new nn.PositionalEmbedding(n_timesteps, hidden_size);
+            this.b1 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p=p);
+            this.b2 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p=p);
+            this.ln = new nn.LayerNorm(hidden_size);
+            this.linear = new nn.Linear(hidden_size, vocab_size);
         };
 
         forward(x) {
             let z;
             z = torch.add(this.embed.forward(x), this.pos_embed.forward(x));
-            z = this.b1.forward(z)
-            z = this.b2.forward(z)
-            z = this.ln.forward(z)
-            z = this.linear.forward(z)
+            z = this.b1.forward(z);
+            z = this.b2.forward(z);
+            z = this.ln.forward(z);
+            z = this.linear.forward(z);
             return z;
         };
     };
@@ -174,34 +174,34 @@ function test_transformer() {
     let model = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p);
 
     // Define loss function and optimizer:
-    let loss_func = new nn.CrossEntropyLoss()
-    let optimizer = new optim.Adam(model.parameters(), lr=5e-3, reg=0)
+    let loss_func = new nn.CrossEntropyLoss();
+    let optimizer = new optim.Adam(model.parameters(), lr=5e-3, reg=0);
     // Instantiate input and output:
-    let x = torch.randint(0,vocab_size,[batch_size,n_timesteps,1])
-    let y = torch.randint(0,vocab_size,[batch_size,n_timesteps])
+    let x = torch.randint(0,vocab_size,[batch_size,n_timesteps,1]);
+    let y = torch.randint(0,vocab_size,[batch_size,n_timesteps]);
     let loss;
 
     // Training Loop:
     for(let i=0 ; i < 50 ; i++) {
-        let z = model.forward(x)
+        let z = model.forward(x);
 
         // Get loss:
-        loss = loss_func.forward(z, y)
+        loss = loss_func.forward(z, y);
 
         // Backpropagate the loss using neuralforge.tensor's backward() method:
-        loss.backward()
+        loss.backward();
 
         // Update the weights:
-        optimizer.step()
+        optimizer.step();
         
         // Reset the gradients to zero after each training step:
-        optimizer.zero_grad()
+        optimizer.zero_grad();
         
     };
 
     // Assert that the model converged:
     if (loss.data > 0.1) {
-        throw new Error('Transformer did not converge in Unit Test #3.')
+        throw new Error('Transformer did not converge in Unit Test #3.');
     };
 
     // Return elapsed time:

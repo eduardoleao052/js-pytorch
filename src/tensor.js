@@ -219,7 +219,7 @@ var torch = (function(exports){
          * @param {any} other - Tensor or integer to multiply this Tensor by.
          * @returns {object} New tensor.
          */
-        matMul(other) {
+        matmul(other) {
             const operation = new MatMul();
             return operation.forward(this, other);
         };
@@ -1254,8 +1254,8 @@ var torch = (function(exports){
      * @param {any} other - Tensor or integer to multiply this Tensor by.
      * @returns {object} New tensor.
      */
-    function matMul(a, b) {
-        return a.matMul(b);
+    function matmul(a, b) {
+        return a.matmul(b);
     };
 
     /**
@@ -1976,7 +1976,7 @@ var torch = (function(exports){
     exports.neg = neg;
     exports.mul = mul;
     exports.div = div;
-    exports.matMul = matMul;
+    exports.matmul = matmul;
     exports.exp = exp;
     exports.log = log;
     exports.sqrt = sqrt;
