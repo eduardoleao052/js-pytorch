@@ -26,6 +26,7 @@
     "build": "npm run clean && npm run build:esm && npm run build:cjs",
     "build:esm": "tsc -p ./configs/tsconfig.esm.json && move-file lib/esm/index.js lib/esm/index.mjs",
     "build:cjs": "tsc -p ./configs/tsconfig.cjs.json",
+    "check": "tsc --noEmit",
     "prepack": "npm run build",
     "semantic-release": "semantic-release",
     "test": "node --loader ts-node/esm ./tests/test.ts"
