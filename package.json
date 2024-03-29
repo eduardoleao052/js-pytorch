@@ -2,12 +2,41 @@
   "name": "js-pytorch",
   "version": "0.2.2",
   "description": "A JavaScript library like PyTorch, built from scratch.",
-  "main": "src/index.js",
+  "type": "module",
   "directories": {
     "test": "tests"
   },
+  "exports": {
+    "import": {
+      "types": "./lib/esm/types/index.d.ts",
+      "default": "./lib/esm/index.mjs"
+    },
+    "require": {
+      "types": "./lib/cjs/types/index.d.ts",
+      "default": "./lib/cjs/index.js"
+    }
+  },
+  "types": "./lib/cjs/types/index.d.ts",
+  "main": "./lib/cjs/index.js",
+  "files": [
+    "lib/**/*"
+  ],
   "scripts": {
-    "test": "node ./tests/test.js"
+    "clean": "del-cli ./lib",
+    "build": "npm run clean && npm run build:esm && npm run build:cjs",
+    "build:esm": "tsc -p ./configs/tsconfig.esm.json && move-file lib/esm/index.js lib/esm/index.mjs",
+    "build:cjs": "tsc -p ./configs/tsconfig.cjs.json",
+    "prepack": "npm run build",
+    "semantic-release": "semantic-release",
+    "test": "node --loader ts-node/esm ./tests/test.ts"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "keywords": [
     "deep-learning",
@@ -16,14 +45,19 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eduardoleao052/js-torch.git"
+    "url": "https://github.com/eduardoleao052/js-torch.git"
   },
   "author": "Eduardo Leitao da Cunha Opice Leao",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/eduardoleao052/js-torch/issues"
   },
-  "homepage": "https://github.com/eduardoleao052/js-torch#readme"
+  "homepage": "https://github.com/eduardoleao052/js-torch#readme",
+  "devDependencies": {
+    "del-cli": "^5.1.0",
+    "move-file-cli": "^3.0.0",
+    "semantic-release": "^23.0.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.3"
+  }
 }
-
-

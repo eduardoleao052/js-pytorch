@@ -21,8 +21,9 @@
 </p>
 
 # PyTorch in JavaScript
-- JS-Torch is a Deep Learning __JavaScript library__ built from scratch, to closely follow PyTorch's syntax. 
-- It contains a fully functional [Tensor](src/tensor.js) object, which can track gradients, Deep Learning [Layers](src/layers.js) and functions, and an __Automatic Differentiation__ engine.
+
+- JS-Torch is a Deep Learning **JavaScript library** built from scratch, to closely follow PyTorch's syntax.
+- It contains a fully functional [Tensor](src/tensor.ts) object, which can track gradients, Deep Learning [Layers](src/layers.ts) and functions, and an **Automatic Differentiation** engine.
 - Feel free to try out a <a href="https://eduardoleao052.github.io/js-torch/assets/demo/demo.html" target="blank">Web Demo</a>!
 
 <br>
@@ -30,9 +31,7 @@
 <details>
 <summary> Implemented Tensor <b>Operations</b>: </summary>
 
-
 <br/>
-
 
 - [Add](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L346-L401)
 - [Subtract](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L404-L438)
@@ -51,15 +50,12 @@
 - [MaskedFill](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L1062-L1095)
 - [Reshape](https://github.com/eduardoleao052/js-torch/blob/07c1286867b952f32c0e904033214253e8812090/src/tensor.js#L1097-L1129)
 
-
 </details>
 
 <details>
 <summary> Implemented Deep Learning <b>Layers</b>: </summary>
 
-
 <br/>
-
 
 - [nn.Linear](https://github.com/eduardoleao052/js-torch/blob/a158c91db9775a88fae6ed2d0f76d6d8ee6f9d23/src/layers.js#L60-L88)
 - [nn.MultiHeadSelfAttention](https://github.com/eduardoleao052/js-torch/blob/a158c91db9775a88fae6ed2d0f76d6d8ee6f9d23/src/layers.js#L90-L163)
@@ -77,24 +73,27 @@
 <br/>
 
 ## 1. Project Structure
+
 - `assets/` : Folder to store images and the Demo.
   - `assets/demo/` : JS-Torch's [Web Demo](https://eduardoleao052.github.io/js-torch/assets/demo/demo.html).
 - `src/` : Framework with JavaScript files.
-  - `src/tensor.js`:  File with the `Tensor` class and all of the tensor `Operations`.
-  - `src/utils.js`: File with operations and helper functions.
-  - `src/layers.js`: Submodule of the framework. Contains full layers.
-  - `src/optim.js`: Submodule of the framework. Contains Adam Optimizer.
-- `tests/`: Folder with unit tests. Contains `test.js`.
+  - `src/tensor.ts`: File with the `Tensor` class and all of the tensor `Operations`.
+  - `src/utils.ts`: File with operations and helper functions.
+  - `src/layers.ts`: Submodule of the framework. Contains full layers.
+  - `src/optim.ts`: Submodule of the framework. Contains Adam Optimizer.
+- `tests/`: Folder with unit tests. Contains `test.ts`.
 
 ## 2. Running it Yourself
-### Simple Autograd Example: 
-```javascript
-const torch = require("js-pytorch");
+
+### Simple Autograd Example:
+
+```typescript
+import { torch } from "js-pytorch";
 
 // Instantiate Tensors:
-let x = torch.randn([8,4,5]);
-let w = torch.randn([8,5,4], requires_grad = true);
-let b = torch.tensor([0.2, 0.5, 0.1, 0.0], requires_grad = true);
+x = torch.randn([8, 4, 5]);
+w = torch.randn([8, 5, 4], (requires_grad = true));
+b = torch.tensor([0.2, 0.5, 0.1, 0.0], (requires_grad = true));
 
 // Make calculations:
 let out = torch.matmul(x, w);
@@ -106,73 +105,98 @@ out.backward();
 // Get gradients from specific Tensors:
 console.log(w.grad);
 console.log(b.grad);
-
 ```
 
-### Complex Autograd Example (Transformer): 
-```javascript
-const torch = require("js-pytorch");
+### Complex Autograd Example (Transformer):
+
+```typescript
+import { torch } from "js-pytorch";
 const nn = torch.nn;
 
 class Transformer extends nn.Module {
-    constructor(vocab_size, hidden_size, n_timesteps, n_heads, p) {
-        super();
-        // Instantiate Transformer's Layers:
-        this.embed = new nn.Embedding(vocab_size, hidden_size);
-        this.pos_embed = new nn.PositionalEmbedding(n_timesteps, hidden_size);
-        this.b1 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p=p);
-        this.b2 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p=p);
-        this.ln = new nn.LayerNorm(hidden_size);
-        this.linear = new nn.Linear(hidden_size, vocab_size);
-    };
+  constructor(vocab_size, hidden_size, n_timesteps, n_heads, p) {
+    super();
+    // Instantiate Transformer's Layers:
+    this.embed = new nn.Embedding(vocab_size, hidden_size);
+    this.pos_embed = new nn.PositionalEmbedding(n_timesteps, hidden_size);
+    this.b1 = new nn.Block(
+      hidden_size,
+      hidden_size,
+      n_heads,
+      n_timesteps,
+      (dropout_p = p)
+    );
+    this.b2 = new nn.Block(
+      hidden_size,
+      hidden_size,
+      n_heads,
+      n_timesteps,
+      (dropout_p = p)
+    );
+    this.ln = new nn.LayerNorm(hidden_size);
+    this.linear = new nn.Linear(hidden_size, vocab_size);
+  }
 
-    forward(x) {
-        let z;
-        z = torch.add(this.embed.forward(x), this.pos_embed.forward(x));
-        z = this.b1.forward(z);
-        z = this.b2.forward(z);
-        z = this.ln.forward(z);
-        z = this.linear.forward(z);
-        return z;
-    };
-};
+  forward(x) {
+    let z;
+    z = torch.add(this.embed.forward(x), this.pos_embed.forward(x));
+    z = this.b1.forward(z);
+    z = this.b2.forward(z);
+    z = this.ln.forward(z);
+    z = this.linear.forward(z);
+    return z;
+  }
+}
 
 // Instantiate your custom nn.Module:
-const model = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p);
+const model = new Transformer(
+  vocab_size,
+  hidden_size,
+  n_timesteps,
+  n_heads,
+  dropout_p
+);
 
 // Define loss function and optimizer:
 const loss_func = new nn.CrossEntropyLoss();
-const optimizer = new optim.Adam(model.parameters(), lr=5e-3, reg=0);
+const optimizer = new optim.Adam(model.parameters(), (lr = 5e-3), (reg = 0));
 
 // Instantiate sample input and output:
-let x = torch.randint(0,vocab_size,[batch_size,n_timesteps,1]);
-let y = torch.randint(0,vocab_size,[batch_size,n_timesteps]);
+let x = torch.randint(0, vocab_size, [batch_size, n_timesteps, 1]);
+let y = torch.randint(0, vocab_size, [batch_size, n_timesteps]);
 let loss;
 
 // Training Loop:
-for(let i=0 ; i < 40 ; i++) {
-    // Forward pass through the Transformer:
-    let z = model.forward(x);
+for (let i = 0; i < 40; i++) {
+  // Forward pass through the Transformer:
+  let z = model.forward(x);
 
-    // Get loss:
-    loss = loss_func.forward(z, y);
+  // Get loss:
+  loss = loss_func.forward(z, y);
 
-    // Backpropagate the loss using torch.tensor's backward() method:
-    loss.backward();
+  // Backpropagate the loss using torch.tensor's backward() method:
+  loss.backward();
 
-    // Update the weights:
-    optimizer.step();
-    
-    // Reset the gradients to zero after each training step:
-    optimizer.zero_grad();
-    
-};
+  // Update the weights:
+  optimizer.step();
+
+  // Reset the gradients to zero after each training step:
+  optimizer.zero_grad();
+}
 ```
+
 > **Note:** You can install the package locally with: `npm install js-pytorch`
 
 <br/>
 
 ## 3. Results
-- The models implemented in the [unit tests](tests/test.js) all converged to __near-zero losses__.
+
+- The models implemented in the [unit tests](tests/test.ts) all converged to **near-zero losses**.
+- Run them with `npm test`!
 - This package is not as optimized as PyTorch yet, but I tried making it more interpretable. Efficiency improvements are incoming!
 - Hope you enjoy!
+
+## 4. Building for distribution
+
+1. Run `npm run build`
+2. Both CJS and ESM modules will be output in the `lib/` folder.

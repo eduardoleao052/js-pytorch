@@ -6,17 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neural Network Demo</title>
 
-    <script src="../../src/utils.js"></script>
-    <script src="../../src/tensor.js"></script>
-    <script src="../../src/layers.js"></script>
-    <script src="../../src/optim.js"></script>
-    <script src="../../src/optim.js"></script>
+    <script type="module" src="../../lib/esm/index.mjs"></script>
 
     <link rel="script" href="demo.js">
     <link rel="stylesheet" href="demo.css">
 </head>
 
 <body>
+    <script type="module">
+        import { torch } from '../../lib/esm/index.mjs';
+        window.torch = torch;
+    </script>
+
     <div style="height: 20px;"></div>
     <div class="container">
         <div class="separator" id="right-separator" style="display: block; padding-bottom: 0px;">
@@ -182,29 +183,29 @@
                 for (button of buttons) {
                     button.style.backgroundColor = '#0056b3';
                 };
-                // Implement dummy nn.Module class:
-                class NeuralNet extends nn.Module {
+                // Implement dummy torch.nn.Module class:
+                class NeuralNet extends torch.nn.Module {
                     constructor() {
                         super();
                         // Instantiate Neural Network's Layers:
-                        this.wIn = new nn.Linear(32,boxCount[0]);
-                        this.reluIn = new nn.ReLU();
+                        this.wIn = new torch.nn.Linear(32,boxCount[0]);
+                        this.reluIn = new torch.nn.ReLU();
                         if (boxCount.length > 1) {
-                            this.w1 = new nn.Linear(boxCount[0],boxCount[1]);
-                            this.relu1 = new nn.ReLU();
+                            this.w1 = new torch.nn.Linear(boxCount[0],boxCount[1]);
+                            this.relu1 = new torch.nn.ReLU();
                         } if (boxCount.length > 2) {
-                            this.w2 = new nn.Linear(boxCount[1],boxCount[2]);
-                            this.relu2 = new nn.ReLU();
+                            this.w2 = new torch.nn.Linear(boxCount[1],boxCount[2]);
+                            this.relu2 = new torch.nn.ReLU();
                         } if (boxCount.length > 3) {
-                            this.w3 = new nn.Linear(boxCount[2],boxCount[3]);
-                            this.relu3 = new nn.ReLU();
+                            this.w3 = new torch.nn.Linear(boxCount[2],boxCount[3]);
+                            this.relu3 = new torch.nn.ReLU();
                         } if (boxCount.length > 4) {
-                            this.w4 = new nn.Linear(boxCount[3],boxCount[4]);
-                            this.relu4 = new nn.ReLU();
+                            this.w4 = new torch.nn.Linear(boxCount[3],boxCount[4]);
+                            this.relu4 = new torch.nn.ReLU();
                         };
-                        this.wOut = new nn.Linear(boxCount[boxCount.length-1], 32);
+                        this.wOut = new torch.nn.Linear(boxCount[boxCount.length-1], 32);
                         
-                        this.reluOut = new nn.ReLU();
+                        this.reluOut = new torch.nn.ReLU();
 
                     };
 
@@ -235,7 +236,7 @@
                 globalThis.model = new NeuralNet();
 
                 // Define loss function and optimizer:
-                globalThis.loss_func = new nn.CrossEntropyLoss();
+                globalThis.loss_func = new torch.nn.CrossEntropyLoss();
                 
                 // Instantiate input and output:
                 globalThis.x = torch.randn([8,32,32]);
@@ -252,7 +253,7 @@
             let eps = Number(document.getElementById('epsilon').value )
 
             // Build optimizer:
-            let optimizer = new optim.Adam(model.parameters(), lr=lr, reg=reg, betas=[beta1, beta2], eps=eps)
+            let optimizer = new torch.optim.Adam(model.parameters(), lr=lr, reg=reg, betas=[beta1, beta2], eps=eps)
             let loss;
 
             // Training Loop:

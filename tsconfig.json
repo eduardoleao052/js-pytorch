@@ -1,0 +1,16 @@
+{
+  "include": ["src/**/*"],
+  "compilerOptions": {
+    "strict": false,
+    "noImplicitAny": false, // Only disabled while we're migrating to TypeScript
+    "allowJs": true,
+    "module": "ESNext",
+    "target": "ESNext",
+    "noEmit": true,
+    "esModuleInterop": true,
+  },
+  "ts-node": {
+    "esm": true
+  },
+  "lib": ["esnext"]
+}
