@@ -23,7 +23,7 @@
     "lib/**/*"
   ],
   "scripts": {
-    "build": "pkgroll",
+    "build": "pkgroll && copyfiles -u 1 ./dist/*.mjs ./assets/demo",
     "check": "tsc -p ./tsconfig.strict.json --noEmit",
     "watch": "pkgroll --watch",
     "prepack": "npm run build",
@@ -53,6 +53,7 @@
   },
   "homepage": "https://github.com/eduardoleao052/js-torch#readme",
   "devDependencies": {
+    "copyfiles": "^2.4.1",
     "del-cli": "^5.1.0",
     "move-file-cli": "^3.0.0",
     "pkgroll": "^2.0.2",
