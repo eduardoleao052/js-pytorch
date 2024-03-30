@@ -92,12 +92,12 @@
 const torch = require("js-pytorch");
 
 // Instantiate Tensors:
-x = torch.randn([8,4,5]);
-w = torch.randn([8,5,4], requires_grad = true);
-b = torch.tensor([0.2, 0.5, 0.1, 0.0], requires_grad = true);
+let x = torch.randn([8,4,5]);
+let w = torch.randn([8,5,4], requires_grad = true);
+let b = torch.tensor([0.2, 0.5, 0.1, 0.0], requires_grad = true);
 
 // Make calculations:
-out = torch.matmul(x, w);
+let out = torch.matmul(x, w);
 out = torch.add(out, b);
 
 // Compute gradients on whole graph:
