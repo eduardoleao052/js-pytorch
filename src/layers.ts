@@ -36,7 +36,7 @@ export class Module implements ModuleInterface {
   parameters(): (Parameter | Tensor)[] {
     // Iterate over each item in this Module.
     let params: (Parameter | Tensor)[] = [];
-    for (let [key, value] of this.entries()) {
+    for (let [_, value] of this.entries()) {
       // Add every Module, Parameter or Tensor with requires_grad set to True:
       if (value instanceof Module) {
         params = params.concat(value.parameters());

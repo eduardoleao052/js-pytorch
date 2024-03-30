@@ -199,4 +199,9 @@ for (let i = 0; i < 40; i++) {
 ## 4. Building for distribution
 
 1. Run `npm run build`
-2. Both CJS and ESM modules will be output in the `lib/` folder.
+2. CJS and ESM modules and `index.d.ts` will be output in the `dist/` folder.
+
+## 5. TypeScript
+
+- Conversion to TypeScript is currently under way, the main tsconfig.json file has `noUnusedLocals`, `noUnusedParameters`, and `noImplicitAny` set to false!
+- A strict config is provided in tsconfig.strict.json and is used by the `check` script, to show currently unaddressed type errors do `npm run check`

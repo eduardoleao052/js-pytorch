@@ -8,28 +8,26 @@
   },
   "exports": {
     "import": {
-      "types": "./lib/esm/types/index.d.ts",
-      "default": "./lib/esm/index.mjs"
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
     },
     "require": {
-      "types": "./lib/cjs/types/index.d.ts",
-      "default": "./lib/cjs/index.js"
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
     }
   },
-  "types": "./lib/cjs/types/index.d.ts",
-  "main": "./lib/cjs/index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "files": [
     "lib/**/*"
   ],
   "scripts": {
-    "clean": "del-cli ./lib",
-    "build": "npm run clean && npm run build:esm && npm run build:cjs",
-    "build:esm": "tsc -p ./configs/tsconfig.esm.json && move-file lib/esm/index.js lib/esm/index.mjs",
-    "build:cjs": "tsc -p ./configs/tsconfig.cjs.json",
-    "check": "tsc --noEmit",
+    "build": "pkgroll",
+    "check": "tsc -p ./tsconfig.strict.json --noEmit",
+    "watch": "pkgroll --watch",
     "prepack": "npm run build",
-    "semantic-release": "semantic-release",
-    "test": "node --loader ts-node/esm ./tests/test.ts"
+    "test": "tsx ./tests/test.ts"
   },
   "release": {
     "branches": [
@@ -57,8 +55,9 @@
   "devDependencies": {
     "del-cli": "^5.1.0",
     "move-file-cli": "^3.0.0",
+    "pkgroll": "^2.0.2",
     "semantic-release": "^23.0.6",
-    "ts-node": "^10.9.2",
+    "tsx": "^4.7.1",
     "typescript": "^5.4.3"
   }
 }

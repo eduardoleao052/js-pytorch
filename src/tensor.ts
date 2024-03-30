@@ -337,7 +337,7 @@ export class Tensor {
  * @param {object} data - Iterable containing the data to be stored in the Tensor.
  */
 export class Parameter extends Tensor {
-  constructor(self, data) {
+  constructor(data) {
     super(data, true);
   }
 }

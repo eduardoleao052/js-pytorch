@@ -54,14 +54,9 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    /**************************************************************************
-      * These have been allowed while types are being added, flip them and    *
-      * type check to find instances to fix                                   *
-      *************************************************************************
-      */
-    "noUnusedLocals": false /* Report errors on unused locals. */,
-    "noUnusedParameters": false /* Report errors on unused parameters. */,
-    "noImplicitAny": false
+    "noUnusedLocals": true /* Report errors on unused locals. */,
+    "noUnusedParameters": true /* Report errors on unused parameters. */,
+    "noImplicitAny": true
   },
   "exclude": ["node_modules"]
 }
