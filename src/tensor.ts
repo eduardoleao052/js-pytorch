@@ -222,10 +222,10 @@ export class Tensor {
 
   /**
    * Multiply this Tensor by integer or other Tensor.
-   * @param {any} other - Tensor or integer to multiply this Tensor by.
+   * @param {Tensor | number} other - Tensor or integer to multiply this Tensor by.
    * @returns {object} New tensor.
    */
-  matMul(other) {
+  matmul(other: Tensor | number) {
     const operation = new MatMul();
     return operation.forward(this, other);
   }
@@ -1278,8 +1278,8 @@ export function log(a) {
  * @param {any} other - Tensor or integer to multiply this Tensor by.
  * @returns {object} New tensor.
  */
-export function matMul(a, b) {
-  return a.matMul(b);
+export function matmul(a: Tensor, b: Tensor | number) {
+  return a.matmul(b);
 }
 
 /**

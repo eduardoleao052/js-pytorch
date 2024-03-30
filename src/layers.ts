@@ -103,11 +103,11 @@ export class Linear extends Module {
 
   /**
    * Performs forward pass through the Linear layer.
-   * @param {Tensor} z - input Tensor.
+   * @param {Tensor} x - input Tensor.
    * @returns {Tensor} new Tensor. Out = (In @ W) + b.
    */
-  forward(x) {
-    let z = x.matMul(this.W);
+  forward(x: Tensor) {
+    let z = x.matmul(this.W);
     if (this.has_bias) {
       z = z.add(this.b);
     }
@@ -147,7 +147,7 @@ export class MultiHeadSelfAttention extends Module {
    * @param {Tensor} x - input Tensor.
    * @returns {Tensor} new Tensor.
    */
-  forward(x) {
+  forward(x: Tensor) {
     let [B, T, D] = x.shape;
     let H = this.H;
     let nh = D / H; // Num heads
@@ -164,7 +164,7 @@ export class MultiHeadSelfAttention extends Module {
 
     // Compute attention activation:
     let kT = k.transpose(-2, -1);
-    let att = q.matMul(kT); // (B, nh, T, H) @ (B, nh, H, T) -> (B, nh, T, T)
+    let att = q.matmul(kT); // (B, nh, T, H) @ (B, nh, H, T) -> (B, nh, T, T)
 
     // Reduce module before going into softmax:
     att = att.div(H ** 0.5);
@@ -176,7 +176,7 @@ export class MultiHeadSelfAttention extends Module {
     att = this.att_dropout.forward(att);
 
     // Compute weighted sum between values:
-    let out = att.matMul(v); // (B, nh, T, T) @ (B, nh, T, H) -> (B, nh, T, H)
+    let out = att.matmul(v); // (B, nh, T, T) @ (B, nh, T, H) -> (B, nh, T, H)
 
     // Restack heads in D dimension:
     out = out.transpose(1, 2).reshape([B, T, D]); // (B, nh, T, H) -> (B, T, D)

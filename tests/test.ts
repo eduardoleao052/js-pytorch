@@ -1,4 +1,4 @@
-﻿import { randn, randint, matMul, add } from "../src/tensor.js";
+﻿import { randn, randint, matmul, add } from "../src/tensor.js";
 import {
   ReLU,
   CrossEntropyLoss,
@@ -39,11 +39,11 @@ function test_autograd() {
 
   // Training Loop:
   for (let i = 0; i < 128; i++) {
-    let z = matMul(x, w1);
+    let z = matmul(x, w1);
     z = relu1.forward(z);
-    z = add(z, matMul(z, w2));
+    z = add(z, matmul(z, w2));
     z = relu2.forward(z);
-    z = matMul(z, w3);
+    z = matmul(z, w3);
 
     // Get loss:
     loss = loss_func.forward(z, y);
