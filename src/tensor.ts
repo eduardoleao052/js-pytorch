@@ -1,6 +1,6 @@
 ﻿import { getShape, getData, assureArray } from "./utils.js";
 
-// <<< Tensor class, holds n-dimentional tensors, and multiple useful methods >>> //
+// <<< Tensor class, holds n-dimensional tensors, and multiple useful methods >>> //
 
 export class Tensor {
   public requires_grad: boolean = false;
@@ -17,7 +17,7 @@ export class Tensor {
   /**
    * Creates new instance of the Tensor class.
    * @param {object} data - Iterable containing the data to be stored in the Tensor.
-   * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+   * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
    */
   constructor(data, requires_grad = false) {
     if (typeof data === "object") {
@@ -137,9 +137,9 @@ export class Tensor {
   }
 
   /**
-   * Gets the sum of the Tensor over a specified dimention.
-   * @param {number} dim - Dimention to sum over.
-   * @param {boolean} keepdims - Wether to keep dimentions of original tensor.
+   * Gets the sum of the Tensor over a specified dimension.
+   * @param {number} dim - Dimension to sum over.
+   * @param {boolean} keepdims - Whether to keep dimensions of original tensor.
    * @returns {Tensor} - Final tensor.
    */
   sum(dim = -1, keepdims = false) {
@@ -148,9 +148,9 @@ export class Tensor {
   }
 
   /**
-   * Gets the mean of the Tensor over a specified dimention.
-   * @param {number} dim - Dimention to get mean over.
-   * @param {boolean} keepdims - Wether to keep dimentions of original tensor.
+   * Gets the mean of the Tensor over a specified dimension.
+   * @param {number} dim - Dimension to get mean over.
+   * @param {boolean} keepdims - Whether to keep dimensions of original tensor.
    * @returns {Tensor} - Final tensor.
    */
   mean(dim = -1, keepdims = false) {
@@ -159,9 +159,9 @@ export class Tensor {
   }
 
   /**
-   * Gets the variance of the Tensor over a specified dimention.
-   * @param {number} dim - Dimention to get variance over.
-   * @param {boolean} keepdims - Wether to keep dimentions of original tensor.
+   * Gets the variance of the Tensor over a specified dimension.
+   * @param {number} dim - Dimension to get variance over.
+   * @param {boolean} keepdims - Whether to keep dimensions of original tensor.
    * @returns {Tensor} - Final tensor.
    */
   variance(dim = -1, keepdims = false) {
@@ -804,10 +804,10 @@ export class Sum {
   cache: any;
 
   /**
-   * Gets the sum of a Tensor over a specified dimention.
+   * Gets the sum of a Tensor over a specified dimension.
    * @param {Tensor} a - Tensor to sum.
-   * @param {dim} dim - Dimention to sum over.
-   * @param {keepdims} keepdims - Wether to keep dimentions of original tensor.
+   * @param {dim} dim - Dimension to sum over.
+   * @param {keepdims} keepdims - Whether to keep dimensions of original tensor.
    * @returns {Tensor} - Final tensor.
    */
   forward(a, dim, keepdims = false) {
@@ -818,7 +818,7 @@ export class Sum {
     if (dim < 0) {
       dim = a.shape.length + dim;
     }
-    // Return error if dimention is out of bounds:
+    // Return error if dimension is out of bounds:
     if (dim >= a.shape.length) {
       throw Error("Dimension larger than array.");
     }
@@ -859,10 +859,10 @@ export class Mean {
   cache: any;
 
   /**
-   * Gets the mean of a Tensor over a specified dimention.
+   * Gets the mean of a Tensor over a specified dimension.
    * @param {Tensor} a - Tensor to get mean from.
-   * @param {dim} dim - Dimention to get mean over.
-   * @param {keepdims} keepdims - Wether to keep dimentions of original tensor.
+   * @param {dim} dim - Dimension to get mean over.
+   * @param {keepdims} keepdims - Whether to keep dimensions of original tensor.
    * @returns {Tensor} - Final tensor.
    */
   forward(a, dim, keepdims = false) {
@@ -870,7 +870,7 @@ export class Mean {
     if (dim < 0) {
       dim = a.shape.length + dim;
     }
-    // Return error if dimention is out of bounds:
+    // Return error if dimension is out of bounds:
     if (dim >= a.shape.length) {
       throw Error("Dimension larger than array.");
     }
@@ -912,10 +912,10 @@ export class Mean {
 export class Variance {
   cache: any;
   /**
-   * Gets the variance of a Tensor over a specified dimention.
+   * Gets the variance of a Tensor over a specified dimension.
    * @param {Tensor} a - Tensor to get variance of.
-   * @param {dim} dim - Dimention to get variance over.
-   * @param {keepdims} keepdims - Wether to keep dimentions of original tensor.
+   * @param {dim} dim - Dimension to get variance over.
+   * @param {keepdims} keepdims - Whether to keep dimensions of original tensor.
    * @returns {Tensor} - Final tensor.
    */
   forward(a, dim, keepdims = false) {
@@ -923,7 +923,7 @@ export class Variance {
     if (dim < 0) {
       dim = a.shape.length + dim;
     }
-    // Return error if dimention is out of bounds:
+    // Return error if dimension is out of bounds:
     if (dim >= a.shape.length) {
       throw Error("Dimension larger than array.");
     }
@@ -1156,10 +1156,10 @@ export class Reshape {
 // <<< Tensor Operation Aliases >>> //
 
 /**
- * Gets the sum of the Tensor over a specified dimention.
+ * Gets the sum of the Tensor over a specified dimension.
  * @param {Tensor} a - Original Tensor.
- * @param {number} dim - Dimention to sum over.
- * @param {boolean} keepdims - Wether to keep dimentions of original tensor.
+ * @param {number} dim - Dimension to sum over.
+ * @param {boolean} keepdims - Whether to keep dimensions of original tensor.
  * @returns {Tensor} - Final tensor.
  */
 export function sum(a, dim = -1, keepdims = false) {
@@ -1167,10 +1167,10 @@ export function sum(a, dim = -1, keepdims = false) {
 }
 
 /**
- * Gets the mean of the Tensor over a specified dimention.
+ * Gets the mean of the Tensor over a specified dimension.
  * @param {Tensor} a - Original Tensor.
- * @param {number} dim - Dimention to get mean over.
- * @param {boolean} keepdims - Wether to keep dimentions of original tensor.
+ * @param {number} dim - Dimension to get mean over.
+ * @param {boolean} keepdims - Whether to keep dimensions of original tensor.
  * @returns {Tensor} - Final tensor.
  */
 export function mean(a, dim = -1, keepdims = false) {
@@ -1178,10 +1178,10 @@ export function mean(a, dim = -1, keepdims = false) {
 }
 
 /**
- * Gets the variance of the Tensor over a specified dimention.
+ * Gets the variance of the Tensor over a specified dimension.
  * @param {Tensor} a - Original Tensor.
- * @param {number} dim - Dimention to get variance over.
- * @param {boolean} keepdims - Wether to keep dimentions of original tensor.
+ * @param {number} dim - Dimension to get variance over.
+ * @param {boolean} keepdims - Whether to keep dimensions of original tensor.
  * @returns {Tensor} - Final tensor.
  */
 export function variance(a, dim = -1, keepdims = false) {
@@ -1348,7 +1348,7 @@ export function reshape(a, shape) {
 
 function _sum(a, dim, keepdims?: boolean) {
   // In recursive call, when depth increases, subtract one from dim.
-  // When we reach the dimention intended (dim === 0),
+  // When we reach the dimension intended (dim === 0),
   // we add all elements in this dimension.
   if (dim == 0) {
     let sum = a.reduce((a, b) => _add(a, b), 0);
@@ -1366,7 +1366,7 @@ function _sum(a, dim, keepdims?: boolean) {
 
 function _mean(a, dim, keepdims?: boolean) {
   // In recursive call, when depth increases, subtract one from dim.
-  // When we reach the dimention intended (dim === 0),
+  // When we reach the dimension intended (dim === 0),
   // we add all elements in this dimension.
   if (dim == 0) {
     let reduced = _div(
@@ -1387,7 +1387,7 @@ function _mean(a, dim, keepdims?: boolean) {
 
 function _variance(a, dim, keepdims?: boolean) {
   // In recursive call, when depth increases, subtract one from dim.
-  // When we reach the dimention intended (dim === 0),
+  // When we reach the dimension intended (dim === 0),
   // we add all elements in this dimension.
   if (dim == 0) {
     // Get mean over current dim:
@@ -1779,7 +1779,7 @@ function _tensorInitializer(shape, valueFunc) {
 /**
  * Creates new instance of the Tensor class.
  * @param {object} data - Iterable containing the data to be stored in the Tensor.
- * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+ * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
 export function tensor(data, requires_grad = false) {
@@ -1789,7 +1789,7 @@ export function tensor(data, requires_grad = false) {
 /**
  * Creates new instance of the Tensor class filled with only zeros.
  * @param {object} shape - List containing the shape of the new tensor Tensor.
- * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+ * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
 export function zeros(shape, requires_grad = false) {
@@ -1802,7 +1802,7 @@ export function zeros(shape, requires_grad = false) {
 /**
  * Creates new instance of the Tensor class filled with only ones.
  * @param {object} shape - List containing the shape of the new tensor Tensor.
- * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+ * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
 export function ones(shape, requires_grad = false) {
@@ -1815,7 +1815,7 @@ export function ones(shape, requires_grad = false) {
 /**
  * Creates new instance of a lower-triangular 2D Tensor.
  * @param {object} shape - List containing the shape of the new tensor Tensor.
- * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+ * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
 export function tril(shape, requires_grad = false) {
@@ -1834,7 +1834,7 @@ export function tril(shape, requires_grad = false) {
 /**
  * Creates new instance of the Tensor class filled with numbers in a uniform distribution in ]0,1[.
  * @param {object} shape - List containing the shape of the new tensor Tensor.
- * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+ * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
 export function rand(shape, requires_grad = false) {
@@ -1847,8 +1847,8 @@ export function rand(shape, requires_grad = false) {
 /**
  * Creates new instance of the Tensor class filled with numbers in a normal distribution.
  * @param {object} shape - List containing the shape of the new tensor Tensor.
- * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
- * @param {boolean} xavier - Wether to use xavier initialization (divide by square root of first input dimension).
+ * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
+ * @param {boolean} xavier - Whether to use xavier initialization (divide by square root of first input dimension).
  * @returns {object} New tensor.
  */
 export function randn(shape, requires_grad = false, xavier = false) {
@@ -1874,7 +1874,7 @@ export function randn(shape, requires_grad = false, xavier = false) {
  * @param {number} low - Lowest number that can be sampled.
  * @param {number} high - One above highest number that can be sampled.
  * @param {object} shape - List containing the shape of the new tensor Tensor.
- * @param {boolean} requires_grad - Wether to keep track of this tensor's gradients.
+ * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
 export function randint(low = 0, high = 1, shape = [1], requires_grad = false) {
@@ -1963,10 +1963,10 @@ export function broadcast(a, b) {
       const _broadcastSideways = (out, b) => {
         if (b.length != out.length) {
           if (b.length === 1) {
-            // Base case, contract existing dimention:
+            // Base case, contract existing dimension:
             return [_sum(out, 0)];
           } else if (out.length === 1) {
-            // Base case, expand existing dimention:
+            // Base case, expand existing dimension:
             let emptyArray = Array(b.length).fill(zeros);
             return emptyArray.map(() => out[0]);
           } else {
@@ -2013,7 +2013,7 @@ export function broadcast(a, b) {
 export function broadcastUp(inElement, outElement) {
   function _broadcastUp(inElement, outElement) {
     if (getShape(inElement).length + 1 === getShape(outElement).length) {
-      // Base case, create new dimention:
+      // Base case, create new dimension:
       let emptyArray = Array(outElement.length).fill(zeros);
       return emptyArray.map(() => inElement);
     } else {
