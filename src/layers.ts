@@ -1,5 +1,4 @@
-﻿import { assureArray } from "./utils.js";
-import {
+﻿import {
   Parameter,
   Tensor,
   randn,
@@ -16,7 +15,10 @@ import {
   _reshape,
 } from "./tensor.js";
 
+
+// Interface that contains all the types of Module's attributes:
 interface ModuleInterface extends Object {
+  // Array of [key: values] of the properties of the Module:
   [key: string]: Module | Parameter | Tensor | any;
   parameters(): (Parameter | Tensor)[];
   train(): void;
@@ -26,7 +28,9 @@ interface ModuleInterface extends Object {
 
 // Module class:
 export class Module implements ModuleInterface {
+  // Instantiate Module's learnable parameters: 
   [key: string]: Module | Parameter | Tensor | any;
+  // Instantiate Module's mode initially as "train": 
   mode: "train" | "eval" = "train";
 
   /**
@@ -94,9 +98,9 @@ export class Linear extends Module {
    * @param {boolean} bias - wether to include a bias term.
    * @param {boolean} xavier - Wether to use xavier initialization (divide by square root of first input dimension).
    */
-  constructor(in_size, out_size, bias = true, xavier = true) {
+  constructor(in_size: number, out_size: number, bias = true, xavier = true) {
     super();
-    this.W = randn([in_size, out_size], true, xavier);
+    this.W  = randn([in_size, out_size], true, xavier);
     this.b = zeros([out_size], true);
     this.has_bias = bias;
   }
@@ -106,7 +110,7 @@ export class Linear extends Module {
    * @param {Tensor} x - input Tensor.
    * @returns {Tensor} new Tensor. Out = (In @ W) + b.
    */
-  forward(x: Tensor) {
+  forward(x: Tensor): Tensor {
     let z = x.matmul(this.W);
     if (this.has_bias) {
       z = z.add(this.b);
@@ -125,7 +129,7 @@ export class MultiHeadSelfAttention extends Module {
    * @param {number} n_timesteps - length of text sequence to be processed bt Transformer.
    * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
    */
-  constructor(in_size, out_size, n_heads, n_timesteps, dropout_prob = 0) {
+  constructor(in_size: number, out_size: number, n_heads: number, n_timesteps: number, dropout_prob = 0) {
     super();
     this.Wk = new Linear(in_size, in_size, false, true);
     this.Wq = new Linear(in_size, in_size, false, true);
@@ -136,7 +140,8 @@ export class MultiHeadSelfAttention extends Module {
     this.residual_dropout = new Dropout(dropout_prob);
     this.softmax = new Softmax();
 
-    this.H = in_size / n_heads; // head_size
+    // Store head_size and verify that it's an integer:
+    this.H = in_size / n_heads;
     if (in_size % n_heads != 0) {
       throw new Error("Embedding dimension not divisible in equal heads.");
     }
@@ -147,7 +152,7 @@ export class MultiHeadSelfAttention extends Module {
    * @param {Tensor} x - input Tensor.
    * @returns {Tensor} new Tensor.
    */
-  forward(x: Tensor) {
+  forward(x: Tensor): Tensor {
     let [B, T, D] = x.shape;
     let H = this.H;
     let nh = D / H; // Num heads
@@ -171,7 +176,7 @@ export class MultiHeadSelfAttention extends Module {
 
     // Apply mask (to block out future characters), softmax, and dropout:
     let mask = broadcast(this.mask, att);
-    att = att.masked_fill(mask, (el) => el === 0, -Infinity);
+    att = att.masked_fill(mask, (el: number): boolean => el === 0, -Infinity);
     att = this.softmax.forward(att, -1);
     att = this.att_dropout.forward(att);
 
@@ -197,7 +202,7 @@ export class FullyConnected extends Module {
    * @param {number} out_size - size of the last dimention of the output array.
    * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
    */
-  constructor(in_size, out_size, dropout_prob = 0) {
+  constructor(in_size: number, out_size: number, dropout_prob = 0) {
     super();
 
     this.l1 = new Linear(in_size, in_size * 2);
@@ -211,7 +216,7 @@ export class FullyConnected extends Module {
    * @param {Tensor} x - input Tensor.
    * @returns {Tensor} new Tensor.
    */
-  forward(x) {
+  forward(x: Tensor): Tensor {
     let z = this.l1.forward(x);
     z = this.relu.forward(z);
     z = this.l2.forward(z);
@@ -230,7 +235,7 @@ export class Block extends Module {
    * @param {number} n_timesteps - length of text sequence to be processed bt Transformer.
    * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
    */
-  constructor(in_size, out_size, n_heads, n_timesteps, dropout_prob) {
+  constructor(in_size: number, out_size: number, n_heads: number, n_timesteps: number, dropout_prob= 0) {
     super();
     this.att = new MultiHeadSelfAttention(
       in_size,
@@ -249,7 +254,7 @@ export class Block extends Module {
    * @param {Tensor} x - input Tensor.
    * @returns {Tensor} new Tensor.
    */
-  forward(x) {
+  forward(x: Tensor): Tensor {
     let z = x.add(this.att.forward(this.ln1.forward(x)));
     //z = this.ln1.forward(z)
     z = z.add(this.fcc.forward(this.ln2.forward(z)));
@@ -266,21 +271,20 @@ export class Embedding extends Module {
    * @param {number} in_size - number of different indexes (vocabulary size).
    * @param {number} out_size - size of the embedding vector generated.
    */
-  constructor(in_size, embed_size) {
+  constructor(in_size: number, embed_size: number) {
     super();
     this.E = randn([in_size, embed_size], true, false);
   }
 
   /**
    * Extracts embedding from rows in "idx":
-   * @param {object} idx - rows to get embedding from.
+   * @param {Tensor} idx - rows to get embedding from.
    * @returns {Tensor} new Tensor. Out = (In @ W) + b.
    */
-  forward(idx) {
+  forward(idx: Tensor): Tensor {
     // Get idx dimensions:
     let [B, T] = idx.shape;
 
-    idx = assureArray(idx);
     let x = this.E.at(idx);
 
     // Assure output tensor has desired shape:
@@ -297,7 +301,7 @@ export class PositionalEmbedding extends Module {
    * @param {number} n_timesteps - number of different embeddings (number of timesteps in each instance in batch).
    * @param {number} embed_size - size of the embedding vector generated.
    */
-  constructor(n_timesteps, embed_size) {
+  constructor(n_timesteps: number, embed_size: number) {
     super();
     this.E = randn([n_timesteps, embed_size], true, false);
   }
@@ -307,15 +311,11 @@ export class PositionalEmbedding extends Module {
    * @param {object} idx - Array [Batch x Timesteps]. Timesteps will be filled with positional embeddings.
    * @returns {Tensor} new Tensor.
    */
-  forward(idx) {
+  forward(idx: Tensor): Tensor {
     // Get num_timesteps dimension:
-    let [B, T] = idx.shape;
+    let [_, T] = idx.shape;
     // Creates positional embeddings: (Batch, Timesteps) => (Batch, Timesteps, Embed)
     let x = this.E.at([...Array(T).keys()]);
-    // let x = this.E.at(Array(B).fill([...Array(T).keys()]));
-
-    // // Assure output tensor has desired shape:
-    // x = x.reshape([B,T,this.E.shape[1]]);
 
     return x;
   }
@@ -335,12 +335,12 @@ export class ReLU extends Module {
    * @param {Tensor} z - input Tensor.
    * @returns {Tensor} new Tensor.
    */
-  forward(z) {
+  forward(z: Tensor): Tensor {
     // Define recursive function:
-    function _relu(z) {
+    function _relu(z: Array<any>): Array<any> {
       // Base case, perform ReLU:
       if (typeof z[0] === "number") {
-        return z.map((el) => {
+        return z.map((el: number): number => {
           if (el > 0) {
             return 1.0;
           } else {
@@ -349,8 +349,8 @@ export class ReLU extends Module {
         });
         // Recursive case, go deeper in array:
       } else if (typeof z[0] === "object") {
-        return z.map((el) => _relu(el));
-      }
+        return z.map((el: Array<any>): Array<any> => _relu(el));
+      } else throw Error('In ReLU, provided Tensor is not homogenous.')
     }
     let mask = tensor(_relu(z._data));
 
@@ -373,7 +373,7 @@ export class Softmax extends Module {
    * @param {number} dim - dimension across which to apply Softmax.
    * @returns {Tensor} new Tensor.
    */
-  forward(z, dim = -1) {
+  forward(z: Tensor, dim = -1): Tensor {
     z = exp(z);
     let out = z.div(z.sum(dim, true));
     return out;
@@ -387,7 +387,7 @@ export class Dropout extends Module {
    *
    * @param {number} drop_prob - probability to drop each value in input.
    */
-  constructor(drop_prob) {
+  constructor(drop_prob: number) {
     super();
     this.p = drop_prob;
     this.mode = "train";
@@ -397,7 +397,7 @@ export class Dropout extends Module {
    * @param {Tensor} z - input Tensor.
    * @returns {Tensor} new Tensor.
    */
-  forward(z) {
+  forward(z: Tensor): Tensor {
     if (this.mode == "eval") {
       return z;
     }
@@ -405,7 +405,7 @@ export class Dropout extends Module {
     // Set to zero all values of uniform distribution lower than probability of dropout:
     let a = z.masked_fill(
       mask,
-      (el) => {
+      (el: number): boolean => {
         return el < this.p;
       },
       0
@@ -422,13 +422,13 @@ export class LayerNorm extends Module {
    *
    * @param {number} n_embed - size of the last dimention of the input.
    */
-  constructor(n_embed) {
+  constructor(n_embed: number) {
     super();
     this.gamma = ones([n_embed], true);
     this.beta = zeros([n_embed], true);
   }
 
-  forward(x) {
+  forward(x: Tensor): Tensor {
     let var_x = x.variance(-1, true); // (B, T)
     let norm_x = x.sub(x.mean(-1, true)).div(sqrt(var_x)); // (B, T, D)
     let z = mul(norm_x, this.gamma).add(this.beta); // (B, T, D)
@@ -451,7 +451,7 @@ export class CrossEntropyLoss extends Module {
    * @param {object} y - Correct indexes expected from the model.
    * @returns {object} Negative-log-likelihood loss of the model output.
    */
-  forward(z, y) {
+  forward(z: Tensor, y: Tensor): Tensor {
     // Get data's shape:
     let zDims = z.shape;
     // Get last dimension:

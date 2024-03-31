@@ -1,10 +1,12 @@
-﻿/**
+﻿import { Tensor } from "./tensor";
+
+/**
  * Recursively gets the shape (length of every dimension) of the Tensor.
  * @param {object} data - Iterable containing the data to be stored in the Tensor.
  * @param {object} shape - Length of every dimension of the Tensor.
  * @returns {object} Length of every dimension of the Tensor.
  */
-export function getShape(data, shape: any[] = []) {
+export function getShape(data: Array<any>, shape: Array<any> = []): Array<any> {
   // Base case:
   if (typeof data === "number") {
     // Return [1] for integers:
@@ -44,10 +46,10 @@ export function getShape(data, shape: any[] = []) {
 
 /**
  * Assures that the returned iterable is a vanilla JavaScript Array object:
- * @param {object} a - Any iterable.
+ * @param {object} a - Any numeric iterable or number.
  * @returns {object} Original iterable in an Array format.
  */
-export function assureArray(a) {
+export function assureArray(a: Tensor | Array<any> | number): Array<any> {
   if (Array.isArray(a)) {
     return a;
   } else if (typeof a === "number") {
@@ -60,10 +62,10 @@ export function assureArray(a) {
 
 /**
  * Assures that the returned iterable is of a vanilla JavaScript data type (num of Array object):
- * @param {object} a - Any.
+ * @param {object} a - Any numeric iterable or number.
  * @returns {object} Original data in a vanilla format.
  */
-export function getData(a) {
+export function getData(a: Tensor | Array<any> | number): Array<any> | number {
   if (Array.isArray(a)) {
     return a;
   }

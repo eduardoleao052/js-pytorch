@@ -1029,7 +1029,7 @@ export class Transpose {
 export class At {
   cache: any;
 
-  forward(a, idx1, idx2 = null) {
+  forward(a, idx1, idx2: any = null) {
     // Make sure index lists are flat JavaScript arrays:
     if (idx1) {
       idx1 = assureArray(idx1).flat(Infinity);
