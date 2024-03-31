@@ -54,10 +54,7 @@
   "homepage": "https://github.com/eduardoleao052/js-torch#readme",
   "devDependencies": {
     "copyfiles": "^2.4.1",
-    "del-cli": "^5.1.0",
-    "move-file-cli": "^3.0.0",
     "pkgroll": "^2.0.2",
-    "semantic-release": "^23.0.6",
     "tsx": "^4.7.1",
     "typescript": "^5.4.3"
   }
