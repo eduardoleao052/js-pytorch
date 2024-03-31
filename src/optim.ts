@@ -41,8 +41,8 @@ export class Adam {
       this.params[i].m = this.params[i].m?.mul(this.b1).add(this.params[i]._grad?.mul(1 - this.b1));
       this.params[i].v = this.params[i].v?.mul(this.b2).add(this.params[i]._grad?.pow(2).mul(1 - this.b2));
 
-      let update_tensor = this.params[i].m?.mul(this.lr).div(this.params[i].v?.sqrt().add(this.eps)).neg();
-      let regularization_tensor = this.params[i].mul(this.reg * this.lr).neg();
+      const update_tensor = this.params[i].m?.mul(this.lr).div(this.params[i].v?.sqrt().add(this.eps)).neg();
+      const regularization_tensor = this.params[i].mul(this.reg * this.lr).neg();
 
       this.params[i]._data = this.params[i].add(update_tensor?.add(regularization_tensor))._data;
     }

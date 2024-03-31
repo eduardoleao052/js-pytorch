@@ -40,7 +40,7 @@ export class Module implements ModuleInterface {
   parameters(): (Parameter | Tensor)[] {
     // Iterate over each item in this Module.
     let params: (Parameter | Tensor)[] = [];
-    for (let [_, value] of this.entries()) {
+    for (const [_, value] of this.entries()) {
       // Add every Module, Parameter or Tensor with requires_grad set to True:
       if (value instanceof Module) {
         params = params.concat(value.parameters());
@@ -153,9 +153,9 @@ export class MultiHeadSelfAttention extends Module {
    * @returns {Tensor} new Tensor.
    */
   forward(x: Tensor): Tensor {
-    let [B, T, D] = x.shape;
-    let H = this.H;
-    let nh = D / H; // Num heads
+    const [B, T, D] = x.shape;
+    const H = this.H;
+    const nh = D / H; // Num heads
 
     // Get key, queries and values from the input:
     let k = this.Wk.forward(x); // (B, T, D) @ (D, D) -> (B, T, D)
@@ -168,14 +168,14 @@ export class MultiHeadSelfAttention extends Module {
     v = v.reshape([B, T, nh, H]).transpose(1, 2); // (B, T, D) -> (B, T, nh, H) -> (B, nh, T, H)
 
     // Compute attention activation:
-    let kT = k.transpose(-2, -1);
+    const kT = k.transpose(-2, -1);
     let att = q.matmul(kT); // (B, nh, T, H) @ (B, nh, H, T) -> (B, nh, T, T)
 
     // Reduce module before going into softmax:
     att = att.div(H ** 0.5);
 
     // Apply mask (to block out future characters), softmax, and dropout:
-    let mask = broadcast(this.mask, att);
+    const mask = broadcast(this.mask, att);
     att = att.masked_fill(mask, (el: number): boolean => el === 0, -Infinity);
     att = this.softmax.forward(att, -1);
     att = this.att_dropout.forward(att);
@@ -283,7 +283,7 @@ export class Embedding extends Module {
    */
   forward(idx: Tensor): Tensor {
     // Get idx dimensions:
-    let [B, T] = idx.shape;
+    const [B, T] = idx.shape;
 
     let x = this.E.at(idx);
 
@@ -313,9 +313,9 @@ export class PositionalEmbedding extends Module {
    */
   forward(idx: Tensor): Tensor {
     // Get num_timesteps dimension:
-    let [_, T] = idx.shape;
+    const [_, T] = idx.shape;
     // Creates positional embeddings: (Batch, Timesteps) => (Batch, Timesteps, Embed)
-    let x = this.E.at([...Array(T).keys()]);
+    const x = this.E.at([...Array(T).keys()]);
 
     return x;
   }
@@ -352,7 +352,7 @@ export class ReLU extends Module {
         return z.map((el: Array<any>): Array<any> => _relu(el));
       } else throw Error('In ReLU, provided Tensor is not homogenous.')
     }
-    let mask = tensor(_relu(z._data));
+    const mask = tensor(_relu(z._data));
 
     z = z.mul(mask);
     return z;
@@ -375,7 +375,7 @@ export class Softmax extends Module {
    */
   forward(z: Tensor, dim = -1): Tensor {
     z = exp(z);
-    let out = z.div(z.sum(dim, true));
+    const out = z.div(z.sum(dim, true));
     return out;
   }
 }
@@ -401,7 +401,7 @@ export class Dropout extends Module {
     if (this.mode == "eval") {
       return z;
     }
-    let mask = rand(z.shape);
+    const mask = rand(z.shape);
     // Set to zero all values of uniform distribution lower than probability of dropout:
     let a = z.masked_fill(
       mask,
@@ -429,9 +429,9 @@ export class LayerNorm extends Module {
   }
 
   forward(x: Tensor): Tensor {
-    let var_x = x.variance(-1, true); // (B, T)
-    let norm_x = x.sub(x.mean(-1, true)).div(sqrt(var_x)); // (B, T, D)
-    let z = mul(norm_x, this.gamma).add(this.beta); // (B, T, D)
+    const var_x = x.variance(-1, true); // (B, T)
+    const norm_x = x.sub(x.mean(-1, true)).div(sqrt(var_x)); // (B, T, D)
+    const z = mul(norm_x, this.gamma).add(this.beta); // (B, T, D)
     return z;
   }
 }
@@ -455,25 +455,25 @@ export class CrossEntropyLoss extends Module {
     // Get data's shape:
     let zDims = z.shape;
     // Get last dimension:
-    let D = zDims.slice(zDims.length - 1, zDims.length)[0];
+    const D = zDims.slice(zDims.length - 1, zDims.length)[0];
     // Get product of all batch dimensions:
     zDims = zDims.slice(0, zDims.length - 1);
-    let B = zDims.reduce((a, b) => a * b, 1);
+    const B = zDims.reduce((a, b) => a * b, 1);
     // Flatten out the batch dimensions:
     z = z.reshape([B, D]);
 
     // Perform softmax on output:
-    let logitsExp = exp(z);
+    const logitsExp = exp(z);
 
-    let logitsSum = logitsExp.sum(1, true);
+    const logitsSum = logitsExp.sum(1, true);
 
-    let logits = logitsExp.div(logitsSum);
+    const logits = logitsExp.div(logitsSum);
 
     y = _reshape(y.data, [B]);
 
     // Get cross-entropy loss:
-    let at_logits = logits.at([...Array(B).keys()], y);
-    let log_losses = log(at_logits);
+    const at_logits = logits.at([...Array(B).keys()], y);
+    const log_losses = log(at_logits);
     let loss = log_losses.sum(-1).neg();
     loss = loss.div(B);
     return loss;

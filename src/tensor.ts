@@ -119,7 +119,7 @@ export class Tensor {
   zero_grad_graph() {
     this.zero_grad();
     if (this.operation != null) {
-      for (let parent of this.parents) {
+      for (const parent of this.parents) {
         parent.zero_grad_graph();
         parent.parents = [];
       }
@@ -274,7 +274,7 @@ export class Tensor {
    * @returns {object} New tensor.
    */
   transpose(dim1, dim2) {
-    let operation = new Transpose();
+    const operation = new Transpose();
     return operation.forward(this, dim1, dim2);
   }
 
@@ -296,7 +296,7 @@ export class Tensor {
    * a.at([0,1,0])
    */
   at(index1, index2) {
-    let operation = new At();
+    const operation = new At();
     return operation.forward(this, index1, index2);
   }
 
@@ -315,7 +315,7 @@ export class Tensor {
    * a.masked_fill(mask, (el) => {return el > 3}, 0)
    */
   masked_fill(mask, condition, value) {
-    let operation = new MaskedFill();
+    const operation = new MaskedFill();
     return operation.forward(this, mask, condition, value);
   }
 
@@ -325,7 +325,7 @@ export class Tensor {
    * @returns {object} New tensor.
    */
   reshape(shape) {
-    let operation = new Reshape();
+    const operation = new Reshape();
     return operation.forward(this, shape);
   }
 }
@@ -357,11 +357,11 @@ export class Add {
     // Build cache to use in backward step:
     this.cache = [a, b];
 
-    let aData = getData(a);
-    let bData = getData(b);
+    const aData = getData(a);
+    const bData = getData(b);
 
     // Call recursive function:
-    let z = new Tensor(
+    const z = new Tensor(
       _add(aData, bData), // data;
       a.requires_grad || b.requires_grad // requires_grad;
     );
@@ -382,7 +382,7 @@ export class Add {
 
   backward(dz, z) {
     // Get data from cache:
-    let [a, b] = this.cache;
+    const [a, b] = this.cache;
 
     // Find gradients relative to "a", and pass it downstream:
     if (a.requires_grad) {
@@ -415,7 +415,7 @@ export class Neg {
     this.cache = a;
 
     // Call recursive function:
-    let z = new Tensor(
+    const z = new Tensor(
       _neg(a._data), // data;
       a.requires_grad // requires_grad;
     );
@@ -432,10 +432,10 @@ export class Neg {
 
   backward(dz, z) {
     // Get data from cache:
-    let a = this.cache;
+    const a = this.cache;
 
     if (a.requires_grad) {
-      let da = neg(dz);
+      const da = neg(dz);
       a.backward(da, z);
     }
   }
@@ -454,11 +454,11 @@ export class Mul {
     // Build cache to use in backward step:
     this.cache = [a, b];
 
-    let aData = getData(a);
-    let bData = getData(b);
+    const aData = getData(a);
+    const bData = getData(b);
 
     // Call recursive function:
-    let z = new Tensor(
+    const z = new Tensor(
       _mul(aData, bData), // data;
       a.requires_grad || b.requires_grad // requires_grad;
     );
@@ -479,7 +479,7 @@ export class Mul {
 
   backward(dz, z) {
     // Get data from cache:
-    let [a, b] = this.cache;
+    const [a, b] = this.cache;
 
     // Find gradients relative to "a", and pass it downstream:
     if (a.requires_grad) {
@@ -512,11 +512,11 @@ export class Div {
     // Build cache to use in backward step:
     this.cache = [a, b];
 
-    let aData = getData(a);
-    let bData = getData(b);
+    const aData = getData(a);
+    const bData = getData(b);
 
     // Call recursive function:
-    let z = new Tensor(
+    const z = new Tensor(
       _div(aData, bData), // data;
       a.requires_grad || b.requires_grad // requires_grad;
     );
@@ -537,7 +537,7 @@ export class Div {
 
   backward(dz, z) {
     // Get data from cache:
-    let [a, b] = this.cache;
+    const [a, b] = this.cache;
 
     // Find gradients relative to "a", and pass it downstream:
     if (a.requires_grad) {
@@ -581,7 +581,7 @@ export class MatMul {
     }
 
     // Call recursive function:
-    let z = new Tensor(
+    const z = new Tensor(
       _matmul(aData, bData), // data;
       a.requires_grad || b.requires_grad // requires_grad;
     );
@@ -600,11 +600,11 @@ export class MatMul {
 
   backward(dz, z) {
     // Get data from cache:
-    let [a, b] = this.cache;
+    const [a, b] = this.cache;
     // Find gradients relative to "a", and pass it downstream:
     if (a.requires_grad) {
       // Define Operands:
-      let dzData = dz.data;
+      const dzData = dz.data;
       let b_T = _transpose(b.data, b.ndims - 2);
       // Broadcast smaller tensor to match size of larger:
       b_T = broadcastUp(b_T, dzData);
@@ -618,7 +618,7 @@ export class MatMul {
     // Find gradients relative to "a", and pass it downstream:
     if (b.requires_grad) {
       // Define Operands:
-      let dzData = dz.data;
+      const dzData = dz.data;
       let a_T = _transpose(a.data, a.ndims - 2);
       // Broadcast smaller tensor to match size of larger:
       a_T = broadcastUp(a_T, dzData);
@@ -645,7 +645,7 @@ export class Pow {
     this.cache = a;
 
     // Call recursive function:
-    let z = new Tensor(
+    const z = new Tensor(
       _pow(a._data, n), // data;
       a.requires_grad // requires_grad;
     );
@@ -662,12 +662,12 @@ export class Pow {
 
   backward(dz, z) {
     // Get data from cache:
-    let a = this.cache;
+    const a = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
     if (a.requires_grad) {
       // d/da(e^a) = e^a, apply the chain rule to the derivative of e^a:
-      let da = new Tensor(_mul(2, _mul(a.data, dz.data)));
+      const da = new Tensor(_mul(2, _mul(a.data, dz.data)));
       a.backward(da, z);
     }
   }
@@ -686,7 +686,7 @@ export class Sqrt {
     this.cache = a;
 
     // Call recursive function:
-    let z = new Tensor(
+    const z = new Tensor(
       _sqrt(a._data), // data;
       a.requires_grad // requires_grad;
     );
@@ -703,12 +703,12 @@ export class Sqrt {
 
   backward(dz, z) {
     // Get data from cache:
-    let a = this.cache;
+    const a = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
     if (a.requires_grad) {
       // d/da(sqrt(a)) = (1/2) *  (1/sqrt(a)), apply the chain rule to the derivative of e^a:
-      let da = new Tensor(
+      const da = new Tensor(
         _mul(_mul(_div(1, 2), _div(1, _sqrt(a.data))), dz.data)
       );
       a.backward(da, z);
@@ -728,7 +728,7 @@ export class Exp {
     this.cache = a;
 
     // Call recursive function:
-    let z = new Tensor(
+    const z = new Tensor(
       _exp(a._data), // data;
       a.requires_grad // requires_grad;
     );
@@ -745,12 +745,12 @@ export class Exp {
 
   backward(dz, z) {
     // Get data from cache:
-    let a = this.cache;
+    const a = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
     if (a.requires_grad) {
       // d/da(e^a) = e^a, apply the chain rule to the derivative of e^a:
-      let da = new Tensor(_mul(_exp(a.data), dz.data));
+      const da = new Tensor(_mul(_exp(a.data), dz.data));
       a.backward(da, z);
     }
   }
@@ -769,7 +769,7 @@ export class Log {
     this.cache = a;
 
     // Call recursive function:
-    let z = new Tensor(
+    const z = new Tensor(
       _log(a._data), // data;
       a.requires_grad // requires_grad;
     );
@@ -786,12 +786,12 @@ export class Log {
 
   backward(dz, z) {
     // Get data from cache:
-    let a = this.cache;
+    const a = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
     if (a.requires_grad) {
       // d/da(ln(a)) = (1/a), apply the chain rule to the derivative of the natural log:
-      let da = new Tensor(_mul(_div(1, a.data), dz.data));
+      const da = new Tensor(_mul(_div(1, a.data), dz.data));
 
       a.backward(da, z);
     }
@@ -823,7 +823,7 @@ export class Sum {
       throw Error("Dimension larger than array.");
     }
     // Create output tensor:
-    let z = new Tensor(
+    const z = new Tensor(
       _sum(a._data, dim, (keepdims = keepdims)), // New data.
       a.requires_grad // requires_grad.
     );
@@ -840,7 +840,7 @@ export class Sum {
 
   backward(dz, z) {
     // Get data from cache:
-    let [a, dim, keepdims] = this.cache;
+    const [a, dim, keepdims] = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
     if (a.requires_grad) {
@@ -848,7 +848,7 @@ export class Sum {
         dz = dz.sum(dim);
       }
 
-      let da = broadcast(dz, a);
+      const da = broadcast(dz, a);
 
       a.backward(da, z);
     }
@@ -879,7 +879,7 @@ export class Mean {
     this.cache = [a, dim];
 
     // Create output tensor:
-    let z = new Tensor(
+    const z = new Tensor(
       _mean(a._data, dim, keepdims), // New data.
       a.requires_grad // keep_dims.
     );
@@ -896,7 +896,7 @@ export class Mean {
 
   backward(dz, z) {
     // Get data from cache:
-    let [a, dim] = this.cache;
+    const [a, dim] = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
     if (a.requires_grad) {
@@ -932,7 +932,7 @@ export class Variance {
     this.cache = [a, dim];
 
     // Create output tensor:
-    let z = new Tensor(
+    const z = new Tensor(
       _variance(a._data, dim, keepdims), // New data.
       a.requires_grad // keep_dims.
     );
@@ -949,14 +949,14 @@ export class Variance {
 
   backward(dz, z) {
     // Get data from cache:
-    let [a, dim] = this.cache;
+    const [a, dim] = this.cache;
     // Find gradients relative to "a", and pass them downstream:
     if (a.requires_grad) {
       // Expand upstream gradients to the shape of "a":
       let da = broadcast(dz, a);
       // Backprop through variance:
-      let err = _add(a._data, _neg(_mean(a._data, dim, true)));
-      let var_err = _mul(_mul(da._data, 2), err);
+      const err = _add(a._data, _neg(_mean(a._data, dim, true)));
+      const var_err = _mul(_mul(da._data, 2), err);
       da = _div(var_err, a.shape[dim]);
       // Create new "da" Tensor:
       da = new Tensor(da);
@@ -999,7 +999,7 @@ export class Transpose {
     }
 
     // Call recursive function:
-    let z = new Tensor(
+    const z = new Tensor(
       _transpose(a._data, dim), // data;
       a.requires_grad // requires_grad;
     );
@@ -1016,11 +1016,11 @@ export class Transpose {
 
   backward(dz, z) {
     // Get data from cache:
-    let [a, dimA, dimB] = this.cache;
+    const [a, dimA, dimB] = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
     if (a.requires_grad) {
-      let da = dz.transpose(dimA, dimB);
+      const da = dz.transpose(dimA, dimB);
       a.backward(da, z);
     }
   }
@@ -1042,7 +1042,7 @@ export class At {
     this.cache = [a, idx1, idx2];
 
     // Call function:
-    let z = new Tensor(
+    const z = new Tensor(
       _at(a._data, idx1, idx2), // data;
       a.requires_grad // requires_grad;
     );
@@ -1059,10 +1059,10 @@ export class At {
 
   backward(dz, z) {
     // Get data from cache:
-    let [a, idx1, idx2] = this.cache;
+    const [a, idx1, idx2] = this.cache;
     // Find gradients relative to "a", and pass them downstream:
     if (a.requires_grad) {
-      let da = zeros(a.shape);
+      const da = zeros(a.shape);
       // Add derivatives to the original places from a:
       for (let i = 0; i < dz.length; i++) {
         // If there is a second index, add to each [i][j] coordinate (2D):
@@ -1089,7 +1089,7 @@ export class MaskedFill {
     this.cache = [a, mask, condition];
 
     // Call function:
-    let z = new Tensor(
+    const z = new Tensor(
       _masked_fill(a._data, mask._data, condition, value), // data;
       a.requires_grad // requires_grad;
     );
@@ -1106,11 +1106,11 @@ export class MaskedFill {
 
   backward(dz, z) {
     // Get data from cache:
-    let [a, mask, condition] = this.cache;
+    const [a, mask, condition] = this.cache;
     // Find gradients relative to "a", and pass them downstream:
     if (a.requires_grad) {
       // Set gradients of all reset values to zero:
-      let da = new Tensor(_masked_fill(dz._data, mask._data, condition, 0));
+      const da = new Tensor(_masked_fill(dz._data, mask._data, condition, 0));
 
       a.backward(da, z);
     }
@@ -1125,7 +1125,7 @@ export class Reshape {
     this.cache = a;
 
     // Call function:
-    let z = new Tensor(
+    const z = new Tensor(
       _reshape(a._data, shape), // data;
       a.requires_grad // requires_grad;
     );
@@ -1142,12 +1142,12 @@ export class Reshape {
 
   backward(dz, z) {
     // Get data from cache:
-    let a = this.cache;
+    const a = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
     if (a.requires_grad) {
       // Reshape dz back to a's shape:
-      let da = new Tensor(_reshape(dz.data, a.shape));
+      const da = new Tensor(_reshape(dz.data, a.shape));
       a.backward(da, z);
     }
   }
@@ -1351,7 +1351,7 @@ function _sum(a, dim, keepdims?: boolean) {
   // When we reach the dimension intended (dim === 0),
   // we add all elements in this dimension.
   if (dim == 0) {
-    let sum = a.reduce((a, b) => _add(a, b), 0);
+    const sum = a.reduce((a, b) => _add(a, b), 0);
     if (keepdims) {
       return Array(a.length).fill(sum);
     } else {
@@ -1369,7 +1369,7 @@ function _mean(a, dim, keepdims?: boolean) {
   // When we reach the dimension intended (dim === 0),
   // we add all elements in this dimension.
   if (dim == 0) {
-    let reduced = _div(
+    const reduced = _div(
       a.reduce((a, b) => _add(a, b), 0),
       a.length
     );
@@ -1391,14 +1391,14 @@ function _variance(a, dim, keepdims?: boolean) {
   // we add all elements in this dimension.
   if (dim == 0) {
     // Get mean over current dim:
-    let mean = _div(
+    const mean = _div(
       a.reduce((a, b) => _add(a, b), 0),
       a.length
     );
     // Get square difference to mean over current dim:
-    let squares = a.map((el) => (el - mean) ** 2);
+    const squares = a.map((el) => (el - mean) ** 2);
     // Get mean of square differences over current dim:
-    let variance = _div(
+    const variance = _div(
       squares.reduce((a, b) => _add(a, b), 0),
       a.length
     );
@@ -1424,8 +1424,8 @@ function _add(a, b) {
     return a.map((element) => _add(element, b));
   } else {
     // If both are tensors, we need to broadcast:
-    let aShape = getShape(a);
-    let bShape = getShape(b);
+    const aShape = getShape(a);
+    const bShape = getShape(b);
     // If both have same shape, move downwards in both:
     if (JSON.stringify(aShape) === JSON.stringify(bShape)) {
       return a.map((element, idx) => _add(element, b[idx]));
@@ -1492,8 +1492,8 @@ function _mul(a, b) {
     return a.map((element) => _mul(element, b));
   } else {
     // If both are tensors, we need to broadcast:
-    let aShape = getShape(a);
-    let bShape = getShape(b);
+    const aShape = getShape(a);
+    const bShape = getShape(b);
     // If both have same shape, move downwards in both:
     if (JSON.stringify(aShape) === JSON.stringify(bShape)) {
       return a.map((element, idx) => _mul(element, b[idx]));
@@ -1549,8 +1549,8 @@ function _div(a, b) {
     return a.map((element) => _div(element, b));
   } else {
     // If both are tensors, we need to broadcast:
-    let aShape = getShape(a);
-    let bShape = getShape(b);
+    const aShape = getShape(a);
+    const bShape = getShape(b);
     // If both have same shape, move downwards in both:
     if (JSON.stringify(aShape) === JSON.stringify(bShape)) {
       return a.map((element, idx) => _div(element, b[idx]));
@@ -1610,7 +1610,7 @@ function _matmul(a, b) {
     // If dimensions align, perform matmul:
     if (a[0].length === b.length && typeof a[0][0] === "number") {
       // Make a [a[0].length x b.length] array:
-      let out = Array(a.length)
+      const out = Array(a.length)
         .fill(0)
         .map(() => Array(b[0].length).fill(0));
       for (let i = 0; i < a.length; i++) {
@@ -1681,7 +1681,7 @@ function _transpose(a, dim) {
   // Go down the dimensions recursively until we get to the dimension to be transposed:
   if (dim == 0) {
     // Build array with the transposed shape (to be filled with transposed values):
-    let newArray = Array(a[0].length)
+    const newArray = Array(a[0].length)
       .fill(0)
       .map(() => Array(a.length).fill(0));
 
@@ -1743,16 +1743,16 @@ export function _reshape(a: any[], shape: any[]) {
   // Rebuilds flattened array "flat" with shape "shape":
   function _build(a: any[], shape: any[]) {
     if (shape.length > 1) {
-      let emptyArray = Array(shape[0]).fill(0);
+      const emptyArray = Array(shape[0]).fill(0);
       return emptyArray.map(() => _build(a, shape.slice(1)));
     } else {
-      let emptyArray = Array(shape[0]).fill(0);
+      const emptyArray = Array(shape[0]).fill(0);
       return emptyArray.map(() => a.shift());
     }
   }
 
   // Flatten array with a's data:
-  let flat = a.flat(Infinity);
+  const flat = a.flat(Infinity);
   // Rebuild a with new shape:
   return _build(flat, shape);
 }
@@ -1767,11 +1767,11 @@ export function _reshape(a: any[], shape: any[]) {
  */
 function _tensorInitializer(shape, valueFunc) {
   if (shape.length === 1) {
-    let emptyArray = Array(shape[0]).fill(0);
+    const emptyArray = Array(shape[0]).fill(0);
     return emptyArray.map(() => valueFunc());
   } else {
-    let currentSize = shape[0];
-    let emptyArray = Array(currentSize).fill(0);
+    const currentSize = shape[0];
+    const emptyArray = Array(currentSize).fill(0);
     return emptyArray.map(() => _tensorInitializer(shape.slice(1), valueFunc));
   }
 }
@@ -1819,7 +1819,7 @@ export function ones(shape, requires_grad = false) {
  * @returns {object} New tensor.
  */
 export function tril(shape, requires_grad = false) {
-  let z = ones(shape, requires_grad);
+  const z = ones(shape, requires_grad);
   for (let i = 0; i < shape[0]; i++) {
     for (let j = 0; j < shape[0]; j++) {
       if (j > i) {
@@ -1854,9 +1854,9 @@ export function rand(shape, requires_grad = false) {
 export function randn(shape, requires_grad = false, xavier = false) {
   return new Tensor(
     _tensorInitializer(shape, () => {
-      let mean = Math.random() + 0.00001;
-      let variance = Math.random() + 0.00001;
-      let num =
+      const mean = Math.random() + 0.00001;
+      const variance = Math.random() + 0.00001;
+      const num =
         Math.sqrt(-2.0 * Math.log(mean)) * Math.cos(2.0 * Math.PI * variance);
       if (xavier) {
         // Apply Xavier initialization to control scalar sizes:
@@ -1906,7 +1906,7 @@ export function broadcast(a, b) {
     if (typeof out === "number" && typeof b === "number") {
       return out;
     } else if (typeof out === "number") {
-      let newArray = Array(b.length).fill(out);
+      const newArray = Array(b.length).fill(out);
       return _broadcast(newArray, b);
     } else if (typeof b === "number") {
       return _broadcast(_sum(out, 0), b);
@@ -1915,8 +1915,8 @@ export function broadcast(a, b) {
     }
 
     // If both are tensors, we need to broadcast:
-    let outShape = getShape(out);
-    let bShape = getShape(b);
+    const outShape = getShape(out);
+    const bShape = getShape(b);
     // If out's shape is larger, we need to find b's shape inside out's shape:
     if (outShape.length > bShape.length) {
       let idx;
@@ -1967,7 +1967,7 @@ export function broadcast(a, b) {
             return [_sum(out, 0)];
           } else if (out.length === 1) {
             // Base case, expand existing dimension:
-            let emptyArray = Array(b.length).fill(zeros);
+            const emptyArray = Array(b.length).fill(zeros);
             return emptyArray.map(() => out[0]);
           } else {
             Error(
@@ -2014,11 +2014,11 @@ export function broadcastUp(inElement, outElement) {
   function _broadcastUp(inElement, outElement) {
     if (getShape(inElement).length + 1 === getShape(outElement).length) {
       // Base case, create new dimension:
-      let emptyArray = Array(outElement.length).fill(zeros);
+      const emptyArray = Array(outElement.length).fill(zeros);
       return emptyArray.map(() => inElement);
     } else {
       // Recursive case. Keep looking inside each element:
-      let emptyArray = Array(outElement.length).fill(zeros);
+      const emptyArray = Array(outElement.length).fill(zeros);
       return emptyArray.map((_, idx) =>
         _broadcastUp(inElement, outElement[idx])
       ); // >>>>>>> ANTES ERA ELEMENT EM VEZ DE INELEMENT
