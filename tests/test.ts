@@ -1,4 +1,4 @@
-﻿import { randn, randint, matmul, add } from "../src/tensor.js";
+﻿import { randn, randint, matmul, add } from "../src/tensor";
 import {
   ReLU,
   CrossEntropyLoss,
@@ -8,8 +8,8 @@ import {
   PositionalEmbedding,
   Block,
   LayerNorm,
-} from "../src/layers.js";
-import { Adam } from "../src/optim.js";
+} from "../src/layers";
+import { Adam } from "../src/optim";
 
 // <<< Tests >>> //
 
@@ -19,23 +19,23 @@ import { Adam } from "../src/optim.js";
  */
 function test_autograd() {
   // Get start time (to calculate elapsed time):
-  let start_time = new Date().getTime();
+  const start_time = new Date().getTime();
 
   // Define loss function as Cross Entropy Loss and learning rate:
-  let loss_func = new CrossEntropyLoss();
-  let learning_rate = 3e-3;
+  const loss_func = new CrossEntropyLoss();
+  const learning_rate = 3e-3;
 
   //  Instantiate input and output:
-  let x = randn([8, 4, 16]);
-  let y = randint(0, 10, [8, 4]);
+  const x = randn([8, 4, 16]);
+  const y = randint(0, 10, [8, 4]);
   let loss;
 
   // Instantiate Neural Network's Layers:
-  let w1 = randn([16, 64], true, true);
-  let relu1 = new ReLU();
-  let w2 = randn([64, 64], true, true);
-  let relu2 = new ReLU();
-  let w3 = randn([64, 50], true, true);
+  const w1 = randn([16, 64], true, true);
+  const relu1 = new ReLU();
+  const w2 = randn([64, 64], true, true);
+  const relu2 = new ReLU();
+  const w3 = randn([64, 50], true, true);
 
   // Training Loop:
   for (let i = 0; i < 128; i++) {
@@ -74,7 +74,7 @@ function test_autograd() {
  */
 function test_module() {
   // Get start time (to calculate elapsed time):
-  let start_time = new Date().getTime();
+  const start_time = new Date().getTime();
 
   // Implement dummy Module class:
   class NeuralNet extends Module {
@@ -99,20 +99,20 @@ function test_module() {
     }
   }
 
-  let model = new NeuralNet(32);
+  const model = new NeuralNet(32);
 
   // Define loss function and optimizer:
-  let loss_func = new CrossEntropyLoss();
-  let optimizer = new Adam(model.parameters(), 3e-3, 0);
+  const loss_func = new CrossEntropyLoss();
+  const optimizer = new Adam(model.parameters(), 3e-3, 0);
 
   // Instantiate input and output:
-  let x = randn([8, 4, 16]);
-  let y = randint(0, 10, [8, 4]);
+  const x = randn([8, 4, 16]);
+  const y = randint(0, 10, [8, 4]);
   let loss;
 
   // Training Loop:
   for (let i = 0; i < 100; i++) {
-    let z = model.forward(x);
+    const z = model.forward(x);
 
     // Get loss:
     loss = loss_func.forward(z, y);
@@ -141,7 +141,7 @@ function test_module() {
  */
 function test_transformer() {
   // Get start time (to calculate elapsed time):
-  let start_time = new Date().getTime();
+  const start_time = new Date().getTime();
 
   // Implement dummy Module class:
   class Transformer extends Module {
@@ -179,14 +179,14 @@ function test_transformer() {
     }
   }
 
-  let vocab_size = 52;
-  let hidden_size = 32;
-  let n_timesteps = 16;
-  let n_heads = 8;
-  let batch_size = 4;
+  const vocab_size = 52;
+  const hidden_size = 32;
+  const n_timesteps = 16;
+  const n_heads = 8;
+  const batch_size = 4;
   let dropout_p = 0;
 
-  let model = new Transformer(
+  const model = new Transformer(
     vocab_size,
     hidden_size,
     n_timesteps,
@@ -195,16 +195,16 @@ function test_transformer() {
   );
 
   // Define loss function and optimizer:
-  let loss_func = new CrossEntropyLoss();
-  let optimizer = new Adam(model.parameters(), 5e-3, 0);
+  const loss_func = new CrossEntropyLoss();
+  const optimizer = new Adam(model.parameters(), 5e-3, 0);
   // Instantiate input and output:
-  let x = randint(0, vocab_size, [batch_size, n_timesteps, 1]);
-  let y = randint(0, vocab_size, [batch_size, n_timesteps]);
+  const x = randint(0, vocab_size, [batch_size, n_timesteps, 1]);
+  const y = randint(0, vocab_size, [batch_size, n_timesteps]);
   let loss;
 
   // Training Loop:
   for (let i = 0; i < 50; i++) {
-    let z = model.forward(x);
+    const z = model.forward(x);
 
     // Get loss:
     loss = loss_func.forward(z, y);
