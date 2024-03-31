@@ -33,8 +33,6 @@ export class Tensor {
     // Initialize momentum and velocity cumulatives for every parameter:
     if (this.requires_grad) {
       this._grad = zeros(this.shape);
-      this.m = zeros(this.shape);
-      this.v = zeros(this.shape);
     }
     
     // Graph connections:
