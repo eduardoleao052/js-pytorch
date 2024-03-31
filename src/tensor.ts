@@ -1,4 +1,4 @@
-﻿import { getShape, getData, assureArray } from "./utils.js";
+﻿import { getShape, getData, assureArray } from "./utils";
 
 // <<< Tensor class, holds n-dimensional tensors, and multiple useful methods >>> //
 

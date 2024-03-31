@@ -13,7 +13,7 @@
   mul,
   log,
   _reshape,
-} from "./tensor.js";
+} from "./tensor";
 
 
 // Interface that contains all the types of Module's attributes:
