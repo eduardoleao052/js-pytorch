@@ -6,7 +6,7 @@
  * @param {object} shape - Length of every dimension of the Tensor.
  * @returns {object} Length of every dimension of the Tensor.
  */
-export function getShape(data: Array<any>, shape: Array<any> = []): Array<any> {
+export function getShape(data: Array<any> | number, shape: Array<any> = []): Array<any> {
   // Base case:
   if (typeof data === "number") {
     // Return [1] for integers:
@@ -74,3 +74,4 @@ export function getData(a: Tensor | Array<any> | number): Array<any> | number {
   }
   return a._data;
 }
+

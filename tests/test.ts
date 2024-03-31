@@ -1,4 +1,4 @@
-﻿import { randn, randint, matmul, add } from "../src/tensor";
+﻿import { randn, randint, matmul, add, Tensor } from "../src/tensor";
 import {
   ReLU,
   CrossEntropyLoss,
@@ -28,7 +28,7 @@ function test_autograd() {
   //  Instantiate input and output:
   const x = randn([8, 4, 16]);
   const y = randint(0, 10, [8, 4]);
-  let loss;
+  let loss!: Tensor;
 
   // Instantiate Neural Network's Layers:
   const w1 = randn([16, 64], true, true);
@@ -51,7 +51,7 @@ function test_autograd() {
     loss.backward();
 
     // Update the weights:
-    w1._data = w1.add(w1._grad?.mul(learning_rate).neg()).data;
+    w1._data = w1.add(w1._grad.mul(learning_rate).neg()).data;
     w2._data = w2.add(w2._grad?.mul(learning_rate).neg()).data;
     w3._data = w3.add(w3._grad?.mul(learning_rate).neg()).data;
 
@@ -60,7 +60,7 @@ function test_autograd() {
   }
 
   // Assert that the model converged:
-  if (loss.data > 0.1) {
+  if (loss.data[0] > 0.1) {
     throw new Error("Autograd engine did not converge in Unit Test #1.");
   }
 
@@ -108,7 +108,7 @@ function test_module() {
   // Instantiate input and output:
   const x = randn([8, 4, 16]);
   const y = randint(0, 10, [8, 4]);
-  let loss;
+  let loss!: Tensor;
 
   // Training Loop:
   for (let i = 0; i < 100; i++) {
@@ -128,7 +128,7 @@ function test_module() {
   }
 
   // Assert that the model converged:
-  if (loss.data > 0.1) {
+  if (loss.data[0] > 0.1) {
     throw new Error("Module did not converge in Unit Test #2.");
   }
 
@@ -200,7 +200,7 @@ function test_transformer() {
   // Instantiate input and output:
   const x = randint(0, vocab_size, [batch_size, n_timesteps, 1]);
   const y = randint(0, vocab_size, [batch_size, n_timesteps]);
-  let loss;
+  let loss!: Tensor;
 
   // Training Loop:
   for (let i = 0; i < 50; i++) {
@@ -220,7 +220,7 @@ function test_transformer() {
   }
 
   // Assert that the model converged:
-  if (loss.data > 0.1) {
+  if (loss.data[0] > 0.1) {
     throw new Error("Transformer did not converge in Unit Test #3.");
   }
 
