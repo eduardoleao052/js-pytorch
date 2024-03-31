@@ -1628,7 +1628,7 @@ function _matmul(a, b) {
       throw Error(
         `Cannot perform Matrix Multiplication: cannot broadcast ${[
           a.length,
-          a[0].length,
+          a[0].length
         ]} and ${[b.length, b[0].length]}`
       );
     }

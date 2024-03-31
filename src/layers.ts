@@ -12,9 +12,8 @@
   sqrt,
   mul,
   log,
-  _reshape,
+  _reshape
 } from "./tensor";
-
 
 // Interface that contains all the types of Module's attributes:
 interface ModuleInterface extends Object {
@@ -28,9 +27,9 @@ interface ModuleInterface extends Object {
 
 // Module class:
 export class Module implements ModuleInterface {
-  // Instantiate Module's learnable parameters: 
+  // Instantiate Module's learnable parameters:
   [key: string]: Module | Parameter | Tensor | any;
-  // Instantiate Module's mode initially as "train": 
+  // Instantiate Module's mode initially as "train":
   mode: "train" | "eval" = "train";
 
   /**
@@ -100,7 +99,7 @@ export class Linear extends Module {
    */
   constructor(in_size: number, out_size: number, bias = true, xavier = true) {
     super();
-    this.W  = randn([in_size, out_size], true, xavier);
+    this.W = randn([in_size, out_size], true, xavier);
     this.b = zeros([out_size], true);
     this.has_bias = bias;
   }
@@ -129,7 +128,13 @@ export class MultiHeadSelfAttention extends Module {
    * @param {number} n_timesteps - length of text sequence to be processed bt Transformer.
    * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
    */
-  constructor(in_size: number, out_size: number, n_heads: number, n_timesteps: number, dropout_prob = 0) {
+  constructor(
+    in_size: number,
+    out_size: number,
+    n_heads: number,
+    n_timesteps: number,
+    dropout_prob = 0
+  ) {
     super();
     this.Wk = new Linear(in_size, in_size, false, true);
     this.Wq = new Linear(in_size, in_size, false, true);
@@ -235,7 +240,13 @@ export class Block extends Module {
    * @param {number} n_timesteps - length of text sequence to be processed bt Transformer.
    * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
    */
-  constructor(in_size: number, out_size: number, n_heads: number, n_timesteps: number, dropout_prob= 0) {
+  constructor(
+    in_size: number,
+    out_size: number,
+    n_heads: number,
+    n_timesteps: number,
+    dropout_prob = 0
+  ) {
     super();
     this.att = new MultiHeadSelfAttention(
       in_size,
@@ -350,7 +361,7 @@ export class ReLU extends Module {
         // Recursive case, go deeper in array:
       } else if (typeof z[0] === "object") {
         return z.map((el: Array<any>): Array<any> => _relu(el));
-      } else throw Error('In ReLU, provided Tensor is not homogenous.')
+      } else throw Error("In ReLU, provided Tensor is not homogenous.");
     }
     const mask = tensor(_relu(z._data));
 

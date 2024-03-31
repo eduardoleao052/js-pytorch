@@ -24,7 +24,7 @@
   tril,
   ones,
   zeros,
-  broadcast,
+  broadcast
 } from "./tensor.js";
 import {
   Module,
@@ -38,7 +38,7 @@ import {
   Softmax,
   Dropout,
   LayerNorm,
-  CrossEntropyLoss,
+  CrossEntropyLoss
 } from "./layers.js";
 import { Adam } from "./optim.js";
 
@@ -54,7 +54,7 @@ const nn = {
   Softmax,
   Dropout,
   LayerNorm,
-  CrossEntropyLoss,
+  CrossEntropyLoss
 };
 
 const optim = { Adam };
@@ -89,5 +89,5 @@ export const torch = {
   broadcast,
   // Add submodules:
   nn,
-  optim,
+  optim
 };
