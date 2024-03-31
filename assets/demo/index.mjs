@@ -145,7 +145,7 @@ class Tensor {
   zero_grad_graph() {
     this.zero_grad();
     if (this.operation != null) {
-      for (let parent of this.parents) {
+      for (const parent of this.parents) {
         parent.zero_grad_graph();
         parent.parents = [];
       }
@@ -285,7 +285,7 @@ class Tensor {
    * @returns {object} New tensor.
    */
   transpose(dim1, dim2) {
-    let operation = new Transpose();
+    const operation = new Transpose();
     return operation.forward(this, dim1, dim2);
   }
   /**
@@ -306,7 +306,7 @@ class Tensor {
    * a.at([0,1,0])
    */
   at(index1, index2) {
-    let operation = new At();
+    const operation = new At();
     return operation.forward(this, index1, index2);
   }
   /**
@@ -324,7 +324,7 @@ class Tensor {
    * a.masked_fill(mask, (el) => {return el > 3}, 0)
    */
   masked_fill(mask, condition, value) {
-    let operation = new MaskedFill();
+    const operation = new MaskedFill();
     return operation.forward(this, mask, condition, value);
   }
   /**
@@ -333,7 +333,7 @@ class Tensor {
    * @returns {object} New tensor.
    */
   reshape(shape) {
-    let operation = new Reshape();
+    const operation = new Reshape();
     return operation.forward(this, shape);
   }
 }
@@ -352,9 +352,9 @@ class Add {
    */
   forward(a, b) {
     this.cache = [a, b];
-    let aData = getData(a);
-    let bData = getData(b);
-    let z = new Tensor(
+    const aData = getData(a);
+    const bData = getData(b);
+    const z = new Tensor(
       _add(aData, bData),
       // data;
       a.requires_grad || b.requires_grad
@@ -372,7 +372,7 @@ class Add {
     return z;
   }
   backward(dz, z) {
-    let [a, b] = this.cache;
+    const [a, b] = this.cache;
     if (a.requires_grad) {
       let da = dz;
       da = broadcast(da, a);
@@ -394,7 +394,7 @@ class Neg {
    */
   forward(a) {
     this.cache = a;
-    let z = new Tensor(
+    const z = new Tensor(
       _neg(a._data),
       // data;
       a.requires_grad
@@ -408,9 +408,9 @@ class Neg {
     return z;
   }
   backward(dz, z) {
-    let a = this.cache;
+    const a = this.cache;
     if (a.requires_grad) {
-      let da = neg(dz);
+      const da = neg(dz);
       a.backward(da, z);
     }
   }
@@ -425,9 +425,9 @@ class Mul {
    */
   forward(a, b) {
     this.cache = [a, b];
-    let aData = getData(a);
-    let bData = getData(b);
-    let z = new Tensor(
+    const aData = getData(a);
+    const bData = getData(b);
+    const z = new Tensor(
       _mul(aData, bData),
       // data;
       a.requires_grad || b.requires_grad
@@ -445,7 +445,7 @@ class Mul {
     return z;
   }
   backward(dz, z) {
-    let [a, b] = this.cache;
+    const [a, b] = this.cache;
     if (a.requires_grad) {
       let da = new Tensor(_mul(dz.data, getData(b)));
       da = broadcast(da, a);
@@ -468,9 +468,9 @@ class Div {
    */
   forward(a, b) {
     this.cache = [a, b];
-    let aData = getData(a);
-    let bData = getData(b);
-    let z = new Tensor(
+    const aData = getData(a);
+    const bData = getData(b);
+    const z = new Tensor(
       _div(aData, bData),
       // data;
       a.requires_grad || b.requires_grad
@@ -488,7 +488,7 @@ class Div {
     return z;
   }
   backward(dz, z) {
-    let [a, b] = this.cache;
+    const [a, b] = this.cache;
     if (a.requires_grad) {
       let da = new Tensor(_mul(dz.data, _div(1, getData(b))));
       da = broadcast(da, a);
@@ -514,7 +514,7 @@ class MatMul {
     } else {
       bData = broadcastUp(bData, aData);
     }
-    let z = new Tensor(
+    const z = new Tensor(
       _matmul(aData, bData),
       // data;
       a.requires_grad || b.requires_grad
@@ -528,9 +528,9 @@ class MatMul {
     return z;
   }
   backward(dz, z) {
-    let [a, b] = this.cache;
+    const [a, b] = this.cache;
     if (a.requires_grad) {
-      let dzData = dz.data;
+      const dzData = dz.data;
       let b_T = _transpose(b.data, b.ndims - 2);
       b_T = broadcastUp(b_T, dzData);
       let da = new Tensor(_matmul(dzData, b_T));
@@ -538,7 +538,7 @@ class MatMul {
       a.backward(da, z);
     }
     if (b.requires_grad) {
-      let dzData = dz.data;
+      const dzData = dz.data;
       let a_T = _transpose(a.data, a.ndims - 2);
       a_T = broadcastUp(a_T, dzData);
       let db = new Tensor(_matmul(a_T, dzData));
@@ -557,7 +557,7 @@ class Pow {
    */
   forward(a, n) {
     this.cache = a;
-    let z = new Tensor(
+    const z = new Tensor(
       _pow(a._data, n),
       // data;
       a.requires_grad
@@ -571,9 +571,9 @@ class Pow {
     return z;
   }
   backward(dz, z) {
-    let a = this.cache;
+    const a = this.cache;
     if (a.requires_grad) {
-      let da = new Tensor(_mul(2, _mul(a.data, dz.data)));
+      const da = new Tensor(_mul(2, _mul(a.data, dz.data)));
       a.backward(da, z);
     }
   }
@@ -587,7 +587,7 @@ class Sqrt {
    */
   forward(a) {
     this.cache = a;
-    let z = new Tensor(
+    const z = new Tensor(
       _sqrt(a._data),
       // data;
       a.requires_grad
@@ -601,9 +601,9 @@ class Sqrt {
     return z;
   }
   backward(dz, z) {
-    let a = this.cache;
+    const a = this.cache;
     if (a.requires_grad) {
-      let da = new Tensor(
+      const da = new Tensor(
         _mul(_mul(_div(1, 2), _div(1, _sqrt(a.data))), dz.data)
       );
       a.backward(da, z);
@@ -619,7 +619,7 @@ class Exp {
    */
   forward(a) {
     this.cache = a;
-    let z = new Tensor(
+    const z = new Tensor(
       _exp(a._data),
       // data;
       a.requires_grad
@@ -633,9 +633,9 @@ class Exp {
     return z;
   }
   backward(dz, z) {
-    let a = this.cache;
+    const a = this.cache;
     if (a.requires_grad) {
-      let da = new Tensor(_mul(_exp(a.data), dz.data));
+      const da = new Tensor(_mul(_exp(a.data), dz.data));
       a.backward(da, z);
     }
   }
@@ -649,7 +649,7 @@ class Log {
    */
   forward(a) {
     this.cache = a;
-    let z = new Tensor(
+    const z = new Tensor(
       _log(a._data),
       // data;
       a.requires_grad
@@ -663,9 +663,9 @@ class Log {
     return z;
   }
   backward(dz, z) {
-    let a = this.cache;
+    const a = this.cache;
     if (a.requires_grad) {
-      let da = new Tensor(_mul(_div(1, a.data), dz.data));
+      const da = new Tensor(_mul(_div(1, a.data), dz.data));
       a.backward(da, z);
     }
   }
@@ -687,7 +687,7 @@ class Sum {
     if (dim >= a.shape.length) {
       throw Error("Dimension larger than array.");
     }
-    let z = new Tensor(
+    const z = new Tensor(
       _sum(a._data, dim, keepdims = keepdims),
       // New data.
       a.requires_grad
@@ -701,12 +701,12 @@ class Sum {
     return z;
   }
   backward(dz, z) {
-    let [a, dim, keepdims] = this.cache;
+    const [a, dim, keepdims] = this.cache;
     if (a.requires_grad) {
       if (keepdims) {
         dz = dz.sum(dim);
       }
-      let da = broadcast(dz, a);
+      const da = broadcast(dz, a);
       a.backward(da, z);
     }
   }
@@ -728,7 +728,7 @@ class Mean {
       throw Error("Dimension larger than array.");
     }
     this.cache = [a, dim];
-    let z = new Tensor(
+    const z = new Tensor(
       _mean(a._data, dim, keepdims),
       // New data.
       a.requires_grad
@@ -742,7 +742,7 @@ class Mean {
     return z;
   }
   backward(dz, z) {
-    let [a, dim] = this.cache;
+    const [a, dim] = this.cache;
     if (a.requires_grad) {
       let da = new Tensor(_div(dz.data, a.shape[dim]));
       da = broadcast(da, a);
@@ -767,7 +767,7 @@ class Variance {
       throw Error("Dimension larger than array.");
     }
     this.cache = [a, dim];
-    let z = new Tensor(
+    const z = new Tensor(
       _variance(a._data, dim, keepdims),
       // New data.
       a.requires_grad
@@ -781,11 +781,11 @@ class Variance {
     return z;
   }
   backward(dz, z) {
-    let [a, dim] = this.cache;
+    const [a, dim] = this.cache;
     if (a.requires_grad) {
       let da = broadcast(dz, a);
-      let err = _add(a._data, _neg(_mean(a._data, dim, true)));
-      let var_err = _mul(_mul(da._data, 2), err);
+      const err = _add(a._data, _neg(_mean(a._data, dim, true)));
+      const var_err = _mul(_mul(da._data, 2), err);
       da = _div(var_err, a.shape[dim]);
       da = new Tensor(da);
       a.backward(da, z);
@@ -817,7 +817,7 @@ class Transpose {
     } else {
       throw new Error("ValueError: dimensions are not consecutive.");
     }
-    let z = new Tensor(
+    const z = new Tensor(
       _transpose(a._data, dim),
       // data;
       a.requires_grad
@@ -831,9 +831,9 @@ class Transpose {
     return z;
   }
   backward(dz, z) {
-    let [a, dimA, dimB] = this.cache;
+    const [a, dimA, dimB] = this.cache;
     if (a.requires_grad) {
-      let da = dz.transpose(dimA, dimB);
+      const da = dz.transpose(dimA, dimB);
       a.backward(da, z);
     }
   }
@@ -848,7 +848,7 @@ class At {
       idx2 = assureArray(idx2).flat(Infinity);
     }
     this.cache = [a, idx1, idx2];
-    let z = new Tensor(
+    const z = new Tensor(
       _at(a._data, idx1, idx2),
       // data;
       a.requires_grad
@@ -862,9 +862,9 @@ class At {
     return z;
   }
   backward(dz, z) {
-    let [a, idx1, idx2] = this.cache;
+    const [a, idx1, idx2] = this.cache;
     if (a.requires_grad) {
-      let da = zeros(a.shape);
+      const da = zeros(a.shape);
       for (let i = 0; i < dz.length; i++) {
         if (idx2 != null) {
           da._data[idx1[i]][idx2[i]] = _add(
@@ -883,7 +883,7 @@ class MaskedFill {
   cache;
   forward(a, mask, condition, value) {
     this.cache = [a, mask, condition];
-    let z = new Tensor(
+    const z = new Tensor(
       _masked_fill(a._data, mask._data, condition, value),
       // data;
       a.requires_grad
@@ -897,9 +897,9 @@ class MaskedFill {
     return z;
   }
   backward(dz, z) {
-    let [a, mask, condition] = this.cache;
+    const [a, mask, condition] = this.cache;
     if (a.requires_grad) {
-      let da = new Tensor(_masked_fill(dz._data, mask._data, condition, 0));
+      const da = new Tensor(_masked_fill(dz._data, mask._data, condition, 0));
       a.backward(da, z);
     }
   }
@@ -908,7 +908,7 @@ class Reshape {
   cache;
   forward(a, shape) {
     this.cache = a;
-    let z = new Tensor(
+    const z = new Tensor(
       _reshape(a._data, shape),
       // data;
       a.requires_grad
@@ -922,9 +922,9 @@ class Reshape {
     return z;
   }
   backward(dz, z) {
-    let a = this.cache;
+    const a = this.cache;
     if (a.requires_grad) {
-      let da = new Tensor(_reshape(dz.data, a.shape));
+      const da = new Tensor(_reshape(dz.data, a.shape));
       a.backward(da, z);
     }
   }
@@ -978,7 +978,7 @@ function reshape(a, shape) {
 }
 function _sum(a, dim, keepdims) {
   if (dim == 0) {
-    let sum2 = a.reduce((a2, b) => _add(a2, b), 0);
+    const sum2 = a.reduce((a2, b) => _add(a2, b), 0);
     if (keepdims) {
       return Array(a.length).fill(sum2);
     } else {
@@ -992,7 +992,7 @@ function _sum(a, dim, keepdims) {
 }
 function _mean(a, dim, keepdims) {
   if (dim == 0) {
-    let reduced = _div(
+    const reduced = _div(
       a.reduce((a2, b) => _add(a2, b), 0),
       a.length
     );
@@ -1013,12 +1013,12 @@ function _mean(a, dim, keepdims) {
 }
 function _variance(a, dim, keepdims) {
   if (dim == 0) {
-    let mean2 = _div(
+    const mean2 = _div(
       a.reduce((a2, b) => _add(a2, b), 0),
       a.length
     );
-    let squares = a.map((el) => (el - mean2) ** 2);
-    let variance2 = _div(
+    const squares = a.map((el) => (el - mean2) ** 2);
+    const variance2 = _div(
       squares.reduce((a2, b) => _add(a2, b), 0),
       a.length
     );
@@ -1045,8 +1045,8 @@ function _add(a, b) {
   } else if (typeof b === "number") {
     return a.map((element) => _add(element, b));
   } else {
-    let aShape = getShape(a);
-    let bShape = getShape(b);
+    const aShape = getShape(a);
+    const bShape = getShape(b);
     if (JSON.stringify(aShape) === JSON.stringify(bShape)) {
       return a.map((element, idx) => _add(element, b[idx]));
     } else if (aShape.length > bShape.length) {
@@ -1093,8 +1093,8 @@ function _mul(a, b) {
   } else if (typeof b === "number") {
     return a.map((element) => _mul(element, b));
   } else {
-    let aShape = getShape(a);
-    let bShape = getShape(b);
+    const aShape = getShape(a);
+    const bShape = getShape(b);
     if (JSON.stringify(aShape) === JSON.stringify(bShape)) {
       return a.map((element, idx) => _mul(element, b[idx]));
     } else if (aShape.length > bShape.length) {
@@ -1132,8 +1132,8 @@ function _div(a, b) {
   } else if (typeof b === "number") {
     return a.map((element) => _div(element, b));
   } else {
-    let aShape = getShape(a);
-    let bShape = getShape(b);
+    const aShape = getShape(a);
+    const bShape = getShape(b);
     if (JSON.stringify(aShape) === JSON.stringify(bShape)) {
       return a.map((element, idx) => _div(element, b[idx]));
     } else if (aShape.length > bShape.length) {
@@ -1171,7 +1171,7 @@ function _matmul(a, b) {
     return a.map((element, idx) => _matmul(element, b[idx]));
   } else {
     if (a[0].length === b.length && typeof a[0][0] === "number") {
-      let out = Array(a.length).fill(0).map(() => Array(b[0].length).fill(0));
+      const out = Array(a.length).fill(0).map(() => Array(b[0].length).fill(0));
       for (let i = 0; i < a.length; i++) {
         for (let j = 0; j < b[0].length; j++) {
           let currentIndex = 0;
@@ -1228,7 +1228,7 @@ function _log(a) {
 }
 function _transpose(a, dim) {
   if (dim == 0) {
-    let newArray = Array(a[0].length).fill(0).map(() => Array(a.length).fill(0));
+    const newArray = Array(a[0].length).fill(0).map(() => Array(a.length).fill(0));
     for (let i = 0; i < a.length; i++) {
       for (let j = 0; j < a[i].length; j++) {
         newArray[j][i] = a[i][j];
@@ -1275,23 +1275,23 @@ function _masked_fill(a, mask, condition, value) {
 function _reshape(a, shape) {
   function _build(a2, shape2) {
     if (shape2.length > 1) {
-      let emptyArray = Array(shape2[0]).fill(0);
+      const emptyArray = Array(shape2[0]).fill(0);
       return emptyArray.map(() => _build(a2, shape2.slice(1)));
     } else {
-      let emptyArray = Array(shape2[0]).fill(0);
+      const emptyArray = Array(shape2[0]).fill(0);
       return emptyArray.map(() => a2.shift());
     }
   }
-  let flat = a.flat(Infinity);
+  const flat = a.flat(Infinity);
   return _build(flat, shape);
 }
 function _tensorInitializer(shape, valueFunc) {
   if (shape.length === 1) {
-    let emptyArray = Array(shape[0]).fill(0);
+    const emptyArray = Array(shape[0]).fill(0);
     return emptyArray.map(() => valueFunc());
   } else {
-    let currentSize = shape[0];
-    let emptyArray = Array(currentSize).fill(0);
+    const currentSize = shape[0];
+    const emptyArray = Array(currentSize).fill(0);
     return emptyArray.map(() => _tensorInitializer(shape.slice(1), valueFunc));
   }
 }
@@ -1311,7 +1311,7 @@ function ones(shape, requires_grad = false) {
   );
 }
 function tril(shape, requires_grad = false) {
-  let z = ones(shape, requires_grad);
+  const z = ones(shape, requires_grad);
   for (let i = 0; i < shape[0]; i++) {
     for (let j = 0; j < shape[0]; j++) {
       if (j > i) {
@@ -1330,9 +1330,9 @@ function rand(shape, requires_grad = false) {
 function randn(shape, requires_grad = false, xavier = false) {
   return new Tensor(
     _tensorInitializer(shape, () => {
-      let mean2 = Math.random() + 1e-5;
-      let variance2 = Math.random() + 1e-5;
-      let num = Math.sqrt(-2 * Math.log(mean2)) * Math.cos(2 * Math.PI * variance2);
+      const mean2 = Math.random() + 1e-5;
+      const variance2 = Math.random() + 1e-5;
+      const num = Math.sqrt(-2 * Math.log(mean2)) * Math.cos(2 * Math.PI * variance2);
       if (xavier) {
         return num / Math.sqrt(shape[0]);
       } else {
@@ -1355,15 +1355,15 @@ function broadcast(a, b) {
     if (typeof out2 === "number" && typeof b2 === "number") {
       return out2;
     } else if (typeof out2 === "number") {
-      let newArray = Array(b2.length).fill(out2);
+      const newArray = Array(b2.length).fill(out2);
       return _broadcast(newArray, b2);
     } else if (typeof b2 === "number") {
       return _broadcast(_sum(out2, 0), b2);
     } else if (JSON.stringify(getShape(out2)) === JSON.stringify(getShape(b2))) {
       return out2;
     }
-    let outShape = getShape(out2);
-    let bShape = getShape(b2);
+    const outShape = getShape(out2);
+    const bShape = getShape(b2);
     if (outShape.length > bShape.length) {
       let idx;
       for (let i = 0; i < outShape.length; i++) {
@@ -1394,7 +1394,7 @@ function broadcast(a, b) {
           if (b3.length === 1) {
             return [_sum(out3, 0)];
           } else if (out3.length === 1) {
-            let emptyArray = Array(b3.length).fill(zeros);
+            const emptyArray = Array(b3.length).fill(zeros);
             return emptyArray.map(() => out3[0]);
           } else {
             Error(
@@ -1425,10 +1425,10 @@ function broadcast(a, b) {
 function broadcastUp(inElement, outElement) {
   function _broadcastUp(inElement2, outElement2) {
     if (getShape(inElement2).length + 1 === getShape(outElement2).length) {
-      let emptyArray = Array(outElement2.length).fill(zeros);
+      const emptyArray = Array(outElement2.length).fill(zeros);
       return emptyArray.map(() => inElement2);
     } else {
-      let emptyArray = Array(outElement2.length).fill(zeros);
+      const emptyArray = Array(outElement2.length).fill(zeros);
       return emptyArray.map(
         (_, idx) => _broadcastUp(inElement2, outElement2[idx])
       );
@@ -1441,6 +1441,7 @@ function broadcastUp(inElement, outElement) {
 }
 
 class Module {
+  // Instantiate Module's mode initially as "train":
   mode = "train";
   /**
    * Returns all model parameters in a list.
@@ -1448,7 +1449,7 @@ class Module {
    */
   parameters() {
     let params = [];
-    for (let [_, value] of this.entries()) {
+    for (const [_, value] of this.entries()) {
       if (value instanceof Module) {
         params = params.concat(value.parameters());
       } else if (value instanceof Parameter) {
@@ -1550,19 +1551,19 @@ class MultiHeadSelfAttention extends Module {
    * @returns {Tensor} new Tensor.
    */
   forward(x) {
-    let [B, T, D] = x.shape;
-    let H = this.H;
-    let nh = D / H;
+    const [B, T, D] = x.shape;
+    const H = this.H;
+    const nh = D / H;
     let k = this.Wk.forward(x);
     let q = this.Wq.forward(x);
     let v = this.Wv.forward(x);
     k = k.reshape([B, T, nh, H]).transpose(1, 2);
     q = q.reshape([B, T, nh, H]).transpose(1, 2);
     v = v.reshape([B, T, nh, H]).transpose(1, 2);
-    let kT = k.transpose(-2, -1);
+    const kT = k.transpose(-2, -1);
     let att = q.matmul(kT);
     att = att.div(H ** 0.5);
-    let mask = broadcast(this.mask, att);
+    const mask = broadcast(this.mask, att);
     att = att.masked_fill(mask, (el) => el === 0, -Infinity);
     att = this.softmax.forward(att, -1);
     att = this.att_dropout.forward(att);
@@ -1611,7 +1612,7 @@ class Block extends Module {
    * @param {number} n_timesteps - length of text sequence to be processed bt Transformer.
    * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
    */
-  constructor(in_size, out_size, n_heads, n_timesteps, dropout_prob) {
+  constructor(in_size, out_size, n_heads, n_timesteps, dropout_prob = 0) {
     super();
     this.att = new MultiHeadSelfAttention(
       in_size,
@@ -1648,12 +1649,11 @@ class Embedding extends Module {
   }
   /**
    * Extracts embedding from rows in "idx":
-   * @param {object} idx - rows to get embedding from.
+   * @param {Tensor} idx - rows to get embedding from.
    * @returns {Tensor} new Tensor. Out = (In @ W) + b.
    */
   forward(idx) {
-    let [B, T] = idx.shape;
-    idx = assureArray(idx);
+    const [B, T] = idx.shape;
     let x = this.E.at(idx);
     x = x.reshape([B, T, this.E.shape[1]]);
     return x;
@@ -1676,8 +1676,8 @@ class PositionalEmbedding extends Module {
    * @returns {Tensor} new Tensor.
    */
   forward(idx) {
-    let [B, T] = idx.shape;
-    let x = this.E.at([...Array(T).keys()]);
+    const [_, T] = idx.shape;
+    const x = this.E.at([...Array(T).keys()]);
     return x;
   }
 }
@@ -1705,9 +1705,10 @@ class ReLU extends Module {
         });
       } else if (typeof z2[0] === "object") {
         return z2.map((el) => _relu(el));
-      }
+      } else
+        throw Error("In ReLU, provided Tensor is not homogenous.");
     }
-    let mask = tensor(_relu(z._data));
+    const mask = tensor(_relu(z._data));
     z = z.mul(mask);
     return z;
   }
@@ -1727,7 +1728,7 @@ class Softmax extends Module {
    */
   forward(z, dim = -1) {
     z = exp(z);
-    let out = z.div(z.sum(dim, true));
+    const out = z.div(z.sum(dim, true));
     return out;
   }
 }
@@ -1751,7 +1752,7 @@ class Dropout extends Module {
     if (this.mode == "eval") {
       return z;
     }
-    let mask = rand(z.shape);
+    const mask = rand(z.shape);
     let a = z.masked_fill(
       mask,
       (el) => {
@@ -1775,9 +1776,9 @@ class LayerNorm extends Module {
     this.beta = zeros([n_embed], true);
   }
   forward(x) {
-    let var_x = x.variance(-1, true);
-    let norm_x = x.sub(x.mean(-1, true)).div(sqrt(var_x));
-    let z = mul(norm_x, this.gamma).add(this.beta);
+    const var_x = x.variance(-1, true);
+    const norm_x = x.sub(x.mean(-1, true)).div(sqrt(var_x));
+    const z = mul(norm_x, this.gamma).add(this.beta);
     return z;
   }
 }
@@ -1796,16 +1797,16 @@ class CrossEntropyLoss extends Module {
    */
   forward(z, y) {
     let zDims = z.shape;
-    let D = zDims.slice(zDims.length - 1, zDims.length)[0];
+    const D = zDims.slice(zDims.length - 1, zDims.length)[0];
     zDims = zDims.slice(0, zDims.length - 1);
-    let B = zDims.reduce((a, b) => a * b, 1);
+    const B = zDims.reduce((a, b) => a * b, 1);
     z = z.reshape([B, D]);
-    let logitsExp = exp(z);
-    let logitsSum = logitsExp.sum(1, true);
-    let logits = logitsExp.div(logitsSum);
+    const logitsExp = exp(z);
+    const logitsSum = logitsExp.sum(1, true);
+    const logits = logitsExp.div(logitsSum);
     y = _reshape(y.data, [B]);
-    let at_logits = logits.at([...Array(B).keys()], y);
-    let log_losses = log(at_logits);
+    const at_logits = logits.at([...Array(B).keys()], y);
+    const log_losses = log(at_logits);
     let loss = log_losses.sum(-1).neg();
     loss = loss.div(B);
     return loss;
@@ -1813,6 +1814,7 @@ class CrossEntropyLoss extends Module {
 }
 
 class Adam {
+  // Declare Adam's types:
   params;
   lr;
   reg;
@@ -1820,11 +1822,11 @@ class Adam {
   b2;
   eps;
   /**
-   * Class of the Adam optimizer.
-   * @param {object} params - List of all Parameter or Tensor (with requires_grad = True) to be optimized by Adam. "params" is usually set to nn.Module.parameters(), which automatically returns all parameters in a list form.
-   * @param {number } lr - Scalar multiplying each learning step, controls speed of learning.
+   * Adam optimizer class.
+   * @param {(Parameter | Tensor)[]} params - List of all Parameter or Tensor (with requires_grad = True) to be optimized by Adam. "params" is usually set to nn.Module.parameters(), which automatically returns all parameters in a list form.
+   * @param {number} lr - Scalar multiplying each learning step, controls speed of learning.
    * @param {number} reg - Scalar controling strength l2 regularization.
-   * @param {object} betas - Two scalar floats controling how slowly the optimizer changes the "m" and "v" attributes.
+   * @param {(number)[]} betas - Two scalar floats controling how slowly the optimizer changes the "m" and "v" attributes.
    * @param {number} eps - Scalar added to denominator to stop it from ever going to zero.
    */
   constructor(params, lr = 1e-3, reg = 0, betas = [0.9, 0.99], eps = 1e-9) {
@@ -1845,12 +1847,12 @@ class Adam {
    */
   step() {
     for (let i = 0; i < this.params.length; i++) {
-      this.params[i].m = this.params[i].m.mul(this.b1).add(this.params[i]._grad.mul(1 - this.b1));
-      this.params[i].v = this.params[i].v.mul(this.b2).add(this.params[i]._grad.pow(2).mul(1 - this.b2));
-      let update_tensor = this.params[i].m.mul(this.lr).div(this.params[i].v.sqrt().add(this.eps)).neg();
-      let regularization_tensor = this.params[i].mul(this.reg * this.lr).neg();
+      this.params[i].m = this.params[i].m?.mul(this.b1).add(this.params[i]._grad?.mul(1 - this.b1));
+      this.params[i].v = this.params[i].v?.mul(this.b2).add(this.params[i]._grad?.pow(2).mul(1 - this.b2));
+      const update_tensor = this.params[i].m?.mul(this.lr).div(this.params[i].v?.sqrt().add(this.eps)).neg();
+      const regularization_tensor = this.params[i].mul(this.reg * this.lr).neg();
       this.params[i]._data = this.params[i].add(
-        update_tensor.add(regularization_tensor)
+        update_tensor?.add(regularization_tensor)
       )._data;
     }
   }
