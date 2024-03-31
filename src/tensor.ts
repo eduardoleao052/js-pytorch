@@ -4,32 +4,39 @@
 
 export class Tensor {
   public requires_grad: boolean = false;
-  public _data: any;
+  public _data: Array<any>;
   public shape: Array<any>;
-  public _grad?: Tensor;
+  public _grad!: Tensor;
   public children: Array<any>;
   public parents: Array<any>;
   public operation: any;
   public visited: boolean = false;
-  public m?: Tensor;
-  public v?: Tensor;
+  public m!: Tensor;
+  public v!: Tensor;
 
   /**
    * Creates new instance of the Tensor class.
    * @param {object} data - Iterable containing the data to be stored in the Tensor.
    * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
    */
-  constructor(data, requires_grad = false) {
+  constructor(data: Array<any> | number, requires_grad = false) {
     if (typeof data === "object") {
       this._data = data;
     } else if (typeof data === "number") {
       this._data = [data];
+    } else {
+      throw Error('Your argument "data" is not a number or an iterable.')
     }
     this.shape = getShape(data);
     this.requires_grad = requires_grad;
+
+    // Initialize momentum and velocity cumulatives for every parameter:
     if (this.requires_grad) {
       this._grad = zeros(this.shape);
+      this.m = zeros(this.shape);
+      this.v = zeros(this.shape);
     }
+    
     // Graph connections:
     this.children = [];
     this.parents = [];
@@ -40,7 +47,7 @@ export class Tensor {
   /**
    * Returns the data in the Tensor.
    */
-  get data() {
+  get data(): Array<any> {
     return this._data;
   }
 
@@ -69,7 +76,7 @@ export class Tensor {
    * Performs backward pass from THIS tensor backwards.
    * It fills every tensor that originated this one and that has requires_grad=true's gradients to their gradients relative to THIS tensor.
    */
-  backward(grad: Tensor | null = null, child = null) {
+  backward(grad: Tensor | null = null, child: Tensor | null = null) {
     // Guarantee that this tensor requires grad:
     if (!this.requires_grad) {
       throw new Error("this tensor has requires_grad set to False");
@@ -174,7 +181,7 @@ export class Tensor {
    * @param {any} other - Tensor or integer to be added to this Tensor.
    * @returns {object} New tensor.
    */
-  add(other) {
+  add(other: Tensor | number): Tensor {
     const operation = new Add();
     return operation.forward(this, other);
   }
@@ -184,11 +191,12 @@ export class Tensor {
    * @param {any} other - Tensor or integer to be subtracted from this Tensor.
    * @returns {object} New tensor.
    */
-  sub(other) {
+  sub(other: Tensor | Number): Tensor {
     if (typeof other === "number") {
       return this.add(-other);
-    }
-    return this.add(other.neg());
+    } else if (other instanceof Tensor) {
+      return this.add(other.neg());
+    } else { throw Error('Argument "other" is not a Tensor or a number.') }
   }
 
   /**
@@ -205,7 +213,7 @@ export class Tensor {
    * @param {any} other - Tensor or integer to multiply this Tensor by.
    * @returns {object} New tensor.
    */
-  mul(other) {
+  mul(other: Tensor | number): Tensor {
     const operation = new Mul();
     return operation.forward(this, other);
   }
@@ -215,7 +223,7 @@ export class Tensor {
    * @param {any} other - Tensor or integer to divide this Tensor by.
    * @returns {object} New tensor.
    */
-  div(other) {
+  div(other: Tensor | number): Tensor {
     const operation = new Div();
     return operation.forward(this, other);
   }
@@ -225,7 +233,7 @@ export class Tensor {
    * @param {Tensor | number} other - Tensor or integer to multiply this Tensor by.
    * @returns {object} New tensor.
    */
-  matmul(other: Tensor | number) {
+  matmul(other: Tensor | number): Tensor {
     const operation = new MatMul();
     return operation.forward(this, other);
   }
@@ -235,7 +243,7 @@ export class Tensor {
    * @param {number} n - Exponent.
    * @returns {object} New tensor.
    */
-  pow(n) {
+  pow(n: number): Tensor {
     const operation = new Pow();
     return operation.forward(this, n);
   }
@@ -273,7 +281,7 @@ export class Tensor {
    * @param {number} dim2 - Second dimension.
    * @returns {object} New tensor.
    */
-  transpose(dim1, dim2) {
+  transpose(dim1: number, dim2: number): Tensor {
     const operation = new Transpose();
     return operation.forward(this, dim1, dim2);
   }
@@ -295,7 +303,7 @@ export class Tensor {
    *                    [1,1,2,3]])
    * a.at([0,1,0])
    */
-  at(index1, index2) {
+  at(index1: Tensor | Array<any>, index2: Tensor | Array<any>): Tensor {
     const operation = new At();
     return operation.forward(this, index1, index2);
   }
@@ -314,7 +322,9 @@ export class Tensor {
    * //                 [0,0,2,0]])
    * a.masked_fill(mask, (el) => {return el > 3}, 0)
    */
-  masked_fill(mask, condition, value) {
+  masked_fill(mask: Tensor,
+              condition: (someArg: number) => boolean, 
+              value: number) {
     const operation = new MaskedFill();
     return operation.forward(this, mask, condition, value);
   }
@@ -324,7 +334,7 @@ export class Tensor {
    * @param {object} shape - New tensor's shape.
    * @returns {object} New tensor.
    */
-  reshape(shape) {
+  reshape(shape: Array<number>) {
     const operation = new Reshape();
     return operation.forward(this, shape);
   }
@@ -337,7 +347,7 @@ export class Tensor {
  * @param {object} data - Iterable containing the data to be stored in the Tensor.
  */
 export class Parameter extends Tensor {
-  constructor(data) {
+  constructor(data: Array<any> | number) {
     super(data, true);
   }
 }
@@ -353,7 +363,7 @@ export class Add {
    * @param {any} b - Second tensor or integer.
    * @returns {object} New tensor.
    */
-  forward(a, b) {
+  forward(a: Tensor | number | number, b: Tensor | number | number): Tensor {
     // Build cache to use in backward step:
     this.cache = [a, b];
 
@@ -363,15 +373,15 @@ export class Add {
     // Call recursive function:
     const z = new Tensor(
       _add(aData, bData), // data;
-      a.requires_grad || b.requires_grad // requires_grad;
+      requiresGrad(a) || requiresGrad(b) // requires_grad;
     );
 
     // Connect nodes in graph:
-    if (a instanceof Tensor && a.requires_grad) {
+    if (a instanceof Tensor && requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
     }
-    if (b instanceof Tensor && b.requires_grad) {
+    if (b instanceof Tensor && requiresGrad(b)) {
       z.parents.push(b);
       b.children.push(z);
     }
@@ -380,12 +390,12 @@ export class Add {
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const [a, b] = this.cache;
 
     // Find gradients relative to "a", and pass it downstream:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       let da = dz;
       // Rescale gradient to have the same shape as "a":
       da = broadcast(da, a);
@@ -393,7 +403,7 @@ export class Add {
     }
 
     // Find gradients relative to "b", and pass it downstream:
-    if (b.requires_grad) {
+    if (requiresGrad(b)) {
       let db = dz;
       // Rescale gradient to have the same shape as "b":
       db = broadcast(db, b);
@@ -410,18 +420,18 @@ export class Neg {
    * @param {object} a - Tensor to be multiplied by -1.
    * @returns {object} New tensor.
    */
-  forward(a) {
+  forward(a: Tensor): Tensor {
     // Build cache to use in backward step:
     this.cache = a;
 
     // Call recursive function:
     const z = new Tensor(
       _neg(a._data), // data;
-      a.requires_grad // requires_grad;
+      requiresGrad(a) // requires_grad;
     );
 
     // Connect nodes in graph:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -430,11 +440,11 @@ export class Neg {
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const a = this.cache;
 
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       const da = neg(dz);
       a.backward(da, z);
     }
@@ -450,7 +460,7 @@ export class Mul {
    * @param {any} b - Second tensor or integer.
    * @returns {object} New tensor.
    */
-  forward(a, b) {
+  forward(a: Tensor | number, b: Tensor | number): Tensor {
     // Build cache to use in backward step:
     this.cache = [a, b];
 
@@ -460,15 +470,15 @@ export class Mul {
     // Call recursive function:
     const z = new Tensor(
       _mul(aData, bData), // data;
-      a.requires_grad || b.requires_grad // requires_grad;
+      requiresGrad(a) || requiresGrad(b) // requires_grad;
     );
 
     // Connect nodes in graph:
-    if (a instanceof Tensor && a.requires_grad) {
+    if (a instanceof Tensor && requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
     }
-    if (b instanceof Tensor && b.requires_grad) {
+    if (b instanceof Tensor && requiresGrad(b)) {
       z.parents.push(b);
       b.children.push(z);
     }
@@ -477,12 +487,12 @@ export class Mul {
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const [a, b] = this.cache;
 
     // Find gradients relative to "a", and pass it downstream:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       let da = new Tensor(_mul(dz.data, getData(b)));
       // Rescale gradient to have the same shape as "a":
       da = broadcast(da, a);
@@ -490,7 +500,7 @@ export class Mul {
     }
 
     // Find gradients relative to "b", and pass it downstream:
-    if (b.requires_grad) {
+    if (requiresGrad(b)) {
       let db = new Tensor(_mul(dz.data, getData(a)));
       // Rescale gradient to have the same shape as "b":
       db = broadcast(db, b);
@@ -508,7 +518,7 @@ export class Div {
    * @param {any} b - Second tensor or integer.
    * @returns {object} New tensor.
    */
-  forward(a, b) {
+  forward(a: Tensor, b: Tensor | number): Tensor {
     // Build cache to use in backward step:
     this.cache = [a, b];
 
@@ -518,15 +528,15 @@ export class Div {
     // Call recursive function:
     const z = new Tensor(
       _div(aData, bData), // data;
-      a.requires_grad || b.requires_grad // requires_grad;
+      requiresGrad(a) || requiresGrad(b) // requires_grad;
     );
 
     // Connect nodes in graph:
-    if (a instanceof Tensor && a.requires_grad) {
+    if (a instanceof Tensor && requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
     }
-    if (b instanceof Tensor && b.requires_grad) {
+    if (b instanceof Tensor && requiresGrad(b)) {
       z.parents.push(b);
       b.children.push(z);
     }
@@ -535,12 +545,12 @@ export class Div {
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const [a, b] = this.cache;
 
     // Find gradients relative to "a", and pass it downstream:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       // d/da(a/b) = (1/b), apply chain rule:
       let da = new Tensor(_mul(dz.data, _div(1, getData(b))));
 
@@ -551,7 +561,7 @@ export class Div {
     }
 
     // Find gradients relative to "b", and pass it downstream:
-    if (b.requires_grad) {
+    if (requiresGrad(b)) {
       // d/db(a/b) = -(a/b^2), apply chain rule:
       let db = new Tensor(
         _mul(dz.data, _neg(_div(getData(a), _pow(getData(b), 2))))
@@ -567,14 +577,14 @@ export class Div {
 export class MatMul {
   cache: any;
 
-  forward(a, b) {
+  forward(a: Tensor, b: Tensor | number): Tensor {
     // Build cache to use in backward step:
     this.cache = [a, b];
 
     let aData = a.data;
-    let bData = b.data;
+    let bData = getData(b);
     // Broadcast smaller tensor to match size of larger:
-    if (a.shape.length < b.shape.length) {
+    if (b instanceof Tensor && a.shape.length < b.shape.length) {
       aData = broadcastUp(aData, bData);
     } else {
       bData = broadcastUp(bData, aData);
@@ -583,26 +593,28 @@ export class MatMul {
     // Call recursive function:
     const z = new Tensor(
       _matmul(aData, bData), // data;
-      a.requires_grad || b.requires_grad // requires_grad;
+      requiresGrad(a) || requiresGrad(b) // requires_grad;
     );
 
-    // Connect nodes in graph to parents:
+   // Connect nodes in graph:
+   if (a instanceof Tensor && requiresGrad(a)) {
     z.parents.push(a);
-    z.parents.push(b);
-    z.operation = this;
-
-    // Connect nodes in graph to children:
     a.children.push(z);
+  }
+  if (b instanceof Tensor && requiresGrad(b)) {
+    z.parents.push(b);
     b.children.push(z);
+  }
+  z.operation = this;
 
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const [a, b] = this.cache;
     // Find gradients relative to "a", and pass it downstream:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       // Define Operands:
       const dzData = dz.data;
       let b_T = _transpose(b.data, b.ndims - 2);
@@ -616,7 +628,7 @@ export class MatMul {
       a.backward(da, z);
     }
     // Find gradients relative to "a", and pass it downstream:
-    if (b.requires_grad) {
+    if (requiresGrad(b)) {
       // Define Operands:
       const dzData = dz.data;
       let a_T = _transpose(a.data, a.ndims - 2);
@@ -640,18 +652,18 @@ export class Pow {
    * @param {number} n - Exponent.
    * @returns {object} New tensor.
    */
-  forward(a, n) {
+  forward(a: Tensor, n: number): Tensor {
     // Build cache to use in backward step:
     this.cache = a;
 
     // Call recursive function:
     const z = new Tensor(
-      _pow(a._data, n), // data;
-      a.requires_grad // requires_grad;
+      _pow(getData(a), n), // data;
+      requiresGrad(a) // requires_grad;
     );
 
     // Connect nodes in graph:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -660,12 +672,12 @@ export class Pow {
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const a = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       // d/da(e^a) = e^a, apply the chain rule to the derivative of e^a:
       const da = new Tensor(_mul(2, _mul(a.data, dz.data)));
       a.backward(da, z);
@@ -681,18 +693,18 @@ export class Sqrt {
    * @param {object} a - Tensor to be square rooted.
    * @returns {object} New tensor.
    */
-  forward(a) {
+  forward(a: Tensor): Tensor {
     // Build cache to use in backward step:
     this.cache = a;
 
     // Call recursive function:
     const z = new Tensor(
       _sqrt(a._data), // data;
-      a.requires_grad // requires_grad;
+      requiresGrad(a) // requires_grad;
     );
 
     // Connect nodes in graph:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -701,12 +713,12 @@ export class Sqrt {
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const a = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       // d/da(sqrt(a)) = (1/2) *  (1/sqrt(a)), apply the chain rule to the derivative of e^a:
       const da = new Tensor(
         _mul(_mul(_div(1, 2), _div(1, _sqrt(a.data))), dz.data)
@@ -723,18 +735,18 @@ export class Exp {
    * @param {object} a - Tensor to be exponentiated.
    * @returns {object} New tensor.
    */
-  forward(a) {
+  forward(a: Tensor): Tensor {
     // Build cache to use in backward step:
     this.cache = a;
 
     // Call recursive function:
     const z = new Tensor(
       _exp(a._data), // data;
-      a.requires_grad // requires_grad;
+      requiresGrad(a) // requires_grad;
     );
 
     // Connect nodes in graph:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -743,12 +755,12 @@ export class Exp {
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const a = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       // d/da(e^a) = e^a, apply the chain rule to the derivative of e^a:
       const da = new Tensor(_mul(_exp(a.data), dz.data));
       a.backward(da, z);
@@ -764,18 +776,18 @@ export class Log {
    * @param {object} a - Tensor we will take the log of.
    * @returns {object} New tensor.
    */
-  forward(a) {
+  forward(a: Tensor): Tensor {
     // Build cache to use in backward step:
     this.cache = a;
 
     // Call recursive function:
     const z = new Tensor(
       _log(a._data), // data;
-      a.requires_grad // requires_grad;
+      requiresGrad(a) // requires_grad;
     );
 
     // Connect nodes in graph:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -784,12 +796,12 @@ export class Log {
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const a = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       // d/da(ln(a)) = (1/a), apply the chain rule to the derivative of the natural log:
       const da = new Tensor(_mul(_div(1, a.data), dz.data));
 
@@ -810,7 +822,7 @@ export class Sum {
    * @param {keepdims} keepdims - Whether to keep dimensions of original tensor.
    * @returns {Tensor} - Final tensor.
    */
-  forward(a, dim, keepdims = false) {
+  forward(a: Tensor, dim: number, keepdims = false): Tensor {
     // Build cache to use in backward step:
     this.cache = [a, dim, keepdims];
 
@@ -825,11 +837,11 @@ export class Sum {
     // Create output tensor:
     const z = new Tensor(
       _sum(a._data, dim, (keepdims = keepdims)), // New data.
-      a.requires_grad // requires_grad.
+      requiresGrad(a) // requires_grad.
     );
 
     // Connect nodes in graph:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -838,12 +850,12 @@ export class Sum {
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const [a, dim, keepdims] = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       if (keepdims) {
         dz = dz.sum(dim);
       }
@@ -865,7 +877,7 @@ export class Mean {
    * @param {keepdims} keepdims - Whether to keep dimensions of original tensor.
    * @returns {Tensor} - Final tensor.
    */
-  forward(a, dim, keepdims = false) {
+  forward(a: Tensor, dim: number, keepdims = false): Tensor {
     // Account for negative dimension index:
     if (dim < 0) {
       dim = a.shape.length + dim;
@@ -881,11 +893,11 @@ export class Mean {
     // Create output tensor:
     const z = new Tensor(
       _mean(a._data, dim, keepdims), // New data.
-      a.requires_grad // keep_dims.
+      requiresGrad(a) // keep_dims.
     );
 
     // Connect nodes in graph:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -894,12 +906,12 @@ export class Mean {
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const [a, dim] = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       // Backprop through mean:
       let da = new Tensor(_div(dz.data, a.shape[dim]));
       // Expand upstream gradients to the shape of "a":
@@ -918,7 +930,7 @@ export class Variance {
    * @param {keepdims} keepdims - Whether to keep dimensions of original tensor.
    * @returns {Tensor} - Final tensor.
    */
-  forward(a, dim, keepdims = false) {
+  forward(a: Tensor, dim: number, keepdims = false): Tensor {
     // Account for negative dimension index:
     if (dim < 0) {
       dim = a.shape.length + dim;
@@ -934,11 +946,11 @@ export class Variance {
     // Create output tensor:
     const z = new Tensor(
       _variance(a._data, dim, keepdims), // New data.
-      a.requires_grad // keep_dims.
+      requiresGrad(a) // keep_dims.
     );
 
     // Connect nodes in graph:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -947,17 +959,17 @@ export class Variance {
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const [a, dim] = this.cache;
     // Find gradients relative to "a", and pass them downstream:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       // Expand upstream gradients to the shape of "a":
-      let da = broadcast(dz, a);
+      dz = broadcast(dz, a);
       // Backprop through variance:
       const err = _add(a._data, _neg(_mean(a._data, dim, true)));
-      const var_err = _mul(_mul(da._data, 2), err);
-      da = _div(var_err, a.shape[dim]);
+      const var_err = _mul(_mul(dz._data, 2), err);
+      let da = _div(var_err, a.shape[dim]);
       // Create new "da" Tensor:
       da = new Tensor(da);
       a.backward(da, z);
@@ -1001,11 +1013,11 @@ export class Transpose {
     // Call recursive function:
     const z = new Tensor(
       _transpose(a._data, dim), // data;
-      a.requires_grad // requires_grad;
+      requiresGrad(a) // requires_grad;
     );
 
     // Connect nodes in graph:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -1019,7 +1031,7 @@ export class Transpose {
     const [a, dimA, dimB] = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       const da = dz.transpose(dimA, dimB);
       a.backward(da, z);
     }
@@ -1044,11 +1056,11 @@ export class At {
     // Call function:
     const z = new Tensor(
       _at(a._data, idx1, idx2), // data;
-      a.requires_grad // requires_grad;
+      requiresGrad(a) // requires_grad;
     );
 
     // Connect nodes in graph:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -1061,7 +1073,7 @@ export class At {
     // Get data from cache:
     const [a, idx1, idx2] = this.cache;
     // Find gradients relative to "a", and pass them downstream:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       const da = zeros(a.shape);
       // Add derivatives to the original places from a:
       for (let i = 0; i < dz.length; i++) {
@@ -1091,11 +1103,11 @@ export class MaskedFill {
     // Call function:
     const z = new Tensor(
       _masked_fill(a._data, mask._data, condition, value), // data;
-      a.requires_grad // requires_grad;
+      requiresGrad(a) // requires_grad;
     );
 
     // Connect nodes in graph:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -1108,7 +1120,7 @@ export class MaskedFill {
     // Get data from cache:
     const [a, mask, condition] = this.cache;
     // Find gradients relative to "a", and pass them downstream:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       // Set gradients of all reset values to zero:
       const da = new Tensor(_masked_fill(dz._data, mask._data, condition, 0));
 
@@ -1127,11 +1139,11 @@ export class Reshape {
     // Call function:
     const z = new Tensor(
       _reshape(a._data, shape), // data;
-      a.requires_grad // requires_grad;
+      requiresGrad(a) // requires_grad;
     );
 
     // Connect nodes in graph:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -1145,7 +1157,7 @@ export class Reshape {
     const a = this.cache;
 
     // Find gradients relative to "a", and pass them downstream:
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       // Reshape dz back to a's shape:
       const da = new Tensor(_reshape(dz.data, a.shape));
       a.backward(da, z);
@@ -1278,7 +1290,7 @@ export function log(a) {
  * @param {any} other - Tensor or integer to multiply this Tensor by.
  * @returns {object} New tensor.
  */
-export function matmul(a: Tensor, b: Tensor | number) {
+export function matmul(a: Tensor, b: Tensor): Tensor {
   return a.matmul(b);
 }
 
@@ -1887,6 +1899,19 @@ export function randint(low = 0, high = 1, shape = [1], requires_grad = false) {
 }
 
 // <<< Helper Functions >>> //
+
+/**
+ * Returns if a variable requires gradient tracking.
+ * @param {any} - Variable to check if requires_grad.
+ * @returns {boolean} Whether to track gradients.
+ */
+export function requiresGrad(a: Tensor | number | number | Array<any>): boolean {
+  if (a instanceof Tensor) {
+    return a.requires_grad;
+  } else {
+    return false;
+  }
+}
 
 /**
  * Broadcasts tensor "a" into shape of "b".
