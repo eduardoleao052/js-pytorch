@@ -1,13 +1,20 @@
-import { Bench, Task, TaskResult } from "tinybench";
-import { readFileSync } from "fs";
+import { Bench, Task } from "tinybench";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { matmul, add, Tensor } from "../../src/tensor";
 import { ReLU, CrossEntropyLoss } from "../../src/layers";
+import { formatTrainingResults } from "./formatTrainingResults";
+import { compareBenchmarks } from "./compareBenchmarks";
 
-const INIT_DATA = JSON.parse(
-  readFileSync("tests/benchmarks/autograd.json", "utf-8")
-);
+export const BENCH_NAME = "Autograd training loop iteration";
+export const DATA_FILE = "autograd-data.json";
+export const LOG_FILE = "autograd-log.json";
 
 export async function autogradBench() {
+  const INIT_DATA = JSON.parse(
+    await readFile(join("tests", "benchmarks", DATA_FILE), "utf-8")
+  );
+
   const bench = new Bench({ iterations: 128, warmupIterations: 0 });
 
   const lossPerIteration: number[] = [];
@@ -51,7 +58,7 @@ export async function autogradBench() {
 
   bench
     .add(
-      "Autograd training loop iteration",
+      BENCH_NAME,
       () => {
         trainingLoop();
       },
@@ -65,54 +72,11 @@ export async function autogradBench() {
 
   await bench.run();
 
-  // Reformat the table to display Average Time in milliseconds and
-  // add Average Loss, Total Time and Loss
-  const results: (TaskResult | undefined)[] = bench.results;
-  const table = bench.table().map((row, i) => {
-    if (row === null) return row;
-
-    const result = results[i];
-    let additionalColumns = {};
-    if (result !== undefined) {
-      additionalColumns = {
-        "Total Time (ms)": Number.parseFloat(result.totalTime.toFixed(2)),
-        Loss: lossPerIteration[lossPerIteration.length - 1]
-      };
-    }
-
-    let averageLoss;
-    try {
-      averageLoss =
-        lossPerIteration.reduce<{
-          prev: number | null;
-          total: number;
-          error?: string;
-        }>(
-          (acc, b, i) => {
-            // Is this due to a bug in the library?
-            if (Number.isNaN(b))
-              throw new Error(`Iteration ${i} Loss became NaN`);
-            const total = acc.prev === null ? 0 : Math.abs(acc.prev - b);
-            return { prev: b, total };
-          },
-          { prev: null, total: 0 }
-        ).total / lossPerIteration.length;
-    } catch (e) {
-      if (e instanceof Error) {
-        averageLoss = e.message;
-      }
-    }
-
-    return {
-      "Task Name": row["Task Name"],
-      "ops/sec": Number.parseInt(row["ops/sec"], 10),
-      "Average Time (ms)": Number(row["Average Time (ns)"]) / 1e6,
-      Margin: row["Margin"],
-      Samples: row["Samples"],
-      "Average Change in Loss": averageLoss,
-      ...additionalColumns
-    };
-  });
+  const table = formatTrainingResults(bench, lossPerIteration);
 
   console.table(table);
+
+  compareBenchmarks(LOG_FILE, BENCH_NAME, bench.tasks);
+
+  return bench.tasks;
 }

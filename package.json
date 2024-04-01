@@ -29,7 +29,8 @@
     "watch": "pkgroll --watch",
     "prepack": "npm run build",
     "test": "jest",
-    "bench": "tsx tests/benchmarks/index.ts"
+    "bench": "tsx tests/benchmarks/runBenchmarks.ts",
+    "bench:update": "tsx tests/benchmarks/runBenchmarks.ts --save"
   },
   "release": {
     "branches": [
