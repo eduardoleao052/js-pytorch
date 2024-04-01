@@ -68,6 +68,8 @@ class Tensor {
       this._data = data;
     } else if (typeof data === "number") {
       this._data = [data];
+    } else {
+      throw Error('Your argument "data" is not a number or an iterable.');
     }
     this.shape = getShape(data);
     this.requires_grad = requires_grad;
@@ -207,8 +209,11 @@ class Tensor {
   sub(other) {
     if (typeof other === "number") {
       return this.add(-other);
+    } else if (other instanceof Tensor) {
+      return this.add(other.neg());
+    } else {
+      throw Error('Argument "other" is not a Tensor or a number.');
     }
-    return this.add(other.neg());
   }
   /**
    * Get element-wise opposite of given tensor ( every element * (-1) )
@@ -357,14 +362,14 @@ class Add {
     const z = new Tensor(
       _add(aData, bData),
       // data;
-      a.requires_grad || b.requires_grad
+      requiresGrad(a) || requiresGrad(b)
       // requires_grad;
     );
-    if (a instanceof Tensor && a.requires_grad) {
+    if (a instanceof Tensor && requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
     }
-    if (b instanceof Tensor && b.requires_grad) {
+    if (b instanceof Tensor && requiresGrad(b)) {
       z.parents.push(b);
       b.children.push(z);
     }
@@ -373,12 +378,12 @@ class Add {
   }
   backward(dz, z) {
     const [a, b] = this.cache;
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       let da = dz;
       da = broadcast(da, a);
       a.backward(da, z);
     }
-    if (b.requires_grad) {
+    if (requiresGrad(b)) {
       let db = dz;
       db = broadcast(db, b);
       b.backward(db, z);
@@ -397,10 +402,10 @@ class Neg {
     const z = new Tensor(
       _neg(a._data),
       // data;
-      a.requires_grad
+      requiresGrad(a)
       // requires_grad;
     );
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -409,7 +414,7 @@ class Neg {
   }
   backward(dz, z) {
     const a = this.cache;
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       const da = neg(dz);
       a.backward(da, z);
     }
@@ -430,14 +435,14 @@ class Mul {
     const z = new Tensor(
       _mul(aData, bData),
       // data;
-      a.requires_grad || b.requires_grad
+      requiresGrad(a) || requiresGrad(b)
       // requires_grad;
     );
-    if (a instanceof Tensor && a.requires_grad) {
+    if (a instanceof Tensor && requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
     }
-    if (b instanceof Tensor && b.requires_grad) {
+    if (b instanceof Tensor && requiresGrad(b)) {
       z.parents.push(b);
       b.children.push(z);
     }
@@ -446,12 +451,12 @@ class Mul {
   }
   backward(dz, z) {
     const [a, b] = this.cache;
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       let da = new Tensor(_mul(dz.data, getData(b)));
       da = broadcast(da, a);
       a.backward(da, z);
     }
-    if (b.requires_grad) {
+    if (requiresGrad(b)) {
       let db = new Tensor(_mul(dz.data, getData(a)));
       db = broadcast(db, b);
       b.backward(db, z);
@@ -473,14 +478,14 @@ class Div {
     const z = new Tensor(
       _div(aData, bData),
       // data;
-      a.requires_grad || b.requires_grad
+      requiresGrad(a) || requiresGrad(b)
       // requires_grad;
     );
-    if (a instanceof Tensor && a.requires_grad) {
+    if (a instanceof Tensor && requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
     }
-    if (b instanceof Tensor && b.requires_grad) {
+    if (b instanceof Tensor && requiresGrad(b)) {
       z.parents.push(b);
       b.children.push(z);
     }
@@ -489,12 +494,12 @@ class Div {
   }
   backward(dz, z) {
     const [a, b] = this.cache;
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       let da = new Tensor(_mul(dz.data, _div(1, getData(b))));
       da = broadcast(da, a);
       a.backward(da, z);
     }
-    if (b.requires_grad) {
+    if (requiresGrad(b)) {
       let db = new Tensor(
         _mul(dz.data, _neg(_div(getData(a), _pow(getData(b), 2))))
       );
@@ -517,19 +522,23 @@ class MatMul {
     const z = new Tensor(
       _matmul(aData, bData),
       // data;
-      a.requires_grad || b.requires_grad
+      requiresGrad(a) || requiresGrad(b)
       // requires_grad;
     );
-    z.parents.push(a);
-    z.parents.push(b);
+    if (a instanceof Tensor && requiresGrad(a)) {
+      z.parents.push(a);
+      a.children.push(z);
+    }
+    if (b instanceof Tensor && requiresGrad(b)) {
+      z.parents.push(b);
+      b.children.push(z);
+    }
     z.operation = this;
-    a.children.push(z);
-    b.children.push(z);
     return z;
   }
   backward(dz, z) {
     const [a, b] = this.cache;
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       const dzData = dz.data;
       let b_T = _transpose(b.data, b.ndims - 2);
       b_T = broadcastUp(b_T, dzData);
@@ -537,7 +546,7 @@ class MatMul {
       da = broadcast(da, a);
       a.backward(da, z);
     }
-    if (b.requires_grad) {
+    if (requiresGrad(b)) {
       const dzData = dz.data;
       let a_T = _transpose(a.data, a.ndims - 2);
       a_T = broadcastUp(a_T, dzData);
@@ -558,12 +567,12 @@ class Pow {
   forward(a, n) {
     this.cache = a;
     const z = new Tensor(
-      _pow(a._data, n),
+      _pow(getData(a), n),
       // data;
-      a.requires_grad
+      requiresGrad(a)
       // requires_grad;
     );
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -572,7 +581,7 @@ class Pow {
   }
   backward(dz, z) {
     const a = this.cache;
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       const da = new Tensor(_mul(2, _mul(a.data, dz.data)));
       a.backward(da, z);
     }
@@ -590,10 +599,10 @@ class Sqrt {
     const z = new Tensor(
       _sqrt(a._data),
       // data;
-      a.requires_grad
+      requiresGrad(a)
       // requires_grad;
     );
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -602,7 +611,7 @@ class Sqrt {
   }
   backward(dz, z) {
     const a = this.cache;
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       const da = new Tensor(
         _mul(_mul(_div(1, 2), _div(1, _sqrt(a.data))), dz.data)
       );
@@ -622,10 +631,10 @@ class Exp {
     const z = new Tensor(
       _exp(a._data),
       // data;
-      a.requires_grad
+      requiresGrad(a)
       // requires_grad;
     );
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -634,7 +643,7 @@ class Exp {
   }
   backward(dz, z) {
     const a = this.cache;
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       const da = new Tensor(_mul(_exp(a.data), dz.data));
       a.backward(da, z);
     }
@@ -652,10 +661,10 @@ class Log {
     const z = new Tensor(
       _log(a._data),
       // data;
-      a.requires_grad
+      requiresGrad(a)
       // requires_grad;
     );
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -664,7 +673,7 @@ class Log {
   }
   backward(dz, z) {
     const a = this.cache;
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       const da = new Tensor(_mul(_div(1, a.data), dz.data));
       a.backward(da, z);
     }
@@ -690,10 +699,10 @@ class Sum {
     const z = new Tensor(
       _sum(a._data, dim, keepdims = keepdims),
       // New data.
-      a.requires_grad
+      requiresGrad(a)
       // requires_grad.
     );
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -702,7 +711,7 @@ class Sum {
   }
   backward(dz, z) {
     const [a, dim, keepdims] = this.cache;
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       if (keepdims) {
         dz = dz.sum(dim);
       }
@@ -731,10 +740,10 @@ class Mean {
     const z = new Tensor(
       _mean(a._data, dim, keepdims),
       // New data.
-      a.requires_grad
+      requiresGrad(a)
       // keep_dims.
     );
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -743,7 +752,7 @@ class Mean {
   }
   backward(dz, z) {
     const [a, dim] = this.cache;
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       let da = new Tensor(_div(dz.data, a.shape[dim]));
       da = broadcast(da, a);
       a.backward(da, z);
@@ -770,10 +779,10 @@ class Variance {
     const z = new Tensor(
       _variance(a._data, dim, keepdims),
       // New data.
-      a.requires_grad
+      requiresGrad(a)
       // keep_dims.
     );
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -782,11 +791,11 @@ class Variance {
   }
   backward(dz, z) {
     const [a, dim] = this.cache;
-    if (a.requires_grad) {
-      let da = broadcast(dz, a);
+    if (requiresGrad(a)) {
+      dz = broadcast(dz, a);
       const err = _add(a._data, _neg(_mean(a._data, dim, true)));
-      const var_err = _mul(_mul(da._data, 2), err);
-      da = _div(var_err, a.shape[dim]);
+      const var_err = _mul(_mul(dz._data, 2), err);
+      let da = _div(var_err, a.shape[dim]);
       da = new Tensor(da);
       a.backward(da, z);
     }
@@ -820,10 +829,10 @@ class Transpose {
     const z = new Tensor(
       _transpose(a._data, dim),
       // data;
-      a.requires_grad
+      requiresGrad(a)
       // requires_grad;
     );
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -832,7 +841,7 @@ class Transpose {
   }
   backward(dz, z) {
     const [a, dimA, dimB] = this.cache;
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       const da = dz.transpose(dimA, dimB);
       a.backward(da, z);
     }
@@ -851,10 +860,10 @@ class At {
     const z = new Tensor(
       _at(a._data, idx1, idx2),
       // data;
-      a.requires_grad
+      requiresGrad(a)
       // requires_grad;
     );
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -863,7 +872,7 @@ class At {
   }
   backward(dz, z) {
     const [a, idx1, idx2] = this.cache;
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       const da = zeros(a.shape);
       for (let i = 0; i < dz.length; i++) {
         if (idx2 != null) {
@@ -886,10 +895,10 @@ class MaskedFill {
     const z = new Tensor(
       _masked_fill(a._data, mask._data, condition, value),
       // data;
-      a.requires_grad
+      requiresGrad(a)
       // requires_grad;
     );
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -898,7 +907,7 @@ class MaskedFill {
   }
   backward(dz, z) {
     const [a, mask, condition] = this.cache;
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       const da = new Tensor(_masked_fill(dz._data, mask._data, condition, 0));
       a.backward(da, z);
     }
@@ -911,10 +920,10 @@ class Reshape {
     const z = new Tensor(
       _reshape(a._data, shape),
       // data;
-      a.requires_grad
+      requiresGrad(a)
       // requires_grad;
     );
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
       z.operation = this;
@@ -923,7 +932,7 @@ class Reshape {
   }
   backward(dz, z) {
     const a = this.cache;
-    if (a.requires_grad) {
+    if (requiresGrad(a)) {
       const da = new Tensor(_reshape(dz.data, a.shape));
       a.backward(da, z);
     }
@@ -1040,11 +1049,11 @@ function _variance(a, dim, keepdims) {
 function _add(a, b) {
   if (typeof a === "number" && typeof b === "number") {
     return a + b;
-  } else if (typeof a === "number") {
+  } else if (typeof a === "number" && b instanceof Array) {
     return b.map((element) => _add(element, a));
-  } else if (typeof b === "number") {
+  } else if (a instanceof Array && typeof b === "number") {
     return a.map((element) => _add(element, b));
-  } else {
+  } else if (a instanceof Array && b instanceof Array) {
     const aShape = getShape(a);
     const bShape = getShape(b);
     if (JSON.stringify(aShape) === JSON.stringify(bShape)) {
@@ -1073,7 +1082,11 @@ function _add(a, b) {
       } else {
         return b.map((element) => _add(a, element));
       }
+    } else {
+      throw Error("Given arguments cannot be added.");
     }
+  } else {
+    throw Error("Given arguments cannot be added.");
   }
 }
 function _neg(a) {
@@ -1088,11 +1101,11 @@ function _neg(a) {
 function _mul(a, b) {
   if (typeof a === "number" && typeof b === "number") {
     return a * b;
-  } else if (typeof a === "number") {
+  } else if (typeof a === "number" && b instanceof Array) {
     return b.map((element) => _mul(element, a));
-  } else if (typeof b === "number") {
+  } else if (a instanceof Array && typeof b === "number") {
     return a.map((element) => _mul(element, b));
-  } else {
+  } else if (a instanceof Array && b instanceof Array) {
     const aShape = getShape(a);
     const bShape = getShape(b);
     if (JSON.stringify(aShape) === JSON.stringify(bShape)) {
@@ -1127,11 +1140,11 @@ function _mul(a, b) {
 function _div(a, b) {
   if (typeof a === "number" && typeof b === "number") {
     return a / b;
-  } else if (typeof a === "number") {
+  } else if (typeof a === "number" && b instanceof Array) {
     return b.map((element) => _div(a, element));
-  } else if (typeof b === "number") {
+  } else if (a instanceof Array && typeof b === "number") {
     return a.map((element) => _div(element, b));
-  } else {
+  } else if (a instanceof Array && b instanceof Array) {
     const aShape = getShape(a);
     const bShape = getShape(b);
     if (JSON.stringify(aShape) === JSON.stringify(bShape)) {
@@ -1202,7 +1215,7 @@ function _pow(a, n) {
 function _sqrt(a) {
   if (typeof a === "number") {
     return Math.sqrt(a);
-  } else if (typeof a === "object") {
+  } else if (a instanceof Array) {
     return a.map((element) => _sqrt(element));
   } else {
     throw new TypeError("the input data is not a number.");
@@ -1211,7 +1224,7 @@ function _sqrt(a) {
 function _exp(a) {
   if (typeof a === "number") {
     return 2.718281828459045 ** a;
-  } else if (typeof a === "object") {
+  } else if (a instanceof Array) {
     return a.map((element) => _exp(element));
   } else {
     throw new TypeError("the input data is not a number.");
@@ -1220,7 +1233,7 @@ function _exp(a) {
 function _log(a) {
   if (typeof a === "number") {
     return Math.log(a);
-  } else if (typeof a === "object") {
+  } else if (a instanceof Array) {
     return a.map((element) => _log(element));
   } else {
     throw new TypeError("the input data is not a number.");
@@ -1235,20 +1248,14 @@ function _transpose(a, dim) {
       }
     }
     return newArray;
-  } else if (typeof a === "object") {
+  } else if (a instanceof Array) {
     return a.map((element) => _transpose(element, dim - 1));
   } else {
     throw Error("ValueError: dimensions are invalid.");
   }
 }
 function _at(a, idx1, idx2) {
-  if (idx1 instanceof Tensor) {
-    idx1 = idx1.data;
-  }
-  if (idx2 instanceof Tensor) {
-    idx2 = idx2.data;
-  }
-  if (idx2 != null) {
+  if (idx2) {
     return Array(idx1.length).fill(0).map((_, i) => a[idx1[i]][idx2[i]]);
   } else {
     return Array(idx1.length).fill(0).map((_, i) => a[idx1[i]]);
@@ -1350,75 +1357,87 @@ function randint(low = 0, high = 1, shape = [1], requires_grad = false) {
     requires_grad = requires_grad
   );
 }
+function requiresGrad(a) {
+  if (a instanceof Tensor) {
+    return a.requires_grad;
+  } else {
+    return false;
+  }
+}
 function broadcast(a, b) {
   function _broadcast(out2, b2) {
     if (typeof out2 === "number" && typeof b2 === "number") {
       return out2;
-    } else if (typeof out2 === "number") {
+    } else if (typeof out2 === "number" && b2 instanceof Array) {
       const newArray = Array(b2.length).fill(out2);
       return _broadcast(newArray, b2);
-    } else if (typeof b2 === "number") {
+    } else if (out2 instanceof Array && typeof b2 === "number") {
       return _broadcast(_sum(out2, 0), b2);
     } else if (JSON.stringify(getShape(out2)) === JSON.stringify(getShape(b2))) {
       return out2;
-    }
-    const outShape = getShape(out2);
-    const bShape = getShape(b2);
-    if (outShape.length > bShape.length) {
-      let idx;
-      for (let i = 0; i < outShape.length; i++) {
-        if (JSON.stringify(outShape.slice(i, i + bShape.length)) === JSON.stringify(bShape)) {
-          idx = i;
+    } else if (out2 instanceof Array && b2 instanceof Array) {
+      const outShape = getShape(out2);
+      const bShape = getShape(b2);
+      if (outShape.length > bShape.length) {
+        let idx;
+        for (let i = 0; i < outShape.length; i++) {
+          if (JSON.stringify(outShape.slice(i, i + bShape.length)) === JSON.stringify(bShape)) {
+            idx = i;
+          }
         }
-      }
-      if (idx === 0) {
-        return out2.map((element, idx2) => _broadcast(element, b2[idx2]));
-      } else {
-        return _sum(out2, 0);
-      }
-    } else if (outShape.length < bShape.length) {
-      let idx;
-      for (let i = 0; i < bShape.length; i++) {
-        if (JSON.stringify(bShape.slice(i, i + outShape.length)) === JSON.stringify(outShape)) {
-          idx = i;
+        if (idx === 0) {
+          return out2.map((element, idx2) => _broadcast(element, b2[idx2]));
+        } else {
+          return _sum(out2, 0);
         }
-      }
-      if (idx === 0) {
-        return out2.map((element) => _broadcast(element, b2[0]));
+      } else if (outShape.length < bShape.length) {
+        let idx;
+        for (let i = 0; i < bShape.length; i++) {
+          if (JSON.stringify(bShape.slice(i, i + outShape.length)) === JSON.stringify(outShape)) {
+            idx = i;
+          }
+        }
+        if (idx === 0) {
+          return out2.map((element) => _broadcast(element, b2[0]));
+        } else {
+          return Array(b2.length).fill(0).map(() => _broadcast(out2, b2[0]));
+        }
       } else {
-        return Array(b2.length).fill(0).map(() => _broadcast(out2, b2[0]));
+        const _broadcastSideways = (out3, b3) => {
+          if (out3 instanceof Array && b3.length != out3.length) {
+            if (b3.length === 1) {
+              return [_sum(out3, 0)];
+            } else if (out3.length === 1) {
+              const emptyArray = Array(b3.length).fill(zeros);
+              return emptyArray.map(() => out3[0]);
+            } else {
+              throw Error(
+                `Shapes ${getShape(out3)} and ${getShape(b3)} not broadcastable.`
+              );
+            }
+          } else {
+            if (out3 instanceof Array) {
+              return out3.map(
+                (element, idx) => _broadcastSideways(element, b3[idx])
+              );
+            } else if (typeof out3 === "number") {
+              return [null].map(
+                (element, idx) => _broadcastSideways(element, b3[idx])
+              );
+            } else {
+              throw Error("Shapes not broadcastable.");
+            }
+          }
+        };
+        return _broadcastSideways(out2, b2);
       }
     } else {
-      const _broadcastSideways = (out3, b3) => {
-        if (b3.length != out3.length) {
-          if (b3.length === 1) {
-            return [_sum(out3, 0)];
-          } else if (out3.length === 1) {
-            const emptyArray = Array(b3.length).fill(zeros);
-            return emptyArray.map(() => out3[0]);
-          } else {
-            Error(
-              `Shapes ${getShape(out3)} and ${getShape(b3)} not broadcastable.`
-            );
-          }
-        } else {
-          if (typeof out3 === "object") {
-            return out3.map(
-              (element, idx) => _broadcastSideways(element, b3[idx])
-            );
-          } else if (typeof out3 === "number") {
-            return [null].map(
-              (element, idx) => _broadcastSideways(element, b3[idx])
-            );
-          }
-        }
-      };
-      return _broadcastSideways(out2, b2);
+      throw Error("Shapes not broadcastable.");
     }
   }
   let out = a.data;
   while (JSON.stringify(getShape(out)) != JSON.stringify(b.shape)) {
-    out = _broadcast(out, b.data);
+    out = assureArray(_broadcast(out, b.data));
   }
   return new Tensor(out);
 }
@@ -1804,8 +1823,8 @@ class CrossEntropyLoss extends Module {
     const logitsExp = exp(z);
     const logitsSum = logitsExp.sum(1, true);
     const logits = logitsExp.div(logitsSum);
-    y = _reshape(y.data, [B]);
-    const at_logits = logits.at([...Array(B).keys()], y);
+    let y_array = _reshape(y.data, [B]);
+    const at_logits = logits.at([...Array(B).keys()], y_array);
     const log_losses = log(at_logits);
     let loss = log_losses.sum(-1).neg();
     loss = loss.div(B);
