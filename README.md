@@ -189,19 +189,15 @@ for (let i = 0; i < 40; i++) {
 
 <br/>
 
-## 3. Results
+## 3. Distribution & Devtools
+
+- To __Build for Distribution__, run `npm run build`. CJS and ESM modules and `index.d.ts` will be output in the `dist/` folder.
+- To check the code with __ESLint__ at any time, run `npm run lint`.
+- To improve code formatting with __prettier__, run `npm run prettier`.
+
+## 4. Results
 
 - The models implemented in the [unit tests](tests/test.ts) all converged to **near-zero losses**.
 - Run them with `npm test`!
 - This package is not as optimized as PyTorch yet, but I tried making it more interpretable. Efficiency improvements are incoming!
 - Hope you enjoy!
-
-## 4. Building for distribution
-
-1. Run `npm run build`
-2. CJS and ESM modules and `index.d.ts` will be output in the `dist/` folder.
-
-## 5. DevTools
-
-- Check the code with __ESLint__ at any time running `npm run lint`.
-- To improve code formatting with __prettier__, run `npm run prettier`.
