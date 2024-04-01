@@ -16,7 +16,7 @@
 } from "./tensor";
 
 // Interface that contains all the types of Module's attributes:
-interface ModuleInterface extends Object {
+interface ModuleInterface {
   // Array of [key: values] of the properties of the Module:
   [key: string]: Module | Parameter | Tensor | any;
   parameters(): (Parameter | Tensor)[];
@@ -480,7 +480,7 @@ export class CrossEntropyLoss extends Module {
 
     const logits = logitsExp.div(logitsSum);
 
-    let y_array = _reshape(y.data, [B]);
+    const y_array = _reshape(y.data, [B]);
 
     // Get cross-entropy loss:
     const at_logits = logits.at([...Array(B).keys()], y_array);

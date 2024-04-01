@@ -189,7 +189,7 @@ export class Tensor {
    * @param {any} other - Tensor or integer to be subtracted from this Tensor.
    * @returns {object} New tensor.
    */
-  sub(other: Tensor | Number): Tensor {
+  sub(other: Tensor | number): Tensor {
     if (typeof other === "number") {
       return this.add(-other);
     } else if (other instanceof Tensor) {
@@ -834,7 +834,7 @@ export class Sum {
     }
     // Create output tensor:
     const z = new Tensor(
-      _sum(a._data, dim, (keepdims = keepdims)), // New data.
+      _sum(a._data, dim, keepdims), // New data.
       requiresGrad(a) // requires_grad.
     );
 
@@ -1884,7 +1884,7 @@ export function randint(low = 0, high = 1, shape = [1], requires_grad = false): 
     _tensorInitializer(shape, () => {
       return Math.floor(Math.random() * (high - low)) + low;
     }),
-    (requires_grad = requires_grad)
+    (requires_grad)
   );
 }
 
