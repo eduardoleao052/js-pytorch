@@ -24,7 +24,7 @@
 
 - JS-Torch is a Deep Learning **JavaScript library** built from scratch, to closely follow PyTorch's syntax.
 - It contains a fully functional [Tensor](src/tensor.ts) object, which can track gradients, Deep Learning [Layers](src/layers.ts) and functions, and an **Automatic Differentiation** engine.
-- Feel free to try out a <a href="https://eduardoleao052.github.io/js-torch/assets/demo/demo.html" target="blank">Web Demo</a>!
+- Feel free to try out the <a href="https://eduardoleao052.github.io/js-torch/assets/demo/demo.html" target="blank">Web Demo</a>!
 
 <br>
 
