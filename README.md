@@ -191,9 +191,9 @@ for (let i = 0; i < 40; i++) {
 
 ## 3. Distribution & Devtools
 
-- To __Build for Distribution__, run `npm run build`. CJS and ESM modules and `index.d.ts` will be output in the `dist/` folder.
-- To check the code with __ESLint__ at any time, run `npm run lint`.
-- To improve code formatting with __prettier__, run `npm run prettier`.
+- To **Build for Distribution**, run `npm run build`. CJS and ESM modules and `index.d.ts` will be output in the `dist/` folder.
+- To check the code with **ESLint** at any time, run `npm run lint`.
+- To improve code formatting with **prettier**, run `npm run prettier`.
 
 ## 4. Results
 
@@ -201,3 +201,9 @@ for (let i = 0; i < 40; i++) {
 - Run them with `npm test`!
 - This package is not as optimized as PyTorch yet, but I tried making it more interpretable. Efficiency improvements are incoming!
 - Hope you enjoy!
+
+## 5. Benchmarks
+
+- Performance benchmarks are also included and tracked in the `tests/benchmarks/` directory.
+- Run all benchmarks with `npm run bench`
+- Save new benchmarks with `npm run bench:update` and add the updated files to your commit.
