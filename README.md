@@ -204,4 +204,4 @@ for (let i = 0; i < 40; i++) {
 ## 5. DevTools
 
 - Check the code with __ESLint__ at any time running `npm run lint`.
-- To improve code formatting with _prettier__, run `npm run prettier`.
+- To improve code formatting with __prettier__, run `npm run prettier`.
