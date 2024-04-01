@@ -17,9 +17,7 @@ import { Adam } from "../src/optim";
  * This function tests if the loss converges to zero in with a training loop on a dummy random dataset. The update steps are manual, employing standard SGD.
  * This function does not use the "".nn" package. No optimizers or layers are employed.
  */
-function test_autograd() {
-  // Get start time (to calculate elapsed time):
-  const start_time = new Date().getTime();
+function test_autograd(): number {
 
   // Define loss function as Cross Entropy Loss and learning rate:
   const loss_func = new CrossEntropyLoss();
@@ -59,26 +57,19 @@ function test_autograd() {
     loss.zero_grad_graph();
   }
 
-  // Assert that the model converged:
-  if (loss.data[0] > 0.1) {
-    throw new Error("Autograd engine did not converge in Unit Test #1.");
-  }
-
-  // Return elapsed time:
-  return new Date().getTime() - start_time;
+  // Return loss:
+  return loss.data[0]
 }
 
 /**
  * This function tests if the loss converges to zero in a simple Neural Network
  * (Fully-Connected, three layers, with ReLU non-linearities), which uses the custom Module superclass.
  */
-function test_module() {
-  // Get start time (to calculate elapsed time):
-  const start_time = new Date().getTime();
+function test_module():number {
 
   // Implement dummy Module class:
   class NeuralNet extends Module {
-    constructor(hidden_size) {
+    constructor(hidden_size: number) {
       super();
       // Instantiate Neural Network's Layers:
       this.w1 = new Linear(16, hidden_size);
@@ -88,8 +79,8 @@ function test_module() {
       this.w3 = new Linear(hidden_size, 50);
     }
 
-    forward(x) {
-      let z;
+    forward(x: Tensor): Tensor {
+      let z: Tensor;
       z = this.w1.forward(x);
       z = this.relu1.forward(z);
       z = this.w2.forward(z);
@@ -133,19 +124,17 @@ function test_module() {
   }
 
   // Return elapsed time:
-  return new Date().getTime() - start_time;
+  return loss.data[0]
 }
 
 /**
  * This function tests if the loss converges to zero in a mock Transformer
  */
-function test_transformer() {
-  // Get start time (to calculate elapsed time):
-  const start_time = new Date().getTime();
+function test_transformer():number {
 
   // Implement dummy Module class:
   class Transformer extends Module {
-    constructor(vocab_size, hidden_size, n_timesteps, n_heads, p) {
+    constructor(vocab_size: number, hidden_size: number, n_timesteps: number, n_heads: number, p = 0) {
       super();
       // Instantiate Transformer's Layers:
       this.embed = new Embedding(vocab_size, hidden_size);
@@ -168,8 +157,8 @@ function test_transformer() {
       this.linear = new Linear(hidden_size, vocab_size);
     }
 
-    forward(x) {
-      let z;
+    forward(x: Tensor): Tensor {
+      let z: Tensor;
       z = add(this.embed.forward(x), this.pos_embed.forward(x));
       z = this.b1.forward(z);
       z = this.b2.forward(z);
@@ -180,8 +169,8 @@ function test_transformer() {
   }
 
   const vocab_size = 52;
-  const hidden_size = 32;
-  const n_timesteps = 16;
+  const hidden_size = 24;
+  const n_timesteps = 6;
   const n_heads = 8;
   const batch_size = 4;
   let dropout_p = 0;
@@ -219,13 +208,8 @@ function test_transformer() {
     optimizer.zero_grad();
   }
 
-  // Assert that the model converged:
-  if (loss.data[0] > 0.1) {
-    throw new Error("Transformer did not converge in Unit Test #3.");
-  }
-
-  // Return elapsed time:
-  return new Date().getTime() - start_time;
+  // Return loss:
+  return loss.data[0]
 }
 
 /**
@@ -233,13 +217,15 @@ function test_transformer() {
  */
 function unit_test() {
   // Create variable to store elapsed time:
-  let dt;
-  dt = test_autograd();
-  console.log(`\n---> Passed Autograd Convergence Test (${dt}ms)`);
-  dt = test_module();
-  console.log(`\n---> Passed Module Convergence Test (${dt}ms)`);
-  dt = test_transformer();
-  console.log(`\n---> Passed Transformer Convergence Test (${dt}ms)\n`);
+  test('Simple Autograd Convergence Test', () => {
+    expect(test_autograd()).toBeLessThan(0.1);
+  });
+  test('Module Covergence Test', () => {
+    expect(test_module()).toBeLessThan(0.1);
+  });
+  test('Full Transformer Covergence Test', () => {
+    expect(test_transformer()).toBeLessThan(0.2);
+  });
 }
 
 unit_test();

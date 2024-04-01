@@ -480,10 +480,10 @@ export class CrossEntropyLoss extends Module {
 
     const logits = logitsExp.div(logitsSum);
 
-    y = _reshape(y.data, [B]);
+    let y_array = _reshape(y.data, [B]);
 
     // Get cross-entropy loss:
-    const at_logits = logits.at([...Array(B).keys()], y);
+    const at_logits = logits.at([...Array(B).keys()], y_array);
     const log_losses = log(at_logits);
     let loss = log_losses.sum(-1).neg();
     loss = loss.div(B);

@@ -231,7 +231,7 @@ export class Tensor {
    * @param {Tensor | number} other - Tensor or integer to multiply this Tensor by.
    * @returns {object} New tensor.
    */
-  matmul(other: Tensor | number): Tensor {
+  matmul(other: Tensor): Tensor {
     const operation = new MatMul();
     return operation.forward(this, other);
   }
@@ -575,14 +575,14 @@ export class Div {
 export class MatMul {
   cache: any;
 
-  forward(a: Tensor, b: Tensor | number): Tensor {
+  forward(a: Tensor, b: Tensor): Tensor {
     // Build cache to use in backward step:
     this.cache = [a, b];
 
     let aData = a.data;
-    let bData = getData(b);
+    let bData = b.data;
     // Broadcast smaller tensor to match size of larger:
-    if (b instanceof Tensor && a.shape.length < b.shape.length) {
+    if (a.shape.length < b.shape.length) {
       aData = broadcastUp(aData, bData);
     } else {
       bData = broadcastUp(bData, aData);
@@ -987,7 +987,7 @@ export class Transpose {
    * @param {number} dim2 - Second dimension.
    * @returns {object} New tensor.
    */
-  forward(a, dimA, dimB) {
+  forward(a: Tensor, dimA: number, dimB: number): Tensor {
     // Build cache to use in backward step:
     this.cache = [a, dimA, dimB];
 
@@ -999,7 +999,7 @@ export class Transpose {
       dimB = a.shape.length + dimB;
     }
     // Get first dimension to be transposed:
-    let dim;
+    let dim: number;
     if (dimB < dimA) {
       dim = dimB;
     } else if (dimB > dimA) {
@@ -1024,7 +1024,7 @@ export class Transpose {
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const [a, dimA, dimB] = this.cache;
 
@@ -1039,7 +1039,7 @@ export class Transpose {
 export class At {
   cache: any;
 
-  forward(a, idx1, idx2: any = null) {
+  forward(a: Tensor, idx1: Tensor | Array<any>, idx2: Tensor | Array<any> | null = null): Tensor {
     // Make sure index lists are flat JavaScript arrays:
     if (idx1) {
       idx1 = assureArray(idx1).flat(Infinity);
@@ -1067,7 +1067,7 @@ export class At {
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const [a, idx1, idx2] = this.cache;
     // Find gradients relative to "a", and pass them downstream:
@@ -1094,7 +1094,7 @@ export class At {
 export class MaskedFill {
   cache: any;
 
-  forward(a, mask, condition, value) {
+  forward(a: Tensor, mask: Tensor, condition: (someArg: number) => boolean, value: number): Tensor {
     // Build cache to use in backward step:
     this.cache = [a, mask, condition];
 
@@ -1114,7 +1114,7 @@ export class MaskedFill {
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const [a, mask, condition] = this.cache;
     // Find gradients relative to "a", and pass them downstream:
@@ -1130,7 +1130,7 @@ export class MaskedFill {
 export class Reshape {
   cache: any;
 
-  forward(a, shape) {
+  forward(a: Tensor, shape: Array<number>): Tensor {
     // Build cache to use in backward step:
     this.cache = a;
 
@@ -1150,7 +1150,7 @@ export class Reshape {
     return z;
   }
 
-  backward(dz, z) {
+  backward(dz: Tensor, z: Tensor) {
     // Get data from cache:
     const a = this.cache;
 
@@ -1172,7 +1172,7 @@ export class Reshape {
  * @param {boolean} keepdims - Whether to keep dimensions of original tensor.
  * @returns {Tensor} - Final tensor.
  */
-export function sum(a, dim = -1, keepdims = false) {
+export function sum(a: Tensor, dim = -1, keepdims = false): Tensor {
   return a.sum(dim, keepdims);
 }
 
@@ -1183,7 +1183,7 @@ export function sum(a, dim = -1, keepdims = false) {
  * @param {boolean} keepdims - Whether to keep dimensions of original tensor.
  * @returns {Tensor} - Final tensor.
  */
-export function mean(a, dim = -1, keepdims = false) {
+export function mean(a: Tensor, dim = -1, keepdims = false): Tensor {
   return a.mean(dim, keepdims);
 }
 
@@ -1194,7 +1194,7 @@ export function mean(a, dim = -1, keepdims = false) {
  * @param {boolean} keepdims - Whether to keep dimensions of original tensor.
  * @returns {Tensor} - Final tensor.
  */
-export function variance(a, dim = -1, keepdims = false) {
+export function variance(a: Tensor, dim = -1, keepdims = false): Tensor {
   return a.variance(dim, keepdims);
 }
 
@@ -1204,7 +1204,7 @@ export function variance(a, dim = -1, keepdims = false) {
  * @param {any} b - Tensor or integer to be added to this Tensor.
  * @returns {object} New tensor.
  */
-export function add(a, b) {
+export function add(a: Tensor, b: Tensor | number) {
   return a.add(b);
 }
 
@@ -1214,7 +1214,7 @@ export function add(a, b) {
  * @param {any} b - Tensor or integer to be subtracted from this Tensor.
  * @returns {object} New tensor.
  */
-export function sub(a, b) {
+export function sub(a: Tensor, b: Tensor | number) {
   return a.sub(b);
 }
 
@@ -1222,7 +1222,7 @@ export function sub(a, b) {
  * Get element-wise opposite of given tensor ( every element * (-1) )
  * @returns {object} New tensor.
  */
-export function neg(a) {
+export function neg(a: Tensor) {
   return a.neg();
 }
 
@@ -1231,7 +1231,7 @@ export function neg(a) {
  * @param {any} other - Tensor or integer to multiply this Tensor by.
  * @returns {object} New tensor.
  */
-export function mul(a, b) {
+export function mul(a: Tensor, b: Tensor | number) {
   return a.mul(b);
 }
 
@@ -1240,7 +1240,7 @@ export function mul(a, b) {
  * @param {any} other - Tensor or integer to divide this Tensor by.
  * @returns {object} New tensor.
  */
-export function div(a, b) {
+export function div(a: Tensor, b: Tensor | number) {
   const operation = new Div();
   return operation.forward(a, b);
 }
@@ -1251,7 +1251,7 @@ export function div(a, b) {
  * @param {number} n - Exponent.
  * @returns {object} New tensor.
  */
-export function pow(a, n) {
+export function pow(a: Tensor, n: number): Tensor {
   const operation = new Pow();
   return operation.forward(a, n);
 }
@@ -1261,7 +1261,7 @@ export function pow(a, n) {
  * @param {object} a - Tensor to be square rooted.
  * @returns {object} New tensor.
  */
-export function sqrt(a) {
+export function sqrt(a: Tensor): Tensor {
   return a.sqrt();
 }
 
@@ -1270,7 +1270,7 @@ export function sqrt(a) {
  * @param {object} a - Tensor to be exponentiated.
  * @returns {object} New tensor.
  */
-export function exp(a) {
+export function exp(a: Tensor): Tensor {
   return a.exp();
 }
 
@@ -1279,7 +1279,7 @@ export function exp(a) {
  * @param {object} a - Tensor we will take the log of.
  * @returns {object} New tensor.
  */
-export function log(a) {
+export function log(a: Tensor): Tensor {
   return a.log();
 }
 
@@ -1299,15 +1299,15 @@ export function matmul(a: Tensor, b: Tensor): Tensor {
  * @param {number} dim2 - Second dimension.
  * @returns {object} New tensor.
  */
-export function transpose(a, dim1, dim2) {
+export function transpose(a: Tensor, dim1: number, dim2: number): Tensor {
   return a.transpose(dim1, dim2);
 }
 
 /**
  * In a tensor, returns a list of elements in [index1], or [index1][index2];
  * @param {Tensor} a - Original Tensor.
- * @param {object} index1 - List containing indexes to extract data from in first dimension.
- * @param {object} index2 - List containing indexes to extract data from in second dimension [OPTIONAL].
+ * @param {object} idx1 - List containing indexes to extract data from in first dimension.
+ * @param {object} idx2 - List containing indexes to extract data from in second dimension [OPTIONAL].
  * @returns {object} New tensor.
  * @example
  * let a = tensor([[1,4,2],
@@ -1321,7 +1321,7 @@ export function transpose(a, dim1, dim2) {
  * // Returns tensor([2,6,8]):
  * a.at([0,1,1], [2,0,2])
  */
-export function at(a, idx1, idx2) {
+export function at(a: Tensor, idx1: Tensor | Array<any>, idx2: Tensor |  Array<any>): Tensor {
   return a.at(idx1, idx2);
 }
 
@@ -1340,7 +1340,7 @@ export function at(a, idx1, idx2) {
  * //                 [0,0,2,0]])
  * masked_fill(a, mask, (el) => {return el > 3}, 0)
  */
-export function masked_fill(a, mask, condition, value) {
+export function masked_fill(a: Tensor, mask: Tensor, condition: (someArg: number) => boolean, value: number): Tensor {
   return a.masked_fill(mask, condition, value);
 }
 
@@ -1350,13 +1350,13 @@ export function masked_fill(a, mask, condition, value) {
  * @param {object} shape - New tensor's shape.
  * @returns {object} New tensor.
  */
-export function reshape(a, shape) {
+export function reshape(a: Tensor, shape: Array<any>): Tensor {
   return a.reshape(shape);
 }
 
 // <<< Recursive functions for lists >>> //
 
-function _sum(a, dim, keepdims?: boolean) {
+function _sum(a: Array<any>, dim: number, keepdims?: boolean): Array<any> {
   // In recursive call, when depth increases, subtract one from dim.
   // When we reach the dimension intended (dim === 0),
   // we add all elements in this dimension.
@@ -1374,7 +1374,7 @@ function _sum(a, dim, keepdims?: boolean) {
   }
 }
 
-function _mean(a, dim, keepdims?: boolean) {
+function _mean(a: Array<any>, dim: number, keepdims?: boolean): Array<any> {
   // In recursive call, when depth increases, subtract one from dim.
   // When we reach the dimension intended (dim === 0),
   // we add all elements in this dimension.
@@ -1395,7 +1395,7 @@ function _mean(a, dim, keepdims?: boolean) {
   }
 }
 
-function _variance(a, dim, keepdims?: boolean) {
+function _variance(a: Array<any>, dim: number, keepdims?: boolean): Array<any> {
   // In recursive call, when depth increases, subtract one from dim.
   // When we reach the dimension intended (dim === 0),
   // we add all elements in this dimension.
@@ -1424,15 +1424,15 @@ function _variance(a, dim, keepdims?: boolean) {
   }
 }
 
-function _add(a, b) {
+function _add(a: Array<any> | number, b: Array<any> | number): any {
   // If both are numbers, return number. If one is a Tensor, add number to each element in tensor.
   if (typeof a === "number" && typeof b === "number") {
     return a + b;
-  } else if (typeof a === "number") {
+  } else if (typeof a === 'number' && b instanceof Array) {
     return b.map((element) => _add(element, a));
-  } else if (typeof b === "number") {
+  } else if (a instanceof Array && typeof b === 'number') {
     return a.map((element) => _add(element, b));
-  } else {
+  } else if (a instanceof Array && b instanceof Array) {
     // If both are tensors, we need to broadcast:
     const aShape = getShape(a);
     const bShape = getShape(b);
@@ -1441,7 +1441,7 @@ function _add(a, b) {
       return a.map((element, idx) => _add(element, b[idx]));
       // If a's shape is larger, we need to find b's shape inside a's shape:
     } else if (aShape.length > bShape.length) {
-      let idx;
+      let idx!: number;
       // Look for b's shape:
       for (let i = 0; i < aShape.length; i++) {
         if (
@@ -1460,7 +1460,7 @@ function _add(a, b) {
       }
       // If b's shape is larger, we need to find a's shape inside b's shape:
     } else if (aShape.length < bShape.length) {
-      let idx;
+      let idx!: number;
       // Look for a's shape:
       for (let i = 0; i < bShape.length; i++) {
         if (
@@ -1477,11 +1477,11 @@ function _add(a, b) {
       } else {
         return b.map((element) => _add(a, element));
       }
-    }
-  }
+    } else {throw Error('Given arguments cannot be added.')}
+  } else {throw Error('Given arguments cannot be added.')}
 }
 
-function _neg(a) {
+function _neg(a: Array<any> | number): Array<any> | number{
   // If a is a number, make it negative. If not, make all of its elements negative:
   if (typeof a === "number") {
     return -a;
@@ -1492,15 +1492,15 @@ function _neg(a) {
   }
 }
 
-function _mul(a, b) {
+function _mul(a: Array<any> | number, b: Array<any> | number): any {
   // If both are numbers, return number. If one is a Tensor, multiply each element in the tensor by the number.
   if (typeof a === "number" && typeof b === "number") {
     return a * b;
-  } else if (typeof a === "number") {
+  } else if (typeof a === "number" && b instanceof Array) {
     return b.map((element) => _mul(element, a));
-  } else if (typeof b === "number") {
+  } else if (a instanceof Array && typeof b === "number") {
     return a.map((element) => _mul(element, b));
-  } else {
+  } else if (a instanceof Array && b instanceof Array) {
     // If both are tensors, we need to broadcast:
     const aShape = getShape(a);
     const bShape = getShape(b);
@@ -1549,15 +1549,15 @@ function _mul(a, b) {
   }
 }
 
-function _div(a, b) {
+function _div(a: Array<any> | number, b: Array<any> | number): any {
   // If both are numbers, return number. If one is a Tensor, divide each element in the tensor by the number.
   if (typeof a === "number" && typeof b === "number") {
     return a / b;
-  } else if (typeof a === "number") {
+  } else if (typeof a === "number" && b instanceof Array) {
     return b.map((element) => _div(a, element));
-  } else if (typeof b === "number") {
+  } else if (a instanceof Array && typeof b === "number") {
     return a.map((element) => _div(element, b));
-  } else {
+  } else if (a instanceof Array && b instanceof Array) {
     // If both are tensors, we need to broadcast:
     const aShape = getShape(a);
     const bShape = getShape(b);
@@ -1607,15 +1607,14 @@ function _div(a, b) {
   }
 }
 
-function _matmul(a, b) {
+function _matmul(a: Array<any>, b: Array<any>): Array<any> {
   if (typeof a === "number") {
     throw new Error("Cannot perform MatMul with given shapes.");
   }
   // If this dimension has equal lengths, keep searching:
   if (typeof a[0][0] === "object") {
-    // ==============================>>>>> typeof a[0][0] === 'object' [NOVO] ou a.length === b.length [ANTIGO]
-    return a.map((element, idx) => _matmul(element, b[idx]));
-    // If not, try to matmul:
+    return a.map((element: Array<any>, idx: number) => _matmul(element, b[idx]));
+  // If not, try to matmul:
   } else {
     // If dimensions align, perform matmul:
     if (a[0].length === b.length && typeof a[0][0] === "number") {
@@ -1645,7 +1644,7 @@ function _matmul(a, b) {
   }
 }
 
-function _pow(a, n) {
+function _pow(a: Array<any> | number, n: number): Array<any> | number {
   // If a is a number, exponentiate it. If not, exponentiate all of its elements:
   let z = a;
   for (let i = 0; i < n - 1; i++) {
@@ -1654,40 +1653,40 @@ function _pow(a, n) {
   return z;
 }
 
-function _sqrt(a) {
+function _sqrt(a: Array<any> | number): Array<any> | number {
   // If a is a number, take square root of it. If not, take root of all of its elements:
   if (typeof a === "number") {
     return Math.sqrt(a);
-  } else if (typeof a === "object") {
-    return a.map((element) => _sqrt(element));
+  } else if (a instanceof Array) {
+    return a.map((element: Array<any>) => _sqrt(element));
   } else {
     throw new TypeError("the input data is not a number.");
   }
 }
 
-function _exp(a) {
+function _exp(a:Array<any> | number): Array<any> | number {
   // If a is a number, exponentiate it. If not, exponentiate all of its elements:
   if (typeof a === "number") {
     return 2.718281828459045 ** a;
-  } else if (typeof a === "object") {
-    return a.map((element) => _exp(element));
+  } else if (a instanceof Array) {
+    return a.map((element: Array<any>) => _exp(element));
   } else {
     throw new TypeError("the input data is not a number.");
   }
 }
 
-function _log(a) {
+function _log(a: Array<any> | number): Array<any> | number {
   // If a is a number, take it's log. If not, take log of all of it's elements:
   if (typeof a === "number") {
     return Math.log(a);
-  } else if (typeof a === "object") {
-    return a.map((element) => _log(element));
+  } else if (a instanceof Array) {
+    return a.map((element: Array<any>) => _log(element));
   } else {
     throw new TypeError("the input data is not a number.");
   }
 }
 
-function _transpose(a, dim) {
+function _transpose(a: Array<any>, dim: number): Array<any> {
   // Go down the dimensions recursively until we get to the dimension to be transposed:
   if (dim == 0) {
     // Build array with the transposed shape (to be filled with transposed values):
@@ -1701,23 +1700,16 @@ function _transpose(a, dim) {
       }
     }
     return newArray;
-  } else if (typeof a === "object") {
-    return a.map((element) => _transpose(element, dim - 1));
+  } else if (a instanceof Array) {
+    return a.map((element: Array<any>) => _transpose(element, dim - 1));
   } else {
     throw Error("ValueError: dimensions are invalid.");
   }
 }
 
-function _at(a, idx1, idx2) {
-  if (idx1 instanceof Tensor) {
-    idx1 = idx1.data;
-  }
-  if (idx2 instanceof Tensor) {
-    idx2 = idx2.data;
-  }
-
+function _at(a: Array<any>, idx1: Array<any>, idx2: Array<any> | null): Array<any> {
   // If there is a second index, fill a new array in position "N" with a[idx1[N]][idx2[N]] (2 Dims):
-  if (idx2 != null) {
+  if (idx2) {
     return Array(idx1.length)
       .fill(0)
       .map((_, i) => a[idx1[i]][idx2[i]]);
@@ -1729,7 +1721,7 @@ function _at(a, idx1, idx2) {
   }
 }
 
-function _masked_fill(a, mask, condition, value) {
+function _masked_fill(a: Array<any> | number, mask: Array<any> | number, condition: (someArg: number) => boolean, value: number): Array<any> | number {
   // If a is a number, test "condition" on it. If not, recursive step to all of its elements:
   if (typeof mask === "number") {
     if (typeof a != "number") {
@@ -1749,9 +1741,9 @@ function _masked_fill(a, mask, condition, value) {
   }
 }
 
-export function _reshape(a: any[], shape: any[]) {
+export function _reshape(a: Array<any>, shape: Array<number>): Array<any> {
   // Rebuilds flattened array "flat" with shape "shape":
-  function _build(a: any[], shape: any[]) {
+  function _build(a: any[], shape: any[]): Array<any> {
     if (shape.length > 1) {
       const emptyArray = Array(shape[0]).fill(0);
       return emptyArray.map(() => _build(a, shape.slice(1)));
@@ -1775,7 +1767,7 @@ export function _reshape(a: any[], shape: any[]) {
  * @param {function} valueFunc - Function that returns number to fill up the Tensor.
  * @returns {object} New tensor.
  */
-function _tensorInitializer(shape, valueFunc) {
+function _tensorInitializer(shape: Array<number>, valueFunc: () => number): Array<any> {
   if (shape.length === 1) {
     const emptyArray = Array(shape[0]).fill(0);
     return emptyArray.map(() => valueFunc());
@@ -1792,7 +1784,7 @@ function _tensorInitializer(shape, valueFunc) {
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
-export function tensor(data, requires_grad = false) {
+export function tensor(data: Array<any>, requires_grad = false): Tensor {
   return new Tensor(data, requires_grad);
 }
 
@@ -1802,7 +1794,7 @@ export function tensor(data, requires_grad = false) {
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
-export function zeros(shape, requires_grad = false) {
+export function zeros(shape: Array<number>, requires_grad = false): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => 0),
     requires_grad
@@ -1815,7 +1807,7 @@ export function zeros(shape, requires_grad = false) {
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
-export function ones(shape, requires_grad = false) {
+export function ones(shape: Array<number>, requires_grad = false): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => 1),
     requires_grad
@@ -1828,7 +1820,7 @@ export function ones(shape, requires_grad = false) {
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
-export function tril(shape, requires_grad = false) {
+export function tril(shape: Array<number>, requires_grad = false): Tensor {
   const z = ones(shape, requires_grad);
   for (let i = 0; i < shape[0]; i++) {
     for (let j = 0; j < shape[0]; j++) {
@@ -1847,7 +1839,7 @@ export function tril(shape, requires_grad = false) {
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
-export function rand(shape, requires_grad = false) {
+export function rand(shape: Array<number>, requires_grad = false): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => Math.random()),
     requires_grad
@@ -1861,7 +1853,7 @@ export function rand(shape, requires_grad = false) {
  * @param {boolean} xavier - Whether to use xavier initialization (divide by square root of first input dimension).
  * @returns {object} New tensor.
  */
-export function randn(shape, requires_grad = false, xavier = false) {
+export function randn(shape: Array<number>, requires_grad = false, xavier = false): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => {
       const mean = Math.random() + 0.00001;
@@ -1887,7 +1879,7 @@ export function randn(shape, requires_grad = false, xavier = false) {
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
-export function randint(low = 0, high = 1, shape = [1], requires_grad = false) {
+export function randint(low = 0, high = 1, shape = [1], requires_grad = false): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => {
       return Math.floor(Math.random() * (high - low)) + low;
@@ -1903,7 +1895,7 @@ export function randint(low = 0, high = 1, shape = [1], requires_grad = false) {
  * @param {any} - Variable to check if requires_grad.
  * @returns {boolean} Whether to track gradients.
  */
-export function requiresGrad(a: Tensor | number | number | Array<any>): boolean {
+export function requiresGrad(a: Tensor | number | Array<any>): boolean {
   if (a instanceof Tensor) {
     return a.requires_grad;
   } else {
@@ -1924,117 +1916,118 @@ export function requiresGrad(a: Tensor | number | number | Array<any>): boolean 
  * // Returns tensor with shape [4,5,3,1]:
  * broadcast(ones([5,3,2]), ones([4,5,3,1]));
  */
-export function broadcast(a, b) {
-  function _broadcast(out, b) {
+export function broadcast(a: Tensor, b: Tensor): Tensor {
+  function _broadcast(out: Array<any> | number, b: Array<any> | number): Array<any> | number {
     if (typeof out === "number" && typeof b === "number") {
       return out;
-    } else if (typeof out === "number") {
+    } else if (typeof out === "number" && b instanceof Array) {
       const newArray = Array(b.length).fill(out);
       return _broadcast(newArray, b);
-    } else if (typeof b === "number") {
+    } else if (out instanceof Array && typeof b === "number") {
       return _broadcast(_sum(out, 0), b);
     } else if (JSON.stringify(getShape(out)) === JSON.stringify(getShape(b))) {
       return out;
-    }
+    } else if (out instanceof Array && b instanceof Array) {
 
-    // If both are tensors, we need to broadcast:
-    const outShape = getShape(out);
-    const bShape = getShape(b);
-    // If out's shape is larger, we need to find b's shape inside out's shape:
-    if (outShape.length > bShape.length) {
-      let idx;
-      // Look for b's shape:
-      for (let i = 0; i < outShape.length; i++) {
-        if (
-          JSON.stringify(outShape.slice(i, i + bShape.length)) ===
-          JSON.stringify(bShape)
-        ) {
-          idx = i;
-        }
-      }
-      // If it's right on top of the array, move down on both:
-      if (idx === 0) {
-        return out.map((element, idx) => _broadcast(element, b[idx]));
-        // If not, move down only on 'out':
-      } else {
-        //return out.map((element) => _broadcast(element, b));
-        return _sum(out, 0);
-      }
-      // If b's shape is larger, we need to find out's shape inside b's shape:
-    } else if (outShape.length < bShape.length) {
-      let idx;
-      // Look for out's shape:
-      for (let i = 0; i < bShape.length; i++) {
-        if (
-          JSON.stringify(bShape.slice(i, i + outShape.length)) ===
-          JSON.stringify(outShape)
-        ) {
-          idx = i;
-        }
-      }
-      // If it's right on top of the array, move down on both:
-      if (idx === 0) {
-        return out.map((element) => _broadcast(element, b[0]));
-        // If not, move down only on 'b':
-      } else {
-        return Array(b.length)
-          .fill(0)
-          .map(() => _broadcast(out, b[0]));
-      }
-    } else {
-      // Define recursive function to find dimension with length 1:
-      const _broadcastSideways = (out, b) => {
-        if (b.length != out.length) {
-          if (b.length === 1) {
-            // Base case, contract existing dimension:
-            return [_sum(out, 0)];
-          } else if (out.length === 1) {
-            // Base case, expand existing dimension:
-            const emptyArray = Array(b.length).fill(zeros);
-            return emptyArray.map(() => out[0]);
-          } else {
-            Error(
-              `Shapes ${getShape(out)} and ${getShape(b)} not broadcastable.`
-            );
+      // If both are tensors, we need to broadcast:
+      const outShape = getShape(out);
+      const bShape = getShape(b);
+      // If out's shape is larger, we need to find b's shape inside out's shape:
+      if (outShape.length > bShape.length) {
+        let idx!: number;
+        // Look for b's shape:
+        for (let i = 0; i < outShape.length; i++) {
+          if (
+            JSON.stringify(outShape.slice(i, i + bShape.length)) ===
+            JSON.stringify(bShape)
+          ) {
+            idx = i;
           }
+        }
+        // If it's right on top of the array, move down on both:
+        if (idx === 0) {
+          return out.map((element, idx) => _broadcast(element, b[idx]));
+          // If not, move down only on 'out':
         } else {
-          // Recursive case:
-          if (typeof out === "object") {
-            // Keep looking inside each element:
-            return out.map((element, idx) =>
-              _broadcastSideways(element, b[idx])
-            );
-          } else if (typeof out === "number") {
-            // In case the element is a number:
-            return [null].map((element, idx) =>
-              _broadcastSideways(element, b[idx])
-            );
+          //return out.map((element) => _broadcast(element, b));
+          return _sum(out, 0);
+        }
+        // If b's shape is larger, we need to find out's shape inside b's shape:
+      } else if (outShape.length < bShape.length) {
+        let idx!: number;
+        // Look for out's shape:
+        for (let i = 0; i < bShape.length; i++) {
+          if (
+            JSON.stringify(bShape.slice(i, i + outShape.length)) ===
+            JSON.stringify(outShape)
+          ) {
+            idx = i;
           }
         }
-      };
-      // Return final broadcast tensor:
-      return _broadcastSideways(out, b);
-    }
+        // If it's right on top of the array, move down on both:
+        if (idx === 0) {
+          return out.map((element) => _broadcast(element, b[0]));
+          // If not, move down only on 'b':
+        } else {
+          return Array(b.length)
+            .fill(0)
+            .map(() => _broadcast(out, b[0]));
+        }
+      } else {
+        // Define recursive function to find dimension with length 1:
+        const _broadcastSideways = (out: Array<any> | number | null, b: Array<any>): Array<any>  => {
+          if (out instanceof Array && b.length != out.length) {
+            if (b.length === 1) {
+              // Base case, contract existing dimension:
+              return [_sum(out, 0)];
+            } else if (out.length === 1) {
+              // Base case, expand existing dimension:
+              const emptyArray = Array(b.length).fill(zeros);
+              return emptyArray.map(() => out[0]);
+            } else {
+              throw Error(
+                `Shapes ${getShape(out)} and ${getShape(b)} not broadcastable.`
+              );
+            }
+          } else {
+            // Recursive case:
+            if (out instanceof Array) {
+              // Keep looking inside each element:
+              return out.map((element: Array<any>, idx: number) =>
+                _broadcastSideways(element, b[idx])
+              );
+            } else if (typeof out === "number") {
+              // In case the element is a number:
+              return [null].map((element, idx) =>
+                _broadcastSideways(element, b[idx])
+              );
+            } else {throw Error('Shapes not broadcastable.')}
+          }
+        };
+        // Return final broadcast tensor:
+        return _broadcastSideways(out, b);
+      }
+    } else { throw Error ("Shapes not broadcastable.")}
   }
 
   let out = a.data;
   while (JSON.stringify(getShape(out)) != JSON.stringify(b.shape)) {
-    out = _broadcast(out, b.data);
+    out = assureArray(_broadcast(out, b.data));
   }
   return new Tensor(out);
 }
 
 /**
  * Adds new dimensions to "a" until it's depth matches "b".
- * @param {object} a - First tensor, will be broadcast into dims of second.
- * @param {object} b - Second tensor.
+ * @param {object} inElement - First tensor, will be broadcast into dims of second.
+ * @param {object} outElement - Second tensor.
  * @returns {object} New tensor.
  * @example
  * // Returns tensor with shape [4,2,3]:
  * broadcastUp(ones([2,3]), ones([4,3,2]));
  */
-export function broadcastUp(inElement, outElement) {
-  function _broadcastUp(inElement, outElement) {
+export function broadcastUp(inElement: Array<any>, outElement: Array<any>): Array<any> {
+  function _broadcastUp(inElement: Array<any>, outElement: Array<any>): Array<any> {
     if (getShape(inElement).length + 1 === getShape(outElement).length) {
       // Base case, create new dimension:
       const emptyArray = Array(outElement.length).fill(zeros);
@@ -2044,7 +2037,7 @@ export function broadcastUp(inElement, outElement) {
       const emptyArray = Array(outElement.length).fill(zeros);
       return emptyArray.map((_, idx) =>
         _broadcastUp(inElement, outElement[idx])
-      ); // >>>>>>> ANTES ERA ELEMENT EM VEZ DE INELEMENT
+      );
     }
   }
   while (getShape(inElement).length < getShape(outElement).length) {
