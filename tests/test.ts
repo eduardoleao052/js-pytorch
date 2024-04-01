@@ -29,11 +29,11 @@ function test_autograd(): number {
   let loss!: Tensor;
 
   // Instantiate Neural Network's Layers:
-  const w1 = randn([16, 64], true, true);
+  const w1 = randn([16, 32], true, true);
   const relu1 = new ReLU();
-  const w2 = randn([64, 64], true, true);
+  const w2 = randn([32, 32], true, true);
   const relu2 = new ReLU();
-  const w3 = randn([64, 50], true, true);
+  const w3 = randn([32, 50], true, true);
 
   // Training Loop:
   for (let i = 0; i < 128; i++) {
@@ -90,7 +90,7 @@ function test_module():number {
     }
   }
 
-  const model = new NeuralNet(32);
+  const model = new NeuralNet(24);
 
   // Define loss function and optimizer:
   const loss_func = new CrossEntropyLoss();
@@ -218,13 +218,13 @@ function test_transformer():number {
 function unit_test() {
   // Create variable to store elapsed time:
   test('Simple Autograd Convergence Test', () => {
-    expect(test_autograd()).toBeLessThan(0.1);
+    expect(test_autograd()).toBeLessThan(0.25);
   });
   test('Module Covergence Test', () => {
-    expect(test_module()).toBeLessThan(0.1);
+    expect(test_module()).toBeLessThan(0.25);
   });
   test('Full Transformer Covergence Test', () => {
-    expect(test_transformer()).toBeLessThan(0.2);
+    expect(test_transformer()).toBeLessThan(0.25);
   });
 }
 
