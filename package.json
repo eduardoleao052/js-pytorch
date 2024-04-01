@@ -2,12 +2,41 @@
   "name": "js-pytorch",
   "version": "0.2.2",
   "description": "A JavaScript library like PyTorch, built from scratch.",
-  "main": "src/index.js",
+  "type": "module",
   "directories": {
     "test": "tests"
   },
+  "exports": {
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    },
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "lib/**/*"
+  ],
   "scripts": {
-    "test": "node ./tests/test.js"
+    "build": "pkgroll && copyfiles -u 1 ./dist/*.mjs ./assets/demo",
+    "format": "prettier --config .prettierrc 'src/**/*.ts' --write",
+    "lint": "eslint . --ext .ts",
+    "watch": "pkgroll --watch",
+    "prepack": "npm run build",
+    "test": "jest"
+  },
+  "release": {
+    "branches": [
+      "main"
+    ]
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "keywords": [
     "deep-learning",
@@ -16,14 +45,32 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eduardoleao052/js-torch.git"
+    "url": "https://github.com/eduardoleao052/js-torch.git"
   },
   "author": "Eduardo Leitao da Cunha Opice Leao",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/eduardoleao052/js-torch/issues"
   },
-  "homepage": "https://github.com/eduardoleao052/js-torch#readme"
+  "homepage": "https://github.com/eduardoleao052/js-torch#readme",
+  "devDependencies": {
+    "@babel/core": "^7.24.3",
+    "@babel/preset-env": "^7.24.3",
+    "@babel/preset-typescript": "^7.24.1",
+    "@types/jest": "^29.5.12",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "babel-jest": "^29.7.0",
+    "copyfiles": "^2.4.1",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-jest": "^27.9.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "jest": "^29.7.0",
+    "pkgroll": "^2.0.2",
+    "prettier": "^3.2.5",
+    "ts-jest": "^29.1.2",
+    "tsx": "^4.7.1",
+    "typescript": "^5.4.3"
+  }
 }
-
-
