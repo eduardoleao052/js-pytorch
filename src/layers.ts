@@ -301,13 +301,16 @@ export class Block extends Module {
 }
 
 // Embedding Layers
+
+/**
+ * Embedding class, turns indexes into vectors.
+ *
+ * @param {number} in_size - number of different indexes (vocabulary size).
+ * @param {number} out_size - size of the embedding vector generated.
+ */
 export class Embedding extends Module {
-  /**
-   * Embedding class, turns indexes into vectors.
-   *
-   * @param {number} in_size - number of different indexes (vocabulary size).
-   * @param {number} out_size - size of the embedding vector generated.
-   */
+  public E: Tensor;
+
   constructor(in_size: number, embed_size: number) {
     super();
     this.E = randn([in_size, embed_size], true, false);
@@ -331,13 +334,15 @@ export class Embedding extends Module {
   }
 }
 
+/**
+ * Embedding class, turns indexes into vectors.
+ *
+ * @param {number} n_timesteps - number of different embeddings (number of timesteps in each instance in batch).
+ * @param {number} embed_size - size of the embedding vector generated.
+ */
 export class PositionalEmbedding extends Module {
-  /**
-   * Embedding class, turns indexes into vectors.
-   *
-   * @param {number} n_timesteps - number of different embeddings (number of timesteps in each instance in batch).
-   * @param {number} embed_size - size of the embedding vector generated.
-   */
+  public E: Tensor;
+
   constructor(n_timesteps: number, embed_size: number) {
     super();
     this.E = randn([n_timesteps, embed_size], true, false);
@@ -359,10 +364,11 @@ export class PositionalEmbedding extends Module {
 }
 
 // Non-linearity Layers:
+
+/**
+ * Rectified Linear Unit nonlinearity. Returns z if z>0 else 0.
+ */
 export class ReLU extends Module {
-  /**
-   * Rectified Linear Unit nonlinearity. Returns z if z>0 else 0.
-   */
   constructor() {
     super();
   }
@@ -396,10 +402,10 @@ export class ReLU extends Module {
   }
 }
 
+/**
+ * Softmax nonlinearity class. Returns distribution of values (sum=1).
+ */
 export class Softmax extends Module {
-  /**
-   * Softmax nonlinearity class. Returns distribution of values (sum=1).
-   */
   constructor() {
     super();
   }
@@ -418,12 +424,15 @@ export class Softmax extends Module {
 }
 
 // Regularization Layers:
+
+/**
+ * Dropout class, added usually after other layers, to drop values to zero with given probability
+ *
+ * @param {number} drop_prob - probability to drop each value in input.
+ */
 export class Dropout extends Module {
-  /**
-   * Dropout class, added usually after other layers, to drop values to zero with given probability
-   *
-   * @param {number} drop_prob - probability to drop each value in input.
-   */
+  public p: number;
+
   constructor(drop_prob: number) {
     super();
     this.p = drop_prob;
@@ -453,12 +462,15 @@ export class Dropout extends Module {
   }
 }
 
+/**
+ * Layer Norm class, added usually after other layers to normalize across all of the output.
+ *
+ * @param {number} n_embed - size of the last dimention of the input.
+ */
 export class LayerNorm extends Module {
-  /**
-   * Layer Norm class, added usually after other layers to normalize across all of the output.
-   *
-   * @param {number} n_embed - size of the last dimention of the input.
-   */
+  public gamma: Tensor;
+  public beta: Tensor;
+
   constructor(n_embed: number) {
     super();
     this.gamma = ones([n_embed], true);
@@ -474,10 +486,11 @@ export class LayerNorm extends Module {
 }
 
 // Loss layers:
+
+/**
+ * Cross Entropy Loss class, returns the loss given the output and the expected indexes.
+ */
 export class CrossEntropyLoss extends Module {
-  /**
-   * Cross Entropy Loss class, returns the loss given the output and the expected indexes.
-   */
   constructor() {
     super();
   }
