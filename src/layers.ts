@@ -251,6 +251,11 @@ export class FullyConnected extends Module {
 }
 
 export class Block extends Module {
+  public att: MultiHeadSelfAttention;
+  public ln1: LayerNorm;
+  public fcc: FullyConnected;
+  public ln2: LayerNorm;
+
   /**
    * Full transformer decoder block. Composed of Multi Head Self Attention, Fully connected layers and Layer Norms.
    *
