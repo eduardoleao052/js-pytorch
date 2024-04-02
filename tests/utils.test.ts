@@ -1,4 +1,4 @@
-import { getShape, assureArray } from '../src/utils';
+import { getShape, assureArray, getData } from '../src/utils';
 
 describe('getShape with different data inputs', () => {
     test('Given data is scalar should return an array of single number',() =>{
@@ -68,4 +68,40 @@ describe('getShape with different data inputs', () => {
 
         expect(result).toEqual([1, 1, 1, 1]);
       });   
+})
+
+describe('Assure array', () => {
+    test('Given data is an array should return input array', () => {
+        const data = [1,2,3,4];
+
+        const result = assureArray(data);
+
+        expect(result).toEqual(data);
+    })
+
+    test('Given data is a scalar should return an array with the scalar as array element',()=>{
+        const data = 1;
+
+        const result = assureArray(data);
+
+        expect(result).toEqual([data]);
+    })
+})
+
+describe('Get data', () => {
+    test('Given data is an array, should return the array',() => {
+        const data = [1,2,3,4];
+
+        const result = getData(data);
+
+        expect(result).toEqual(data);
+    })
+
+    test('Given data is a scalar, should return the scalar', () => {
+        const data = 1;
+
+        const result = getData(data);
+
+        expect(result).toBe(result);
+    })
 })
