@@ -1,4 +1,4 @@
-import { getShape } from '../src/utils';
+import { getShape, assureArray } from '../src/utils';
 
 describe('getShape with different data inputs', () => {
     test('Given data is scalar should return an array of single number',() =>{
@@ -65,7 +65,7 @@ describe('getShape with different data inputs', () => {
         const data = [[[[1]]]]; 
 
         const result = getShape(data);
-        
+
         expect(result).toEqual([1, 1, 1, 1]);
       });   
 })
