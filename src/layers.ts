@@ -391,6 +391,38 @@ export class Softmax extends Module {
   }
 }
 
+// activation GeLU
+export class GeLU extends Module {
+  constructor() {
+    super();
+  }
+
+  /**
+   * Performs forward pass through GeLU nonlinearity.
+   * Reference: Gaussian Error Linear Units (GELUs) (https://arxiv.org/pdf/1606.08415.pdf)
+   * @param {Tensor} z - Input Tensor.
+   * @returns {Tensor} - Output Tensor.
+   */
+  forward(z: Tensor): Tensor {
+    // Define recursive function:
+    function _gelu(z: Array<any>): Array<any> {
+      if (typeof z[0] === "number") {
+        const sqrt2_over_pi = Math.sqrt(2 / Math.PI);
+        const x = z[0];
+        const cdf = 0.5 * (1 + Math.tanh(sqrt2_over_pi * (x + 0.044715 * Math.pow(x, 3))));
+        return [x * cdf];
+        // Recursive case, go deeper in array:
+      } else if (typeof z[0] === "object") {
+        return z.map((el: Array<any>): Array<any> => _gelu(el));
+      } else throw Error("In GeLU, provided Tensor is not homogenous.");
+    }
+
+    const mask = tensor(_gelu(z._data));
+    z = z.mul(mask);
+    return z;
+  }
+}
+
 // Regularization Layers:
 export class Dropout extends Module {
   /**
