@@ -89,6 +89,10 @@ export class Module implements ModuleInterface {
 
 // Standard Layers:
 export class Linear extends Module {
+  public W: Tensor;
+  public b: Tensor;
+  public has_bias: boolean;
+
   /**
    * Simple linear layer, with weight matrix and optional bias. Does not contain nonlinearity.
    *
