@@ -119,6 +119,16 @@ export class Linear extends Module {
 }
 
 export class MultiHeadSelfAttention extends Module {
+  public Wk: Linear;
+  public Wq: Linear;
+  public Wv: Linear;
+  public residual_proj: Linear;
+  public mask: Tensor;
+  public att_dropout: Dropout;
+  public residual_dropout: Dropout;
+  public softmax: Softmax;
+  public H: number;
+
   /**
    * Full transformer Layer implementation.
    *
