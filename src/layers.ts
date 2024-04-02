@@ -391,6 +391,27 @@ export class Softmax extends Module {
   }
 }
 
+// activation GeLU
+export class GeLU extends Module {
+  constructor() {
+    super();
+  }
+
+  /**
+   * Performs forward pass through GeLU nonlinearity.
+   * Reference: Gaussian Error Linear Units (GELUs) (https://arxiv.org/pdf/1606.08415.pdf)
+   * @param {Tensor} z - Input Tensor.
+   * @returns {Tensor} - Output Tensor.
+   */
+  forward(z: Tensor): Tensor {
+    // Implementasi forward pass untuk GeLU nonlinearity di sini
+    const erf_coeff = 2/Math.PI;
+    const exp_term = z.mul(z).mul(-1).exp();
+    const erf_term = exp_term.mul(erf_coeff).sqrt().add(1);
+    const result = z.mul(0.5).mul(z.add(erf_term));
+    return result;
+  }
+}
 // Regularization Layers:
 export class Dropout extends Module {
   /**
