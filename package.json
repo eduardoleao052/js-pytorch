@@ -20,7 +20,7 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
-    "lib/**/*"
+    "dist"
   ],
   "scripts": {
     "build": "pkgroll && copyfiles -u 1 ./dist/*.mjs ./assets/demo",
