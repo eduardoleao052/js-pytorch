@@ -8,8 +8,14 @@ import NestedArray from "./types/utils.types";
  * @returns {object} Length of every dimension of the Tensor.
  */
 
-export function getShape(data: NestedArray<number> | number, shape: Array<number> = []): Array<number> {
+export function getShape(
+  data: NestedArray<number> | number,
+  shape: Array<number> = []
+): Array<number> {
   // Base case:
+  if (JSON.stringify(data) === "[]") {
+    return [1];
+  }
   if (typeof data === "number") {
     // Return [1] for integers:
     if (JSON.stringify(shape) === "[]") {
@@ -19,7 +25,6 @@ export function getShape(data: NestedArray<number> | number, shape: Array<number
     return shape;
   }
   if (typeof data[0] === "number" && Array.isArray(data)) {
-    
     for (const element of data) {
       if (typeof element != "number") {
         throw new Error("The requested array has an inhomogeneous shape.");
@@ -30,12 +35,12 @@ export function getShape(data: NestedArray<number> | number, shape: Array<number
     return shape;
   }
 
-  if(Array.isArray(data[0])) {
+  if (Array.isArray(data[0])) {
     let elementLength = data[0].length;
-  // Iterate over elements in dimention to check if all have the same length (homogenous shape):
+    // Iterate over elements in dimention to check if all have the same length (homogenous shape):
     for (const element of data) {
       // Throw error if the shape is inhomogenous:
-      if (Array.isArray(element) && elementLength != element.length ) {
+      if (Array.isArray(element) && elementLength != element.length) {
         throw new Error("The requested array has an inhomogeneous shape.");
       } else if (Array.isArray(element)) {
         elementLength = element.length;
@@ -44,10 +49,8 @@ export function getShape(data: NestedArray<number> | number, shape: Array<number
           throw new Error("TypeError: the input data is not a number.");
         }
       }
-      
     }
-  shape.push(data.length);
-
+    shape.push(data.length);
   }
   return getShape(data[0], shape);
 }
@@ -73,7 +76,9 @@ export function assureArray(a: Tensor | Array<number> | number): Array<number> {
  * @param {object} a - Any numeric iterable or number.
  * @returns {object} Original data in a vanilla format.
  */
-export function getData(a: Tensor | Array<number> | number): Array<number> | number {
+export function getData(
+  a: Tensor | Array<number> | number
+): Array<number> | number {
   if (Array.isArray(a)) {
     return a;
   }
@@ -82,4 +87,3 @@ export function getData(a: Tensor | Array<number> | number): Array<number> | num
   }
   return a._data;
 }
-
