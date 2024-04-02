@@ -1,4 +1,5 @@
-﻿import { randn, randint, matmul, add, Tensor } from "../src/tensor";
+﻿import { describe, test, expect } from "@jest/globals";
+import { randn, randint, matmul, add, Tensor } from "../src/tensor";
 import {
   ReLU,
   CrossEntropyLoss,
@@ -7,7 +8,7 @@ import {
   Embedding,
   PositionalEmbedding,
   Block,
-  LayerNorm,
+  LayerNorm
 } from "../src/layers";
 import { Adam } from "../src/optim";
 
@@ -18,7 +19,6 @@ import { Adam } from "../src/optim";
  * This function does not use the "".nn" package. No optimizers or layers are employed.
  */
 function test_autograd(): number {
-
   // Define loss function as Cross Entropy Loss and learning rate:
   const loss_func = new CrossEntropyLoss();
   const learning_rate = 3e-3;
@@ -58,15 +58,14 @@ function test_autograd(): number {
   }
 
   // Return loss:
-  return loss.data[0]
+  return loss.data[0];
 }
 
 /**
  * This function tests if the loss converges to zero in a simple Neural Network
  * (Fully-Connected, three layers, with ReLU non-linearities), which uses the custom Module superclass.
  */
-function test_module():number {
-
+function test_module(): number {
   // Implement dummy Module class:
   class NeuralNet extends Module {
     constructor(hidden_size: number) {
@@ -124,17 +123,22 @@ function test_module():number {
   }
 
   // Return elapsed time:
-  return loss.data[0]
+  return loss.data[0];
 }
 
 /**
  * This function tests if the loss converges to zero in a mock Transformer
  */
-function test_transformer():number {
-
+function test_transformer(): number {
   // Implement dummy Module class:
   class Transformer extends Module {
-    constructor(vocab_size: number, hidden_size: number, n_timesteps: number, n_heads: number, p = 0) {
+    constructor(
+      vocab_size: number,
+      hidden_size: number,
+      n_timesteps: number,
+      n_heads: number,
+      p = 0
+    ) {
       super();
       // Instantiate Transformer's Layers:
       this.embed = new Embedding(vocab_size, hidden_size);
@@ -209,23 +213,39 @@ function test_transformer():number {
   }
 
   // Return loss:
-  return loss.data[0]
+  return loss.data[0];
 }
+
+const AUTOGRAD_TIMEOUT = 10000;
+const MODULE_TIMEOUT = 10000;
+const TRANSFORMER_TIMEOUT = 20000;
 
 /**
  * This function runs the three different tests, throwing an error if any of the module's features is not working.
  */
-function unit_test() {
+describe("Integration Tests", () => {
   // Create variable to store elapsed time:
-  test('Simple Autograd Convergence Test', () => {
-    expect(test_autograd()).toBeLessThan(0.25);
-  });
-  test('Module Covergence Test', () => {
-    expect(test_module()).toBeLessThan(0.25);
-  });
-  test('Full Transformer Covergence Test', () => {
-    expect(test_transformer()).toBeLessThan(0.25);
-  });
-}
+  test(
+    "Simple Autograd Convergence Test",
+    () => {
+      expect(test_autograd()).toBeLessThan(0.25);
+    },
+    AUTOGRAD_TIMEOUT
+  );
 
-unit_test();
+  test(
+    "Module Covergence Test",
+    () => {
+      expect(test_module()).toBeLessThan(0.25);
+    },
+    MODULE_TIMEOUT
+  );
+
+  test(
+    "Full Transformer Covergence Test",
+    () => {
+      expect(test_transformer()).toBeLessThan(0.25);
+    },
+    TRANSFORMER_TIMEOUT
+  );
+});

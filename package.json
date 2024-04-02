@@ -28,7 +28,9 @@
     "lint": "eslint . --ext .ts",
     "watch": "pkgroll --watch",
     "prepack": "npm run build",
-    "test": "jest"
+    "test": "jest",
+    "bench": "tsx tests/benchmarks/runBenchmarks.ts",
+    "bench:update": "tsx tests/benchmarks/runBenchmarks.ts --save"
   },
   "release": {
     "branches": [
@@ -69,6 +71,7 @@
     "jest": "^29.7.0",
     "pkgroll": "^2.0.2",
     "prettier": "^3.2.5",
+    "tinybench": "^2.6.0",
     "ts-jest": "^29.1.2",
     "tsx": "^4.7.1",
     "typescript": "^5.4.3"
