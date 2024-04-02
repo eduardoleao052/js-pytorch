@@ -215,6 +215,11 @@ export class MultiHeadSelfAttention extends Module {
 }
 
 export class FullyConnected extends Module {
+  public l1: Linear;
+  public relu: ReLU;
+  public l2: Linear;
+  public dropout: Dropout;
+
   /**
    * Small block composed of two Linear layers, a ReLU non-linearity and a Dropout layer.
    *
