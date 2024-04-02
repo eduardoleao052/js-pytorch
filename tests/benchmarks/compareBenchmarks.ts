@@ -28,22 +28,33 @@ export async function compareBenchmarks(
     }
 
     const mean = task.result.mean;
+    // This is the difference in the mean execution time of each iteration compared to the last benchmark
+    // e.g. new 20.68ms - old 19.88ms = 0.8ms
     const diffMean = mean - LAST_BENCH.mean;
+    // The difference as a percentage
+    // e.g. (0.8ms / 19.88ms) * 100 = 4.024%
     const diffMeanPercent = (Math.abs(diffMean) / LAST_BENCH.mean) * 100;
-    const diffRME = Math.abs(diffMeanPercent - LAST_BENCH.rme);
+    // If the new benchmark exceeds the last margin of error we should notify the user
+    // e.g. 4.024% > 3.06%
     if (diffMeanPercent > LAST_BENCH.rme) {
+      // By how much does the new benchmark exceed the last margin of error?
+      // e.g. 4.024% - 3.06% = 0.964%  => "New benchmark exceeded last margin by 0.964%"
+      const diffRME = Math.abs(diffMeanPercent - LAST_BENCH.rme);
       if (mean > LAST_BENCH.mean) {
         console.log(
-          `New benchmark exceeded last margin by ${diffRME.toFixed(2)}%`
+          `New benchmark mean execution time exceeded the last by its margin of error plus ${diffRME.toFixed(2)}%`
         );
       } else {
         console.log(
-          `New benchmark is ${diffRME.toFixed(2)}% below last margin`
+          `New benchmark mean execution time is ${diffRME.toFixed(2)}% below the last minus its margin of error`
         );
       }
     }
 
-    return diffRME;
+    // Return the difference in the mean execution time as a percentage
+    // The above logic to determine if the new benchmark exceeded the last margin of error
+    // could be moved to the benchmark runner if we wanted to centralize logging
+    return diffMeanPercent;
   }
 
   return null;
