@@ -23,6 +23,7 @@ interface ModuleInterface {
   train(): void;
   eval(): void;
   entries(): [string, Module | Parameter | Tensor | any][];
+  mode: "train" | "eval";
 }
 
 // Module class:
