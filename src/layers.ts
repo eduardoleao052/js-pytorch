@@ -89,19 +89,20 @@ export class Module implements ModuleInterface {
 }
 
 // Standard Layers:
+
+/**
+ * Simple linear layer, with weight matrix and optional bias. Does not contain nonlinearity.
+ *
+ * @param {number} in_size - size of the last dimention of the input array.
+ * @param {number} out_size - size of the last dimention of the output array.
+ * @param {boolean} bias - wether to include a bias term.
+ * @param {boolean} xavier - Wether to use xavier initialization (divide by square root of first input dimension).
+ */
 export class Linear extends Module {
   public W: Tensor;
   public b: Tensor;
   public has_bias: boolean;
 
-  /**
-   * Simple linear layer, with weight matrix and optional bias. Does not contain nonlinearity.
-   *
-   * @param {number} in_size - size of the last dimention of the input array.
-   * @param {number} out_size - size of the last dimention of the output array.
-   * @param {boolean} bias - wether to include a bias term.
-   * @param {boolean} xavier - Wether to use xavier initialization (divide by square root of first input dimension).
-   */
   constructor(in_size: number, out_size: number, bias = true, xavier = true) {
     super();
     this.W = randn([in_size, out_size], true, xavier);
@@ -123,6 +124,15 @@ export class Linear extends Module {
   }
 }
 
+/**
+ * Full transformer Layer implementation.
+ *
+ * @param {number} in_size - size of the last dimention of the input array.
+ * @param {number} out_size - size of the last dimention of the output array.
+ * @param {number} n_heads - number of parallel heads to be computed (must equally divide in_size).
+ * @param {number} n_timesteps - length of text sequence to be processed bt Transformer.
+ * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
+ */
 export class MultiHeadSelfAttention extends Module {
   public Wk: Linear;
   public Wq: Linear;
@@ -134,15 +144,6 @@ export class MultiHeadSelfAttention extends Module {
   public softmax: Softmax;
   public H: number;
 
-  /**
-   * Full transformer Layer implementation.
-   *
-   * @param {number} in_size - size of the last dimention of the input array.
-   * @param {number} out_size - size of the last dimention of the output array.
-   * @param {number} n_heads - number of parallel heads to be computed (must equally divide in_size).
-   * @param {number} n_timesteps - length of text sequence to be processed bt Transformer.
-   * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
-   */
   constructor(
     in_size: number,
     out_size: number,
@@ -214,19 +215,19 @@ export class MultiHeadSelfAttention extends Module {
   }
 }
 
+/**
+ * Small block composed of two Linear layers, a ReLU non-linearity and a Dropout layer.
+ *
+ * @param {number} in_size - size of the last dimention of the input array.
+ * @param {number} out_size - size of the last dimention of the output array.
+ * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
+ */
 export class FullyConnected extends Module {
   public l1: Linear;
   public relu: ReLU;
   public l2: Linear;
   public dropout: Dropout;
 
-  /**
-   * Small block composed of two Linear layers, a ReLU non-linearity and a Dropout layer.
-   *
-   * @param {number} in_size - size of the last dimention of the input array.
-   * @param {number} out_size - size of the last dimention of the output array.
-   * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
-   */
   constructor(in_size: number, out_size: number, dropout_prob = 0) {
     super();
 
@@ -250,21 +251,21 @@ export class FullyConnected extends Module {
   }
 }
 
+/**
+ * Full transformer decoder block. Composed of Multi Head Self Attention, Fully connected layers and Layer Norms.
+ *
+ * @param {number} in_size - size of the last dimention of the input array.
+ * @param {number} out_size - size of the last dimention of the output array.
+ * @param {number} n_heads - number of parallel heads to be computed (must equally divide in_size).
+ * @param {number} n_timesteps - length of text sequence to be processed bt Transformer.
+ * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
+ */
 export class Block extends Module {
   public att: MultiHeadSelfAttention;
   public ln1: LayerNorm;
   public fcc: FullyConnected;
   public ln2: LayerNorm;
 
-  /**
-   * Full transformer decoder block. Composed of Multi Head Self Attention, Fully connected layers and Layer Norms.
-   *
-   * @param {number} in_size - size of the last dimention of the input array.
-   * @param {number} out_size - size of the last dimention of the output array.
-   * @param {number} n_heads - number of parallel heads to be computed (must equally divide in_size).
-   * @param {number} n_timesteps - length of text sequence to be processed bt Transformer.
-   * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
-   */
   constructor(
     in_size: number,
     out_size: number,
