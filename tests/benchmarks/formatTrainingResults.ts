@@ -1,4 +1,4 @@
-import { Bench, Task, TaskResult } from "tinybench";
+import { Bench, TaskResult } from "tinybench";
 
 /**
  * Reformat the tinybench table to display Average Time in milliseconds and
@@ -46,11 +46,10 @@ export function formatTrainingResults(
 
     return {
       "Task Name": row["Task Name"],
-      "ops/sec": Number.parseInt(row["ops/sec"], 10),
+
       "Average Time (ms)": Number(row["Average Time (ns)"]) / 1e6,
       Margin: row["Margin"],
       Samples: row["Samples"],
-      "Average Change in Loss": averageLoss,
       ...additionalColumns
     };
   });
