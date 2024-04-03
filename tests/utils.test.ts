@@ -44,7 +44,7 @@ describe('getShape with different data inputs', () => {
 
         const result = getShape(data);
 
-        expect(result).toEqual([1]); 
+        expect(result).toEqual([0]); 
       });
 
     test('Given a nested array with varying lengths at the same level should throw an error', () => {

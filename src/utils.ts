@@ -12,11 +12,12 @@ export function getShape(
   data: NestedArray<number> | number,
   shape: Array<number> = []
 ): Array<number> {
-  // Base case:
-  if (JSON.stringify(data) === "[]") {
-    return [1];
+  // Edge case empty array:
+  if (data instanceof Array && data.length === 0) {
+    return [0];
   }
 
+  // Base case:
   if (typeof data === "number") {
     // Return [1] for integers:
     if (JSON.stringify(shape) === "[]") {
