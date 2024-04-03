@@ -404,6 +404,7 @@ export class GeLU extends Module {
    * @returns {Tensor} - Output Tensor.
    */
   forward(z: Tensor): Tensor {
+<<<<<<< HEAD
     // Define recursive function:
     function _gelu(z: Array<any>): Array<any> {
       if (typeof z[0] === "number") {
@@ -423,6 +424,16 @@ export class GeLU extends Module {
   }
 }
 
+=======
+    // Implementasi forward pass untuk GeLU nonlinearity di sini
+    const erf_coeff = 2/Math.PI;
+    const exp_term = z.mul(z).mul(-1).exp();
+    const erf_term = exp_term.mul(erf_coeff).sqrt().add(1);
+    const result = z.mul(0.5).mul(z.add(erf_term));
+    return result;
+  }
+}
+>>>>>>> 3a6e31213d9952e559553ca2302d962e5d37d52d
 // Regularization Layers:
 export class Dropout extends Module {
   /**
