@@ -26,6 +26,8 @@
 - It contains a fully functional [Tensor](src/tensor.ts) object, which can track gradients, Deep Learning [Layers](src/layers.ts) and functions, and an **Automatic Differentiation** engine.
 - Feel free to try out the <a href="https://eduardoleao052.github.io/js-torch/assets/demo/demo.html" target="blank">Web Demo</a>!
 
+> **Note:** You can install the package locally with: `npm install js-pytorch`
+
 <br>
 
 <details>
@@ -184,8 +186,6 @@ for (let i = 0; i < 40; i++) {
   optimizer.zero_grad();
 }
 ```
-
-> **Note:** You can install the package locally with: `npm install js-pytorch`
 
 <br/>
 
