@@ -46,6 +46,7 @@ export function formatTrainingResults(
 
     return {
       "Task Name": row["Task Name"],
+
       "Average Time (ms)": Number(row["Average Time (ns)"]) / 1e6,
       Margin: row["Margin"],
       Samples: row["Samples"],
