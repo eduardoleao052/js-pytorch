@@ -1,10 +1,38 @@
 ﻿import { getShape, getData, assureArray } from "./utils";
 
+export enum Rank {
+  R0 = "R0",
+  R1 = "R1",
+  R2 = "R2",
+  R3 = "R3",
+  R4 = "R4",
+  R5 = "R5",
+  R6 = "R6"
+}
+
+/** @docalias number[] */
+export interface ShapeMap {
+  R0: number[];
+  R1: [number];
+  R2: [number, number];
+  R3: [number, number, number];
+  R4: [number, number, number, number];
+  R5: [number, number, number, number, number];
+  R6: [number, number, number, number, number, number];
+}
+
+/** @doclink Tensor */
+export type Scalar = Tensor<Rank.R0>;
+/** @doclink Tensor */
+export type Tensor1D = Tensor<Rank.R1>;
+/** @doclink Tensor */
+export type Tensor2D = Tensor<Rank.R2>;
+
 // <<< Tensor class, holds n-dimensional tensors, and multiple useful methods >>> //
 
-export class Tensor {
+export class Tensor<R extends Rank = Rank> {
   public requires_grad: boolean = false;
-  public _data: Array<any>;
+  public _data: ShapeMap[R];
   public shape: Array<any>;
   public _grad!: Tensor;
   public children: Array<any>;
@@ -19,11 +47,9 @@ export class Tensor {
    * @param {object} data - Iterable containing the data to be stored in the Tensor.
    * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
    */
-  constructor(data: Array<any> | number, requires_grad = false) {
-    if (typeof data === "object") {
+  constructor(data: ShapeMap[R], requires_grad = false) {
+    if (Array.isArray(data)) {
       this._data = data;
-    } else if (typeof data === "number") {
-      this._data = [data];
     } else {
       throw Error('Your argument "data" is not a number or an iterable.');
     }
@@ -349,7 +375,7 @@ export class Tensor {
  * @param {object} data - Iterable containing the data to be stored in the Tensor.
  */
 export class Parameter extends Tensor {
-  constructor(data: Array<any> | number) {
+  constructor(data: ShapeMap[Rank]) {
     super(data, true);
   }
 }
@@ -426,9 +452,14 @@ export class Neg {
     // Build cache to use in backward step:
     this.cache = a;
 
+    let data = _neg(a._data);
+    if (typeof data === "number") {
+      data = [data];
+    }
+
     // Call recursive function:
     const z = new Tensor(
-      _neg(a._data), // data;
+      data, // data;
       requiresGrad(a) // requires_grad;
     );
 
@@ -658,9 +689,14 @@ export class Pow {
     // Build cache to use in backward step:
     this.cache = a;
 
+    let data = _pow(a._data, n);
+    if (typeof data === "number") {
+      data = [data];
+    }
+
     // Call recursive function:
     const z = new Tensor(
-      _pow(getData(a), n), // data;
+      data, // data;
       requiresGrad(a) // requires_grad;
     );
 
@@ -699,9 +735,14 @@ export class Sqrt {
     // Build cache to use in backward step:
     this.cache = a;
 
+    let data = _sqrt(a._data);
+    if (typeof data === "number") {
+      data = [data];
+    }
+
     // Call recursive function:
     const z = new Tensor(
-      _sqrt(a._data), // data;
+      data, // data;
       requiresGrad(a) // requires_grad;
     );
 
@@ -741,9 +782,14 @@ export class Exp {
     // Build cache to use in backward step:
     this.cache = a;
 
+    let data = _exp(a._data);
+    if (typeof data === "number") {
+      data = [data];
+    }
+
     // Call recursive function:
     const z = new Tensor(
-      _exp(a._data), // data;
+      data, // data;
       requiresGrad(a) // requires_grad;
     );
 
@@ -782,9 +828,14 @@ export class Log {
     // Build cache to use in backward step:
     this.cache = a;
 
+    let data = _log(a._data);
+    if (typeof data === "number") {
+      data = [data];
+    }
+
     // Call recursive function:
     const z = new Tensor(
-      _log(a._data), // data;
+      data, // data;
       requiresGrad(a) // requires_grad;
     );
 
@@ -1084,7 +1135,7 @@ export class At {
       // Add derivatives to the original places from a:
       for (let i = 0; i < dz.length; i++) {
         // If there is a second index, add to each [i][j] coordinate (2D):
-        if (idx2 != null) {
+        if (idx2 != null && idx2.length > 0) {
           da._data[idx1[i]][idx2[i]] = _add(
             da._data[idx1[i]][idx2[i]],
             dz._data[i]
@@ -1111,9 +1162,14 @@ export class MaskedFill {
     // Build cache to use in backward step:
     this.cache = [a, mask, condition];
 
+    let data = _masked_fill(a._data, mask._data, condition, value);
+    if (typeof data === "number") {
+      data = [data];
+    }
+
     // Call function:
     const z = new Tensor(
-      _masked_fill(a._data, mask._data, condition, value), // data;
+      data, // data;
       requiresGrad(a) // requires_grad;
     );
 
@@ -1132,8 +1188,12 @@ export class MaskedFill {
     const [a, mask, condition] = this.cache;
     // Find gradients relative to "a", and pass them downstream:
     if (requiresGrad(a)) {
+      let data = _masked_fill(dz._data, mask._data, condition, 0);
+      if (typeof data === "number") {
+        data = [data];
+      }
       // Set gradients of all reset values to zero:
-      const da = new Tensor(_masked_fill(dz._data, mask._data, condition, 0));
+      const da = new Tensor(data);
 
       a.backward(da, z);
     }
@@ -1446,7 +1506,7 @@ function _variance(a: Array<any>, dim: number, keepdims?: boolean): Array<any> {
   }
 }
 
-function _add(a: Array<any> | number, b: Array<any> | number): any {
+function _add(a: ShapeMap[Rank] | number, b: ShapeMap[Rank] | number): any {
   // If both are numbers, return number. If one is a Tensor, add number to each element in tensor.
   if (typeof a === "number" && typeof b === "number") {
     return a + b;
@@ -1805,7 +1865,7 @@ export function _reshape(a: Array<any>, shape: Array<number>): Array<any> {
  * @returns {object} New tensor.
  */
 function _tensorInitializer(
-  shape: Array<number>,
+  shape: ShapeMap[Rank],
   valueFunc: () => number
 ): Array<any> {
   if (shape.length === 1) {
@@ -1834,7 +1894,7 @@ export function tensor(data: Array<any>, requires_grad = false): Tensor {
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
-export function zeros(shape: Array<number>, requires_grad = false): Tensor {
+export function zeros(shape: ShapeMap[Rank], requires_grad = false): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => 0),
     requires_grad
@@ -1847,7 +1907,7 @@ export function zeros(shape: Array<number>, requires_grad = false): Tensor {
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
-export function ones(shape: Array<number>, requires_grad = false): Tensor {
+export function ones(shape: ShapeMap[Rank], requires_grad = false): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => 1),
     requires_grad
@@ -1860,7 +1920,7 @@ export function ones(shape: Array<number>, requires_grad = false): Tensor {
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
-export function tril(shape: Array<number>, requires_grad = false): Tensor {
+export function tril(shape: ShapeMap[Rank], requires_grad = false): Tensor {
   const z = ones(shape, requires_grad);
   for (let i = 0; i < shape[0]; i++) {
     for (let j = 0; j < shape[0]; j++) {
