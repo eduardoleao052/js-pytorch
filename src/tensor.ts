@@ -7,18 +7,16 @@ export enum Rank {
   R3 = "R3",
   R4 = "R4",
   R5 = "R5",
-  R6 = "R6"
 }
 
 /** @docalias number[] */
-export interface ShapeMap {
+export interface NDArray {
   R0: number[];
-  R1: [number];
-  R2: [number, number];
-  R3: [number, number, number];
-  R4: [number, number, number, number];
-  R5: [number, number, number, number, number];
-  R6: [number, number, number, number, number, number];
+  R1: number[];
+  R2: number[][];
+  R3: number[][][];
+  R4: number[][][][];
+  R5: number[][][][][];
 }
 
 /** @doclink Tensor */
@@ -30,14 +28,16 @@ export type Tensor2D = Tensor<Rank.R2>;
 
 // <<< Tensor class, holds n-dimensional tensors, and multiple useful methods >>> //
 
+export type Operation = Add | Neg | Mul | Div | MaskedFill | MatMul | Reshape | Transpose | Sum | Mean | Variance | Exp | Pow | Sqrt;
+
 export class Tensor<R extends Rank = Rank> {
   public requires_grad: boolean = false;
-  public _data: ShapeMap[R];
-  public shape: Array<any>;
+  public _data: NDArray[R];
+  public shape: NDArray;
   public _grad!: Tensor;
-  public children: Array<any>;
-  public parents: Array<any>;
-  public operation: any;
+  public children: Array<Tensor>;
+  public parents: Array<Tensor>;
+  public operation: Operation;
   public visited: boolean = false;
   public m!: Tensor;
   public v!: Tensor;
@@ -47,7 +47,7 @@ export class Tensor<R extends Rank = Rank> {
    * @param {object} data - Iterable containing the data to be stored in the Tensor.
    * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
    */
-  constructor(data: ShapeMap[R], requires_grad = false) {
+  constructor(data: NDArray[R], requires_grad = false) {
     if (Array.isArray(data)) {
       this._data = data;
     } else {
@@ -71,7 +71,7 @@ export class Tensor<R extends Rank = Rank> {
   /**
    * Returns the data in the Tensor.
    */
-  get data(): Array<any> {
+  get data(): NDArray {
     return this._data;
   }
 
@@ -329,7 +329,7 @@ export class Tensor<R extends Rank = Rank> {
    *                    [1,1,2,3]])
    * a.at([0,1,0])
    */
-  at(index1: Tensor | Array<any>, index2?: Tensor | Array<any>): Tensor {
+  at(index1: Tensor | NDArray, index2?: Tensor | NDArray): Tensor {
     const operation = new At();
     return operation.forward(this, index1, index2);
   }
@@ -375,7 +375,7 @@ export class Tensor<R extends Rank = Rank> {
  * @param {object} data - Iterable containing the data to be stored in the Tensor.
  */
 export class Parameter extends Tensor {
-  constructor(data: ShapeMap[Rank]) {
+  constructor(data: NDArray[Rank]) {
     super(data, true);
   }
 }
@@ -1096,8 +1096,8 @@ export class At {
 
   forward(
     a: Tensor,
-    idx1: Tensor | Array<any>,
-    idx2: Tensor | Array<any> | null = null
+    idx1: Tensor | NDArray,
+    idx2: Tensor | NDArray | null = null
   ): Tensor {
     // Make sure index lists are flat JavaScript arrays:
     if (idx1) {
@@ -1105,6 +1105,7 @@ export class At {
     }
     if (idx2) {
       idx2 = assureArray(idx2).flat(Infinity);
+      a
     }
 
     // Build cache to use in backward step:
@@ -1396,8 +1397,8 @@ export function transpose(a: Tensor, dim1: number, dim2: number): Tensor {
  */
 export function at(
   a: Tensor,
-  idx1: Tensor | Array<any>,
-  idx2: Tensor | Array<any>
+  idx1: Tensor | NDArray,
+  idx2: Tensor | NDArray
 ): Tensor {
   return a.at(idx1, idx2);
 }
@@ -1432,13 +1433,13 @@ export function masked_fill(
  * @param {object} shape - New tensor's shape.
  * @returns {object} New tensor.
  */
-export function reshape(a: Tensor, shape: Array<any>): Tensor {
+export function reshape(a: Tensor, shape: NDArray): Tensor {
   return a.reshape(shape);
 }
 
 // <<< Recursive functions for lists >>> //
 
-function _sum(a: Array<any>, dim: number, keepdims?: boolean): Array<any> {
+function _sum(a: NDArray, dim: number, keepdims?: boolean): NDArray {
   // In recursive call, when depth increases, subtract one from dim.
   // When we reach the dimension intended (dim === 0),
   // we add all elements in this dimension.
@@ -1456,7 +1457,7 @@ function _sum(a: Array<any>, dim: number, keepdims?: boolean): Array<any> {
   }
 }
 
-function _mean(a: Array<any>, dim: number, keepdims?: boolean): Array<any> {
+function _mean(a: NDArray, dim: number, keepdims?: boolean): NDArray {
   // In recursive call, when depth increases, subtract one from dim.
   // When we reach the dimension intended (dim === 0),
   // we add all elements in this dimension.
@@ -1477,7 +1478,7 @@ function _mean(a: Array<any>, dim: number, keepdims?: boolean): Array<any> {
   }
 }
 
-function _variance(a: Array<any>, dim: number, keepdims?: boolean): Array<any> {
+function _variance(a: NDArray, dim: number, keepdims?: boolean): NDArray {
   // In recursive call, when depth increases, subtract one from dim.
   // When we reach the dimension intended (dim === 0),
   // we add all elements in this dimension.
@@ -1506,7 +1507,7 @@ function _variance(a: Array<any>, dim: number, keepdims?: boolean): Array<any> {
   }
 }
 
-function _add(a: ShapeMap[Rank] | number, b: ShapeMap[Rank] | number): any {
+function _add(a: NDArray[Rank] | number, b: NDArray[Rank] | number): any {
   // If both are numbers, return number. If one is a Tensor, add number to each element in tensor.
   if (typeof a === "number" && typeof b === "number") {
     return a + b;
@@ -1567,7 +1568,7 @@ function _add(a: ShapeMap[Rank] | number, b: ShapeMap[Rank] | number): any {
   }
 }
 
-function _neg(a: Array<any> | number): Array<any> | number {
+function _neg(a: NDArray | number): NDArray | number {
   // If a is a number, make it negative. If not, make all of its elements negative:
   if (typeof a === "number") {
     return -a;
@@ -1578,7 +1579,7 @@ function _neg(a: Array<any> | number): Array<any> | number {
   }
 }
 
-function _mul(a: Array<any> | number, b: Array<any> | number): any {
+function _mul(a: NDArray | number, b: NDArray | number): any {
   // If both are numbers, return number. If one is a Tensor, multiply each element in the tensor by the number.
   if (typeof a === "number" && typeof b === "number") {
     return a * b;
@@ -1635,7 +1636,7 @@ function _mul(a: Array<any> | number, b: Array<any> | number): any {
   }
 }
 
-function _div(a: Array<any> | number, b: Array<any> | number): any {
+function _div(a: NDArray | number, b: NDArray | number): any {
   // If both are numbers, return number. If one is a Tensor, divide each element in the tensor by the number.
   if (typeof a === "number" && typeof b === "number") {
     return a / b;
@@ -1693,13 +1694,13 @@ function _div(a: Array<any> | number, b: Array<any> | number): any {
   }
 }
 
-function _matmul(a: Array<any>, b: Array<any>): Array<any> {
+function _matmul(a: NDArray, b: NDArray): NDArray {
   if (typeof a === "number") {
     throw new Error("Cannot perform MatMul with given shapes.");
   }
   // If this dimension has equal lengths, keep searching:
   if (typeof a[0][0] === "object") {
-    return a.map((element: Array<any>, idx: number) =>
+    return a.map((element: NDArray, idx: number) =>
       _matmul(element, b[idx])
     );
     // If not, try to matmul:
@@ -1732,7 +1733,7 @@ function _matmul(a: Array<any>, b: Array<any>): Array<any> {
   }
 }
 
-function _pow(a: Array<any> | number, n: number): Array<any> | number {
+function _pow(a: NDArray | number, n: number): NDArray | number {
   // If a is a number, exponentiate it. If not, exponentiate all of its elements:
   let z = a;
   for (let i = 0; i < n - 1; i++) {
@@ -1741,40 +1742,40 @@ function _pow(a: Array<any> | number, n: number): Array<any> | number {
   return z;
 }
 
-function _sqrt(a: Array<any> | number): Array<any> | number {
+function _sqrt(a: NDArray | number): NDArray | number {
   // If a is a number, take square root of it. If not, take root of all of its elements:
   if (typeof a === "number") {
     return Math.sqrt(a);
   } else if (a instanceof Array) {
-    return a.map((element: Array<any>) => _sqrt(element));
+    return a.map((element: NDArray) => _sqrt(element));
   } else {
     throw new TypeError("the input data is not a number.");
   }
 }
 
-function _exp(a: Array<any> | number): Array<any> | number {
+function _exp(a: NDArray | number): NDArray | number {
   // If a is a number, exponentiate it. If not, exponentiate all of its elements:
   if (typeof a === "number") {
     return 2.718281828459045 ** a;
   } else if (a instanceof Array) {
-    return a.map((element: Array<any>) => _exp(element));
+    return a.map((element: NDArray) => _exp(element));
   } else {
     throw new TypeError("the input data is not a number.");
   }
 }
 
-function _log(a: Array<any> | number): Array<any> | number {
+function _log(a: NDArray | number): NDArray | number {
   // If a is a number, take it's log. If not, take log of all of it's elements:
   if (typeof a === "number") {
     return Math.log(a);
   } else if (a instanceof Array) {
-    return a.map((element: Array<any>) => _log(element));
+    return a.map((element: NDArray) => _log(element));
   } else {
     throw new TypeError("the input data is not a number.");
   }
 }
 
-function _transpose(a: Array<any>, dim: number): Array<any> {
+function _transpose(a: NDArray, dim: number): NDArray {
   // Go down the dimensions recursively until we get to the dimension to be transposed:
   if (dim == 0) {
     // Build array with the transposed shape (to be filled with transposed values):
@@ -1789,17 +1790,17 @@ function _transpose(a: Array<any>, dim: number): Array<any> {
     }
     return newArray;
   } else if (a instanceof Array) {
-    return a.map((element: Array<any>) => _transpose(element, dim - 1));
+    return a.map((element: NDArray) => _transpose(element, dim - 1));
   } else {
     throw Error("ValueError: dimensions are invalid.");
   }
 }
 
 function _at(
-  a: Array<any>,
-  idx1: Array<any>,
-  idx2: Array<any> | null
-): Array<any> {
+  a: NDArray,
+  idx1: NDArray,
+  idx2: NDArray | null
+): NDArray {
   // If there is a second index, fill a new array in position "N" with a[idx1[N]][idx2[N]] (2 Dims):
   if (idx2) {
     return Array(idx1.length)
@@ -1814,11 +1815,11 @@ function _at(
 }
 
 function _masked_fill(
-  a: Array<any> | number,
-  mask: Array<any> | number,
+  a: NDArray | number,
+  mask: NDArray | number,
   condition: (someArg: number) => boolean,
   value: number
-): Array<any> | number {
+): NDArray | number {
   // If a is a number, test "condition" on it. If not, recursive step to all of its elements:
   if (typeof mask === "number") {
     if (typeof a != "number") {
@@ -1838,9 +1839,9 @@ function _masked_fill(
   }
 }
 
-export function _reshape(a: Array<any>, shape: Array<number>): Array<any> {
+export function _reshape(a: NDArray, shape: Array<number>): NDArray {
   // Rebuilds flattened array "flat" with shape "shape":
-  function _build(a: any[], shape: any[]): Array<any> {
+  function _build(a: any[], shape: any[]): NDArray {
     if (shape.length > 1) {
       const emptyArray = Array(shape[0]).fill(0);
       return emptyArray.map(() => _build(a, shape.slice(1)));
@@ -1865,9 +1866,9 @@ export function _reshape(a: Array<any>, shape: Array<number>): Array<any> {
  * @returns {object} New tensor.
  */
 function _tensorInitializer(
-  shape: ShapeMap[Rank],
+  shape: NDArray[Rank],
   valueFunc: () => number
-): Array<any> {
+): NDArray {
   if (shape.length === 1) {
     const emptyArray = Array(shape[0]).fill(0);
     return emptyArray.map(() => valueFunc());
@@ -1884,7 +1885,7 @@ function _tensorInitializer(
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
-export function tensor(data: Array<any>, requires_grad = false): Tensor {
+export function tensor(data: NDArray, requires_grad = false): Tensor {
   return new Tensor(data, requires_grad);
 }
 
@@ -1894,7 +1895,7 @@ export function tensor(data: Array<any>, requires_grad = false): Tensor {
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
-export function zeros(shape: ShapeMap[Rank], requires_grad = false): Tensor {
+export function zeros(shape: NDArray[Rank], requires_grad = false): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => 0),
     requires_grad
@@ -1907,7 +1908,7 @@ export function zeros(shape: ShapeMap[Rank], requires_grad = false): Tensor {
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
-export function ones(shape: ShapeMap[Rank], requires_grad = false): Tensor {
+export function ones(shape: NDArray[Rank], requires_grad = false): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => 1),
     requires_grad
@@ -1920,7 +1921,7 @@ export function ones(shape: ShapeMap[Rank], requires_grad = false): Tensor {
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
-export function tril(shape: ShapeMap[Rank], requires_grad = false): Tensor {
+export function tril(shape: number[], requires_grad = false): Tensor {
   const z = ones(shape, requires_grad);
   for (let i = 0; i < shape[0]; i++) {
     for (let j = 0; j < shape[0]; j++) {
@@ -1939,7 +1940,7 @@ export function tril(shape: ShapeMap[Rank], requires_grad = false): Tensor {
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
  * @returns {object} New tensor.
  */
-export function rand(shape: Array<number>, requires_grad = false): Tensor {
+export function rand(shape: number[], requires_grad = false): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => Math.random()),
     requires_grad
@@ -1954,7 +1955,7 @@ export function rand(shape: Array<number>, requires_grad = false): Tensor {
  * @returns {object} New tensor.
  */
 export function randn(
-  shape: Array<number>,
+  shape: number[],
   requires_grad = false,
   xavier = false
 ): Tensor {
@@ -2004,7 +2005,7 @@ export function randint(
  * @param {any} - Variable to check if requires_grad.
  * @returns {boolean} Whether to track gradients.
  */
-export function requiresGrad(a: Tensor | number | Array<any>): boolean {
+export function requiresGrad(a: Tensor | number | NDArray): boolean {
   if (a instanceof Tensor) {
     return a.requires_grad;
   } else {
@@ -2027,9 +2028,9 @@ export function requiresGrad(a: Tensor | number | Array<any>): boolean {
  */
 export function broadcast(a: Tensor, b: Tensor): Tensor {
   function _broadcast(
-    out: Array<any> | number,
-    b: Array<any> | number
-  ): Array<any> | number {
+    out: NDArray | number,
+    b: NDArray | number
+  ): NDArray | number {
     if (typeof out === "number" && typeof b === "number") {
       return out;
     } else if (typeof out === "number" && b instanceof Array) {
@@ -2087,9 +2088,9 @@ export function broadcast(a: Tensor, b: Tensor): Tensor {
       } else {
         // Define recursive function to find dimension with length 1:
         const _broadcastSideways = (
-          out: Array<any> | number | null,
-          b: Array<any>
-        ): Array<any> => {
+          out: NDArray | number | null,
+          b: NDArray
+        ): NDArray => {
           if (out instanceof Array && b.length != out.length) {
             if (b.length === 1) {
               // Base case, contract existing dimension:
@@ -2107,7 +2108,7 @@ export function broadcast(a: Tensor, b: Tensor): Tensor {
             // Recursive case:
             if (out instanceof Array) {
               // Keep looking inside each element:
-              return out.map((element: Array<any>, idx: number) =>
+              return out.map((element: NDArray, idx: number) =>
                 _broadcastSideways(element, b[idx])
               );
             } else if (typeof out === "number") {
@@ -2145,13 +2146,13 @@ export function broadcast(a: Tensor, b: Tensor): Tensor {
  * broadcastUp(ones([2,3]), ones([4,3,2]));
  */
 export function broadcastUp(
-  inElement: Array<any>,
-  outElement: Array<any>
-): Array<any> {
+  inElement: NDArray,
+  outElement: NDArray
+): NDArray {
   function _broadcastUp(
-    inElement: Array<any>,
-    outElement: Array<any>
-  ): Array<any> {
+    inElement: NDArray,
+    outElement: NDArray
+  ): NDArray {
     if (getShape(inElement).length + 1 === getShape(outElement).length) {
       // Base case, create new dimension:
       const emptyArray = Array(outElement.length).fill(zeros);

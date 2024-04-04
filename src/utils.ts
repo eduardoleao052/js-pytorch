@@ -1,5 +1,5 @@
-﻿import { Tensor } from "./tensor";
-import NestedArray from "./types/utils.types";
+﻿import { NDArray } from "./tensor";
+import { Tensor } from "./tensor";
 
 /**
  * Recursively gets the shape (length of every dimension) of the Tensor.
@@ -62,13 +62,11 @@ export function getShape(
  * @param {object} a - Any numeric iterable or number.
  * @returns {object} Original iterable in an Array format.
  */
-export function assureArray(a: Tensor | Array<number> | number): Array<number> {
+export function assureArray(a: Tensor | NDArray | number): NDArray {
   if (Array.isArray(a)) {
     return a;
   } else if (typeof a === "number") {
     return [a];
-  } else if (a === null) {
-    return a;
   }
   return a._data;
 }
@@ -80,7 +78,7 @@ export function assureArray(a: Tensor | Array<number> | number): Array<number> {
  */
 export function getData(
   a: Tensor | Array<number> | number
-): Array<number> | number {
+): NDArray | number {
   if (Array.isArray(a)) {
     return a;
   }
