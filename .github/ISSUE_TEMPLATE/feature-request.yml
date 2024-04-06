@@ -1,4 +1,4 @@
-﻿name: New feature
+name: New feature
 description: Suggest or request a new feature for js-torch. Please fill out the template to help make it more clear!
 labels: ["enhancement"]
 body:
@@ -7,4 +7,3 @@ body:
       value: |
         Thank you for taking the time to share this feature idea! 
         These following steps are to make sure the idea is as clear as possible, leading to a quicker and easier implementation.
-
