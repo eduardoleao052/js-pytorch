@@ -90,7 +90,7 @@
 ### Simple Autograd Example:
 
 ```typescript
-import { torch } from "js-pytorch";
+const { torch } = require("js-pytorch");
 
 // Instantiate Tensors:
 let x = torch.randn([8, 4, 5]);
@@ -112,7 +112,7 @@ console.log(b.grad);
 ### Complex Autograd Example (Transformer):
 
 ```typescript
-import { torch } from "js-pytorch";
+const { torch } = require("js-pytorch");
 const nn = torch.nn;
 
 class Transformer extends nn.Module {
