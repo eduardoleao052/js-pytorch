@@ -59,8 +59,6 @@ body:
           required: true
         - label: I searched the other issues on js-torch, and didn't find any reporting this same bug.
           required: true
-        - label: I think that this is a bug in the library, rather than my own code.
-          required: true
         - label: The bug is not resolved by updating to the latest version of js-pytorch on npm.
           required: true
   - type: dropdown
