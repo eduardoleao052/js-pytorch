@@ -6,3 +6,12 @@ body:
     attributes:
       value: |
         Thank you for taking the time to share this feature idea! These following steps are to make sure the idea is as clear as possible, leading to a quicker and easier implementation.
+  - type: textarea
+    id: description
+    validations:
+      required: true
+    attributes:
+      label: Describe the Feature
+      description: Please give a clear and concise description of the new feature. Explain what it would do, and use cases.
+      placeholder: A new operation that does (X, Y) -> Z.
+    
