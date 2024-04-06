@@ -6,15 +6,5 @@ body:
     attributes:
       value: |
         Thank you for sharing your bug report. The following steps are in place to reduce response-time, and help identifying and fixing the bug faster!
-  - type: textarea
-    id: description
-    attributes:
-      label: Describe the Bug
-      description: Please give a clear and concise description of the bug. Explain what is happening, and what you expected.
-      placeholder: |
-        * What is your environment (Operating System, browser, version)?
-        * What is happening? 
-        * What did you expect?
-    validations:
-      required: true
+
   
