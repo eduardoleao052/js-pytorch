@@ -1,7 +1,7 @@
 ﻿name: Bug Report
 description: Report a bug on js-torch. Please fill out the template so that the error is clearer, and quicker to fix :D
 labels: ["bug"]
-body:
+body: |
   - type: markdown
     attributes:
       value: |
