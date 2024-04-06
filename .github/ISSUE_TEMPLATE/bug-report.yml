@@ -1,0 +1,8 @@
+﻿blank_issues_enabled: true
+contact_links:
+  - name: Questions
+    email: eduardoleao052@gmail.com
+    about: Feel free to contact me if you have a more direct question/suggestion.
+  - name: Tutorial
+    url: https://dev.to/eduardoleao052/deep-learning-in-javascript-23od
+    about: If your issue is with a core functionality, read this short tutorial. It might help!
