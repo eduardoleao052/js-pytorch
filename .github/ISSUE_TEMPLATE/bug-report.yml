@@ -26,7 +26,7 @@ body:
       description: |
         Please provide a self-contained, minimal, reproducible, example of your observed bug.
 
-        If possible, follow this [example](https://stackoverflow.com/help/minimal-reproducible-example).
+        If possible, follow this [guideline](https://stackoverflow.com/help/minimal-reproducible-example).
 
       placeholder: |
         The following code throws this error:
