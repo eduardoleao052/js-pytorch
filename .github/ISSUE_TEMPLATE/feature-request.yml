@@ -14,4 +14,35 @@ body:
       label: Describe the Feature
       description: Please give a clear and concise description of the new feature. Explain what it would do, and use cases.
       placeholder: A new operation that does (X, Y) -> Z.
-    
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation [optional]
+      description: Optionally provide some motivation relative to why this feature would be useful.
+      placeholder: This feature would be usefull to X.
+  - type: textarea
+    id: code
+    validations:
+      required: true
+    attributes:
+      label: Sample Code
+      description: |
+        Optionally write some pseudo-code showing what you would like the feature to do.
+
+          * If possible, add comments to your code to explain the steps.
+
+      placeholder: |
+        The following code should return the result:
+        
+        ```typescript
+        function newProposedFunction(arg1, arg2) {
+          // Add some comments to briefly explain logic (if possible).
+          return result;
+        }
+        ```
+  - type: dropdown
+    id: assign
+    attributes:
+      label: "Would you like to work on this issue?"
+      options:
+        - "Yes"
