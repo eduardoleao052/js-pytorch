@@ -1,4 +1,4 @@
-name: Bug Report
+﻿name: Bug Report
 description: Report a bug on js-torch. Please fill out the template so that the error is clearer, and quicker to fix :D
 labels: ["Bug"]
 body:
@@ -20,7 +20,7 @@ body:
   - type: textarea
     id: code
     validations:
-      required: true
+      required: false
     attributes:
       label: Minimal Reproducible Code
       description: |

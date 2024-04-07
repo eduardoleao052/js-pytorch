@@ -1,4 +1,4 @@
-name: New feature
+﻿name: New feature
 description: Suggest or request a new feature for js-torch. Please fill out the template to help make it more clear!
 labels: ["enhancement"]
 body:
@@ -23,7 +23,7 @@ body:
   - type: textarea
     id: code
     validations:
-      required: true
+      required: false
     attributes:
       label: Sample Code
       description: |
