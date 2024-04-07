@@ -114,27 +114,25 @@ console.log(b.grad);
 ```typescript
 const { torch } = require("js-pytorch");
 const nn = torch.nn;
+const optim = torch.optim;
 
+// Define training hyperparameters:
+const vocab_size = 52;
+const hidden_size = 32;
+const n_timesteps = 16;
+const n_heads = 4;
+const dropout_p = 0;
+const batch_size = 8;
+
+// Create Transformer decoder Module:
 class Transformer extends nn.Module {
-  constructor(vocab_size, hidden_size, n_timesteps, n_heads, p) {
+  constructor(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p) {
     super();
     // Instantiate Transformer's Layers:
     this.embed = new nn.Embedding(vocab_size, hidden_size);
     this.pos_embed = new nn.PositionalEmbedding(n_timesteps, hidden_size);
-    this.b1 = new nn.Block(
-      hidden_size,
-      hidden_size,
-      n_heads,
-      n_timesteps,
-      (dropout_p = p)
-    );
-    this.b2 = new nn.Block(
-      hidden_size,
-      hidden_size,
-      n_heads,
-      n_timesteps,
-      (dropout_p = p)
-    );
+    this.b1 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps,dropout_p);
+    this.b2 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps,dropout_p);
     this.ln = new nn.LayerNorm(hidden_size);
     this.linear = new nn.Linear(hidden_size, vocab_size);
   }
@@ -151,13 +149,7 @@ class Transformer extends nn.Module {
 }
 
 // Instantiate your custom nn.Module:
-const model = new Transformer(
-  vocab_size,
-  hidden_size,
-  n_timesteps,
-  n_heads,
-  dropout_p
-);
+const model = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p);
 
 // Define loss function and optimizer:
 const loss_func = new nn.CrossEntropyLoss();
@@ -184,6 +176,9 @@ for (let i = 0; i < 40; i++) {
 
   // Reset the gradients to zero after each training step:
   optimizer.zero_grad();
+
+  // Print loss at every iteration:
+  console.log(`Iter ${i} - Loss ${loss.data[0].toFixed(4)}`)
 }
 ```
 
