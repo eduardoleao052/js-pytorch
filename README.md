@@ -186,9 +186,9 @@ for (let i = 0; i < 40; i++) {
 
 ## 3. Distribution & Devtools
 
-- To **build for distribution**, run `npm run build`. CJS and ESM modules and `index.d.ts` will be output in the `dist/` folder.
-- To **check the code** with ESLint at any time, run `npm run lint`.
-- To **improve code formatting** with prettier, run `npm run prettier`.
+- **Build for distribution** by running `npm run build`. CJS and ESM modules and `index.d.ts` will be output in the `dist/` folder.
+- **Check the code** with ESLint at any time, running `npm run lint`.
+- **Improve code formatting** with prettier, running `npm run prettier`.
 - **Performance benchmarks** are also included in the `tests/benchmarks/` directory. Run all benchmarks with `npm run bench` and save new benchmarks with `npm run bench:update`.
 
 
