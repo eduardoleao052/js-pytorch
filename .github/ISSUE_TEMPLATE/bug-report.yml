@@ -6,17 +6,17 @@ body:
     attributes:
       value: |
         Thank you for sharing your bug report. The following steps are in place to reduce response-time, and help identifying and fixing the bug faster!
-  - type: textarea
-    id: describe
-    validations:
-      required: true
-    attributes:
-      label: Describe the Bug
-      description: Please give a clear and concise description of the bug. Explain what is happening, and what you expected.
-      placeholder: |
-        * What is your environment (Operating System, browser, version)?
-        * What is happening? 
-        * What did you expect?
+  # - type: textarea
+  #   id: describe
+  #   validations:
+  #     required: true
+  #   attributes:
+  #     label: Describe the Bug
+  #     description: Please give a clear and concise description of the bug. Explain what is happening, and what you expected.
+  #     placeholder: |
+  #       * What is your environment (Operating System, browser, version)?
+  #       * What is happening? 
+  #       * What did you expect?
   # - type: textarea
   #   id: code
   #   attributes:
@@ -57,9 +57,9 @@ body:
   #         required: true
   #       - label: The bug is not resolved by updating to the latest version of js-pytorch on npm.
   #         required: true
-  # - type: dropdown
-  #   id: assign
-  #   attributes:
-  #     label: "Would you like to work on this issue?"
-  #     options:
-  #       - "Yes"
+  - type: dropdown
+    id: assign
+    attributes:
+      label: "Would you like to work on this issue?"
+      options:
+        - "Yes"
