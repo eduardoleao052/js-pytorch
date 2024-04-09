@@ -21,10 +21,10 @@ body:
         [LangChain.js Github Discussions](https://github.com/langchain-ai/langchainjs/discussions),
         [LangChain.js Github Issues](https://github.com/langchain-ai/langchainjs/issues?q=is%3Aissue),
         [LangChain.js ChatBot](https://chatjs.langchain.com/)
-  - type: markdown
-    attributes:
-      value: >
-        Thank you for sharing your bug report. The following steps are in place to reduce response-time, and help identifying and fixing the bug faster!
+  # - type: markdown
+  #   attributes:
+  #     value: >
+  #       Thank you for sharing your bug report. The following steps are in place to reduce response-time, and help identifying and fixing the bug faster!
   # - type: textarea
   #   id: describe
   #   validations:
