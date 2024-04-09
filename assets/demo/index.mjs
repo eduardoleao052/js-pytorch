@@ -1,11 +1,14 @@
 function getShape(data, shape = []) {
+  if (data instanceof Array && data.length === 0) {
+    return [0];
+  }
   if (typeof data === "number") {
     if (JSON.stringify(shape) === "[]") {
       return [1];
     }
     return shape;
   }
-  if (typeof data[0] === "number") {
+  if (typeof data[0] === "number" && Array.isArray(data)) {
     for (const element of data) {
       if (typeof element != "number") {
         throw new Error("The requested array has an inhomogeneous shape.");
@@ -14,17 +17,19 @@ function getShape(data, shape = []) {
     shape.push(data.length);
     return shape;
   }
-  let elementLength = data[0].length;
-  for (const element of data) {
-    if (elementLength != element.length) {
-      throw new Error("The requested array has an inhomogeneous shape.");
+  if (Array.isArray(data[0])) {
+    let elementLength = data[0].length;
+    for (const element of data) {
+      if (typeof element != "object" && typeof element != "number") {
+        throw new Error("TypeError: the input data is not a number.");
+      } else if (Array.isArray(element) && elementLength != element.length) {
+        throw new Error("The requested array has an inhomogeneous shape.");
+      } else if (Array.isArray(element)) {
+        elementLength = element.length;
+      }
     }
-    elementLength = element.length;
-    if (typeof element != "object" && typeof element != "number") {
-      throw new Error("TypeError: the input data is not a number.");
-    }
+    shape.push(data.length);
   }
-  shape.push(data.length);
   return getShape(data[0], shape);
 }
 function assureArray(a) {
@@ -234,8 +239,8 @@ class Tensor {
   }
   /**
    * Divide this Tensor by integer or other Tensor.
-   * @param {any} other - Tensor or integer to divide this Tensor by.
-   * @returns {object} New tensor.
+   * @param {Tensor | number} other - Tensor or integer to divide this Tensor by.
+   * @returns {Tensor} New tensor.
    */
   div(other) {
     const operation = new Div();
@@ -244,7 +249,7 @@ class Tensor {
   /**
    * Multiply this Tensor by integer or other Tensor.
    * @param {Tensor | number} other - Tensor or integer to multiply this Tensor by.
-   * @returns {object} New tensor.
+   * @returns {Tensor} New tensor.
    */
   matmul(other) {
     const operation = new MatMul();
@@ -697,7 +702,7 @@ class Sum {
       throw Error("Dimension larger than array.");
     }
     const z = new Tensor(
-      _sum(a._data, dim, keepdims = keepdims),
+      _sum(a._data, dim, keepdims),
       // New data.
       requiresGrad(a)
       // requires_grad.
@@ -1181,7 +1186,9 @@ function _matmul(a, b) {
     throw new Error("Cannot perform MatMul with given shapes.");
   }
   if (typeof a[0][0] === "object") {
-    return a.map((element, idx) => _matmul(element, b[idx]));
+    return a.map(
+      (element, idx) => _matmul(element, b[idx])
+    );
   } else {
     if (a[0].length === b.length && typeof a[0][0] === "number") {
       const out = Array(a.length).fill(0).map(() => Array(b[0].length).fill(0));
@@ -1354,7 +1361,7 @@ function randint(low = 0, high = 1, shape = [1], requires_grad = false) {
     _tensorInitializer(shape, () => {
       return Math.floor(Math.random() * (high - low)) + low;
     }),
-    requires_grad = requires_grad
+    requires_grad
   );
 }
 function requiresGrad(a) {
@@ -1512,14 +1519,9 @@ class Module {
   }
 }
 class Linear extends Module {
-  /**
-   * Simple linear layer, with weight matrix and optional bias. Does not contain nonlinearity.
-   *
-   * @param {number} in_size - size of the last dimention of the input array.
-   * @param {number} out_size - size of the last dimention of the output array.
-   * @param {boolean} bias - wether to include a bias term.
-   * @param {boolean} xavier - Wether to use xavier initialization (divide by square root of first input dimension).
-   */
+  W;
+  b;
+  has_bias;
   constructor(in_size, out_size, bias = true, xavier = true) {
     super();
     this.W = randn([in_size, out_size], true, xavier);
@@ -1540,15 +1542,15 @@ class Linear extends Module {
   }
 }
 class MultiHeadSelfAttention extends Module {
-  /**
-   * Full transformer Layer implementation.
-   *
-   * @param {number} in_size - size of the last dimention of the input array.
-   * @param {number} out_size - size of the last dimention of the output array.
-   * @param {number} n_heads - number of parallel heads to be computed (must equally divide in_size).
-   * @param {number} n_timesteps - length of text sequence to be processed bt Transformer.
-   * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
-   */
+  Wk;
+  Wq;
+  Wv;
+  residual_proj;
+  mask;
+  att_dropout;
+  residual_dropout;
+  softmax;
+  H;
   constructor(in_size, out_size, n_heads, n_timesteps, dropout_prob = 0) {
     super();
     this.Wk = new Linear(in_size, in_size, false, true);
@@ -1594,13 +1596,10 @@ class MultiHeadSelfAttention extends Module {
   }
 }
 class FullyConnected extends Module {
-  /**
-   * Small block composed of two Linear layers, a ReLU non-linearity and a Dropout layer.
-   *
-   * @param {number} in_size - size of the last dimention of the input array.
-   * @param {number} out_size - size of the last dimention of the output array.
-   * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
-   */
+  l1;
+  relu;
+  l2;
+  dropout;
   constructor(in_size, out_size, dropout_prob = 0) {
     super();
     this.l1 = new Linear(in_size, in_size * 2);
@@ -1622,15 +1621,10 @@ class FullyConnected extends Module {
   }
 }
 class Block extends Module {
-  /**
-   * Full transformer decoder block. Composed of Multi Head Self Attention, Fully connected layers and Layer Norms.
-   *
-   * @param {number} in_size - size of the last dimention of the input array.
-   * @param {number} out_size - size of the last dimention of the output array.
-   * @param {number} n_heads - number of parallel heads to be computed (must equally divide in_size).
-   * @param {number} n_timesteps - length of text sequence to be processed bt Transformer.
-   * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
-   */
+  att;
+  ln1;
+  fcc;
+  ln2;
   constructor(in_size, out_size, n_heads, n_timesteps, dropout_prob = 0) {
     super();
     this.att = new MultiHeadSelfAttention(
@@ -1656,12 +1650,7 @@ class Block extends Module {
   }
 }
 class Embedding extends Module {
-  /**
-   * Embedding class, turns indexes into vectors.
-   *
-   * @param {number} in_size - number of different indexes (vocabulary size).
-   * @param {number} out_size - size of the embedding vector generated.
-   */
+  E;
   constructor(in_size, embed_size) {
     super();
     this.E = randn([in_size, embed_size], true, false);
@@ -1679,12 +1668,7 @@ class Embedding extends Module {
   }
 }
 class PositionalEmbedding extends Module {
-  /**
-   * Embedding class, turns indexes into vectors.
-   *
-   * @param {number} n_timesteps - number of different embeddings (number of timesteps in each instance in batch).
-   * @param {number} embed_size - size of the embedding vector generated.
-   */
+  E;
   constructor(n_timesteps, embed_size) {
     super();
     this.E = randn([n_timesteps, embed_size], true, false);
@@ -1701,9 +1685,6 @@ class PositionalEmbedding extends Module {
   }
 }
 class ReLU extends Module {
-  /**
-   * Rectified Linear Unit nonlinearity. Returns z if z>0 else 0.
-   */
   constructor() {
     super();
   }
@@ -1733,9 +1714,6 @@ class ReLU extends Module {
   }
 }
 class Softmax extends Module {
-  /**
-   * Softmax nonlinearity class. Returns distribution of values (sum=1).
-   */
   constructor() {
     super();
   }
@@ -1752,11 +1730,7 @@ class Softmax extends Module {
   }
 }
 class Dropout extends Module {
-  /**
-   * Dropout class, added usually after other layers, to drop values to zero with given probability
-   *
-   * @param {number} drop_prob - probability to drop each value in input.
-   */
+  p;
   constructor(drop_prob) {
     super();
     this.p = drop_prob;
@@ -1784,11 +1758,8 @@ class Dropout extends Module {
   }
 }
 class LayerNorm extends Module {
-  /**
-   * Layer Norm class, added usually after other layers to normalize across all of the output.
-   *
-   * @param {number} n_embed - size of the last dimention of the input.
-   */
+  gamma;
+  beta;
   constructor(n_embed) {
     super();
     this.gamma = ones([n_embed], true);
@@ -1802,9 +1773,6 @@ class LayerNorm extends Module {
   }
 }
 class CrossEntropyLoss extends Module {
-  /**
-   * Cross Entropy Loss class, returns the loss given the output and the expected indexes.
-   */
   constructor() {
     super();
   }
@@ -1823,7 +1791,7 @@ class CrossEntropyLoss extends Module {
     const logitsExp = exp(z);
     const logitsSum = logitsExp.sum(1, true);
     const logits = logitsExp.div(logitsSum);
-    let y_array = _reshape(y.data, [B]);
+    const y_array = _reshape(y.data, [B]);
     const at_logits = logits.at([...Array(B).keys()], y_array);
     const log_losses = log(at_logits);
     let loss = log_losses.sum(-1).neg();
@@ -1840,14 +1808,6 @@ class Adam {
   b1;
   b2;
   eps;
-  /**
-   * Adam optimizer class.
-   * @param {(Parameter | Tensor)[]} params - List of all Parameter or Tensor (with requires_grad = True) to be optimized by Adam. "params" is usually set to nn.Module.parameters(), which automatically returns all parameters in a list form.
-   * @param {number} lr - Scalar multiplying each learning step, controls speed of learning.
-   * @param {number} reg - Scalar controling strength l2 regularization.
-   * @param {(number)[]} betas - Two scalar floats controling how slowly the optimizer changes the "m" and "v" attributes.
-   * @param {number} eps - Scalar added to denominator to stop it from ever going to zero.
-   */
   constructor(params, lr = 1e-3, reg = 0, betas = [0.9, 0.99], eps = 1e-9) {
     this.params = params;
     this.lr = lr;
