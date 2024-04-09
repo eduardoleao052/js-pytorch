@@ -2,10 +2,10 @@
 description: Report a bug on js-torch. Please fill out the template so that the error is clearer, and quicker to fix :D
 labels: ["enhancement"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thank you for sharing your bug report. The following steps are in place to reduce response-time, and help identifying and fixing the bug faster!
+- type: markdown
+  attributes:
+    value: |
+      Thank you for sharing your bug report. The following steps are in place to reduce response-time, and help identifying and fixing the bug faster!
   # - type: textarea
   #   id: describe
   #   validations:
