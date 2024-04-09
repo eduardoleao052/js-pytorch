@@ -1,5 +1,6 @@
 ﻿name: Bug Report
 description: Report a bug on js-torch. Please fill out the template so that the error is clearer, and quicker to fix :D
+labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
@@ -18,8 +19,6 @@ body:
         * What did you expect?
   - type: textarea
     id: code
-    validations:
-      required: false
     attributes:
       label: Minimal Reproducible Code
       description: |
@@ -39,8 +38,6 @@ body:
         ```
   - type: textarea
     id: screenshots
-    validations:
-      required: false
     attributes:
       label: Screenshot or Screen Recording (optional)
       description: |
