@@ -5,6 +5,25 @@ body:
   - type: markdown
     attributes:
       value: >
+        Thank you for taking the time to file a bug report. 
+        
+        Use this to report bugs in LangChain.js. 
+        
+        If you're not certain that your issue is due to a bug in LangChain, please use [GitHub Discussions](https://github.com/langchain-ai/langchainjs/discussions)
+        to ask for help with your issue.
+        
+        Relevant links to check before filing a bug report to see if your issue has already been reported, fixed or
+        if there's another way to solve your problem:
+        
+        [LangChain.js documentation with the integrated search](https://js.langchain.com/docs/get_started/introduction),
+        [API Reference](https://api.js.langchain.com/),
+        [GitHub search](https://github.com/langchain-ai/langchainjs),
+        [LangChain.js Github Discussions](https://github.com/langchain-ai/langchainjs/discussions),
+        [LangChain.js Github Issues](https://github.com/langchain-ai/langchainjs/issues?q=is%3Aissue),
+        [LangChain.js ChatBot](https://chatjs.langchain.com/)
+  - type: markdown
+    attributes:
+      value: >
         Thank you for sharing your bug report. The following steps are in place to reduce response-time, and help identifying and fixing the bug faster!
   # - type: textarea
   #   id: describe
