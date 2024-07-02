@@ -41,6 +41,7 @@ import {
   CrossEntropyLoss
 } from "./layers.js";
 import { Adam } from "./optim.js";
+import { getShape } from "./utils.js";
 
 const nn = {
   Module,
@@ -89,5 +90,6 @@ export const torch = {
   broadcast,
   // Add submodules:
   nn,
-  optim
+  optim,
+  getShape
 };
