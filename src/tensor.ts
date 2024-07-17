@@ -1,4 +1,5 @@
-﻿import { getShape, getData, assureArray } from "./utils";
+﻿const GPU = require('gpu.js');
+import { getShape, getData, assureArray } from "./utils";
 
 // <<< Tensor class, holds n-dimensional tensors, and multiple useful methods >>> //
 
@@ -13,13 +14,15 @@ export class Tensor {
   public visited: boolean = false;
   public m!: Tensor;
   public v!: Tensor;
+  public device: string;
 
   /**
    * Creates new instance of the Tensor class.
    * @param {object} data - Iterable containing the data to be stored in the Tensor.
    * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
+   * @param {string} device - Device to store Tensor. Either "gpu" or "cpu".
    */
-  constructor(data: Array<any> | number, requires_grad = false) {
+  constructor(data: Array<any> | number, requires_grad = false, device = 'cpu') {
     if (typeof data === "object") {
       this._data = data;
     } else if (typeof data === "number") {
@@ -28,6 +31,7 @@ export class Tensor {
       throw Error('Your argument "data" is not a number or an iterable.');
     }
     this.shape = getShape(data);
+    this.device = device;
     this.requires_grad = requires_grad;
 
     // Initialize momentum and velocity cumulatives for every parameter:
@@ -102,6 +106,16 @@ export class Tensor {
         this.operation.backward(this._grad, this);
       }
     }
+  }
+
+  /**
+   * Sends this Tensor to the provided device.
+   * @param {string} device - Device to store Tensor. Either "gpu" or "cpu".
+   * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
+   * @param {string} device - gpu or cpu: device to store Tensor.
+   */
+  to(device: string) {
+    this.device = device;
   }
 
   /**
@@ -235,7 +249,9 @@ export class Tensor {
    */
   matmul(other: Tensor): Tensor {
     const operation = new MatMul();
-    return operation.forward(this, other);
+    let device = 'cpu';
+    if (this.device === 'gpu' || other.device === 'gpu') { device = 'gpu' };
+    return operation.forward(this, other, device);
   }
 
   /**
@@ -576,29 +592,59 @@ export class Div {
   }
 }
 
-export class MatMul {
+class MatMul {
+  device: any;
   cache: any;
-
-  forward(a: Tensor, b: Tensor): Tensor {
-    // Build cache to use in backward step:
+  kernelFunc: any;
+  thread: any;
+  kernel: any;
+  forward(a: Tensor, b: Tensor, device: string) {
     this.cache = [a, b];
-
     let aData = a.data;
     let bData = b.data;
-    // Broadcast smaller tensor to match size of larger:
+    this.device = device;
+    let kernel;
+    // ESCOLHER UMA DAS DUAS SEGUINTES, UMA É PADRÃO, OUTRA COM GPU. TEM Q TER UM IF.
+    // ACHO QUE SÓ PRECISA INSTANCIAR KERNEL NO FORWARD. A PARTE nÂO'GPU TALVEZ POSSA FICAR SO NA _MATMUL.
+    // PASSAR TUDO PRA ARQUIVOS SRC TYPESCRIPT!!!! <<<<<<<<
+    if ( device === 'gpu') {
+      const gpu = new GPU();
+      this.kernelFunc = function(a: number[][], b: number[][], len: number) {
+        let sum = 0;
+        for (let i = 0; i < len; i++) {
+          sum += a[this.thread.y][i] * b[i][this.thread.x];
+        }
+        return sum;
+      }
+      kernel = gpu.createKernel(this.kernelFunc, { loopMaxIterations: getShape(bData).at(-2) }).setOutput([getShape(bData).at(-1), getShape(aData).at(-2)]);
+    } else {
+      this.kernel = function (a: number[][], b: number[][], len: number) {
+        const out = Array(a.length).fill(0).map(() => Array(b[0].length).fill(0));
+        for (let i = 0; i < a.length; i++) {
+          for (let j = 0; j < b[0].length; j++) {
+            let currentIndex = 0;
+            for (let k = 0; k < len; k++) {
+              currentIndex += a[i][k] * b[k][j];
+            }
+            out[i][j] = currentIndex;
+          }
+        }
+        return out;
+      }
+      kernel = this.kernel;
+    } 
+    
     if (a.shape.length < b.shape.length) {
       aData = broadcastUp(aData, bData);
     } else {
       bData = broadcastUp(bData, aData);
     }
-
-    // Call recursive function:
     const z = new Tensor(
-      _matmul(aData, bData), // data;
-      requiresGrad(a) || requiresGrad(b) // requires_grad;
+      _matmul(aData, bData, kernel),
+      // data;
+      requiresGrad(a) || requiresGrad(b)
+      // requires_grad;
     );
-
-    // Connect nodes in graph:
     if (a instanceof Tensor && requiresGrad(a)) {
       z.parents.push(a);
       a.children.push(z);
@@ -608,42 +654,44 @@ export class MatMul {
       b.children.push(z);
     }
     z.operation = this;
-
     return z;
   }
-
   backward(dz: Tensor, z: Tensor) {
-    // Get data from cache:
     const [a, b] = this.cache;
-    // Find gradients relative to "a", and pass it downstream:
     if (requiresGrad(a)) {
-      // Define Operands:
       const dzData = dz.data;
       let b_T = _transpose(b.data, b.ndims - 2);
-      // Broadcast smaller tensor to match size of larger:
       b_T = broadcastUp(b_T, dzData);
-      // Backprop through the matmul:
-      let da = new Tensor(_matmul(dzData, b_T));
-      // Rescale gradient to have the same shape as "a":
+      let kernel;
+      if (this.device === 'gpu') {
+        const gpu = new GPU();
+        kernel = gpu.createKernel(this.kernelFunc, { loopMaxIterations: getShape(b_T).at(-2) }).setOutput([getShape(b_T).at(-1), getShape(dzData).at(-2)]);
+      } else {
+        kernel = this.kernel;
+      }
+      let da = new Tensor(_matmul(dzData, b_T, kernel));
       da = broadcast(da, a);
-
       a.backward(da, z);
     }
-    // Find gradients relative to "a", and pass it downstream:
     if (requiresGrad(b)) {
-      // Define Operands:
       const dzData = dz.data;
       let a_T = _transpose(a.data, a.ndims - 2);
-      // Broadcast smaller tensor to match size of larger:
       a_T = broadcastUp(a_T, dzData);
-      // Backprop through the matmul:
-      let db = new Tensor(_matmul(a_T, dzData));
-      // Rescale gradient to have the same shape as "b":
+      let kernel;
+      if (this.device === 'gpu') {
+        const gpu = new GPU();
+        kernel = gpu.createKernel(this.kernelFunc, { loopMaxIterations: getShape(dzData).at(-2) }).setOutput([getShape(dzData).at(-1), getShape(a_T).at(-2)]);
+      } else {
+        kernel = this.kernel;
+      }
+      let db = new Tensor(_matmul(a_T, dzData, kernel));
       db = broadcast(db, b);
       b.backward(db, z);
     }
   }
 }
+// ================================ NUEVO ================================ //
+// ================================ NUEVO ================================ //
 
 export class Pow {
   cache: any;
@@ -1632,35 +1680,27 @@ function _div(a: Array<any> | number, b: Array<any> | number): any {
     }
   }
 }
+// =================== ANTIGO ========================= //
 
-function _matmul(a: Array<any>, b: Array<any>): Array<any> {
+// =================== ANTIGO ========================= //
+
+// =================== NUEVO ========================= //
+function _matmul(a: Array<any>, b: Array<any>, kernel: any): Array<any> {
   if (typeof a === "number") {
     throw new Error("Cannot perform MatMul with given shapes.");
   }
   // If this dimension has equal lengths, keep searching:
   if (typeof a[0][0] === "object") {
     return a.map((element: Array<any>, idx: number) =>
-      _matmul(element, b[idx])
+      _matmul(element, b[idx], kernel)
     );
-    // If not, try to matmul:
+  // If not, try to matmul:
   } else {
     // If dimensions align, perform matmul:
     if (a[0].length === b.length && typeof a[0][0] === "number") {
-      // Make a [a[0].length x b.length] array:
-      const out = Array(a.length)
-        .fill(0)
-        .map(() => Array(b[0].length).fill(0));
-      for (let i = 0; i < a.length; i++) {
-        for (let j = 0; j < b[0].length; j++) {
-          let currentIndex = 0;
-          for (let k = 0; k < b.length; k++) {
-            currentIndex += a[i][k] * b[k][j];
-          }
-          out[i][j] = currentIndex;
-        }
-      }
+      let out = kernel(a, b, b.length);
+      out = out.map((el:number[]) => Array.from(el));
       return out;
-      // If not, throw error:
     } else {
       throw Error(
         `Cannot perform Matrix Multiplication: cannot broadcast ${[
@@ -1671,6 +1711,7 @@ function _matmul(a: Array<any>, b: Array<any>): Array<any> {
     }
   }
 }
+// =================== NUEVO ========================= //
 
 function _pow(a: Array<any> | number, n: number): Array<any> | number {
   // If a is a number, exponentiate it. If not, exponentiate all of its elements:
@@ -1822,22 +1863,25 @@ function _tensorInitializer(
  * Creates new instance of the Tensor class.
  * @param {object} data - Iterable containing the data to be stored in the Tensor.
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
+ * @param {string} device - Device to store Tensor. Either "gpu" or "cpu".
  * @returns {object} New tensor.
  */
-export function tensor(data: Array<any>, requires_grad = false): Tensor {
-  return new Tensor(data, requires_grad);
+export function tensor(data: Array<any>, requires_grad = false, device = 'cpu'): Tensor {
+  return new Tensor(data, requires_grad, device);
 }
 
 /**
  * Creates new instance of the Tensor class filled with only zeros.
  * @param {object} shape - List containing the shape of the new tensor Tensor.
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
+ * @param {string} device - Device to store Tensor. Either "gpu" or "cpu".
  * @returns {object} New tensor.
  */
-export function zeros(shape: Array<number>, requires_grad = false): Tensor {
+export function zeros(shape: Array<number>, requires_grad = false, device = 'cpu'): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => 0),
-    requires_grad
+    requires_grad,
+    device
   );
 }
 
@@ -1845,12 +1889,14 @@ export function zeros(shape: Array<number>, requires_grad = false): Tensor {
  * Creates new instance of the Tensor class filled with only ones.
  * @param {object} shape - List containing the shape of the new tensor Tensor.
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
+ * @param {string} device - Device to store Tensor. Either "gpu" or "cpu".
  * @returns {object} New tensor.
  */
-export function ones(shape: Array<number>, requires_grad = false): Tensor {
+export function ones(shape: Array<number>, requires_grad = false, device = 'cpu'): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => 1),
-    requires_grad
+    requires_grad,
+    device
   );
 }
 
@@ -1858,9 +1904,10 @@ export function ones(shape: Array<number>, requires_grad = false): Tensor {
  * Creates new instance of a lower-triangular 2D Tensor.
  * @param {object} shape - List containing the shape of the new tensor Tensor.
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
+ * @param {string} device - Device to store Tensor. Either "gpu" or "cpu".
  * @returns {object} New tensor.
  */
-export function tril(shape: Array<number>, requires_grad = false): Tensor {
+export function tril(shape: Array<number>, requires_grad = false, device = 'cpu'): Tensor {
   const z = ones(shape, requires_grad);
   for (let i = 0; i < shape[0]; i++) {
     for (let j = 0; j < shape[0]; j++) {
@@ -1870,19 +1917,21 @@ export function tril(shape: Array<number>, requires_grad = false): Tensor {
     }
   }
 
-  return new Tensor(z._data, requires_grad);
+  return new Tensor(z._data, requires_grad, device);
 }
 
 /**
  * Creates new instance of the Tensor class filled with numbers in a uniform distribution in ]0,1[.
  * @param {object} shape - List containing the shape of the new tensor Tensor.
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
+ * @param {string} device - Device to store Tensor. Either "gpu" or "cpu".
  * @returns {object} New tensor.
  */
-export function rand(shape: Array<number>, requires_grad = false): Tensor {
+export function rand(shape: Array<number>, requires_grad = false, device = 'cpu'): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => Math.random()),
-    requires_grad
+    requires_grad,
+    device
   );
 }
 
@@ -1890,13 +1939,15 @@ export function rand(shape: Array<number>, requires_grad = false): Tensor {
  * Creates new instance of the Tensor class filled with numbers in a normal distribution.
  * @param {object} shape - List containing the shape of the new tensor Tensor.
  * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
+ * @param {string} device - Device to store Tensor. Either "gpu" or "cpu".
  * @param {boolean} xavier - Whether to use xavier initialization (divide by square root of first input dimension).
  * @returns {object} New tensor.
  */
 export function randn(
   shape: Array<number>,
   requires_grad = false,
-  xavier = false
+  xavier = false,
+  device = 'cpu'
 ): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => {
@@ -1911,7 +1962,8 @@ export function randn(
         return num;
       }
     }),
-    requires_grad
+    requires_grad,
+    device
   );
 }
 
