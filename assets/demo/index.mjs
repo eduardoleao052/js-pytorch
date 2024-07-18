@@ -1,4 +1,5 @@
 import { createRequire } from 'module';
+import fs from 'fs';
 
 var require$1 = (
 			true
@@ -1869,6 +1870,27 @@ class CrossEntropyLoss extends Module {
     return loss;
   }
 }
+function save(model, file) {
+  const data = JSON.stringify(model);
+  fs.writeFileSync(file, data);
+}
+function load(model, file) {
+  const loadedData = fs.readFileSync(file);
+  let loadedModel = JSON.parse(loadedData.toString());
+  loadParameters(loadedModel, model);
+  return model;
+}
+function loadParameters(source, target) {
+  for (const [key, value] of target.entries()) {
+    if (value instanceof Module) {
+      loadParameters(source[key], target[key]);
+    } else if (value instanceof Parameter || value instanceof Tensor) {
+      target[key]._data = source[key]._data;
+      target[key].m = source[key].m;
+      target[key].v = source[key].v;
+    }
+  }
+}
 
 class Adam {
   // Declare Adam's types:
@@ -1958,6 +1980,8 @@ const torch = {
   ones,
   zeros,
   broadcast,
+  save,
+  load,
   // Add submodules:
   nn,
   optim,

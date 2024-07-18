@@ -14,6 +14,8 @@
   log,
   _reshape
 } from "./tensor";
+import fs from 'fs';
+
 
 // Interface that contains all the types of Module's attributes:
 interface ModuleInterface {
@@ -536,5 +538,42 @@ export class CrossEntropyLoss extends Module {
     let loss = log_losses.sum(-1).neg();
     loss = loss.div(B);
     return loss;
+  }
+}
+
+/**
+ * Saves the model to a JSON file.
+ * @param {Module} model - Model to be saved in JSON file.
+ * @param {string} file - JSON file.
+ */
+export function save(model: Module, file: string) {
+  const data = JSON.stringify(model);
+  fs.writeFileSync(file, data);
+}
+
+/**
+ * Loads a model from a JSON file.
+ * @param {Module} model - Blank model to load weights into (placeholder). Needs to be identical to model.
+ * @param {string} file - JSON file.
+ * @returns {Module} loadedModel - Model to be loaded from JSON file.
+ */
+export function load(model: Module, file: string): Module {
+  const loadedData = fs.readFileSync(file);
+  let loadedModel = JSON.parse(loadedData.toString());
+  loadParameters(loadedModel, model)
+  return model;  
+}
+
+function loadParameters(source: Module, target: Module) {
+  for (const [key, value] of target.entries()) {
+    // Add every Module, Parameter or Tensor with requires_grad set to True:
+    if (value instanceof Module) {
+      loadParameters(source[key], target[key]);
+    } else if (value instanceof Parameter || value instanceof Tensor) {
+      target[key]._data = source[key]._data;
+      target[key].m = source[key].m;
+      target[key].v = source[key].v;
+
+    }
   }
 }

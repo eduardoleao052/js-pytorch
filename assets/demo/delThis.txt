@@ -1,0 +1,63 @@
+﻿
+
+class NeuralNet extends Module {
+  constructor(hidden_size) {
+    super();
+    // Instantiate Neural Network's Layers:
+    this.w1 = new Linear(5, hidden_size);
+    this.relu1 = new ReLU();
+    this.w2 = new Linear(hidden_size, 7);
+  }
+
+  forward(x) {
+    let z;
+    z = this.w1.forward(x);
+    z = this.relu1.forward(z);
+    z = this.w2.forward(z);
+    return z;
+  }
+}
+
+const model = new NeuralNet(4);
+// Define loss function and optimizer:
+
+// Instantiate input and output:
+const x = randn([2, 3, 5]);
+const y = randint(0, 7, [2, 3]);
+let loss;
+
+/**
+ * This function tests if the loss converges to zero in a simple Neural Network
+ * (Fully-Connected, three layers, with ReLU non-linearities), which uses the custom Module superclass.
+ */
+function test_module(model) {
+
+  // Training Loop:
+  for (let i = 0; i < 10; i++) {
+    const z = model.forward(x);
+
+    // Get loss:
+    loss = loss_func.forward(z, y);
+
+    // Backpropagate the loss using neuralforge.tensor's backward() method:
+    loss.backward();
+
+    // Update the weights:
+    optimizer.step();
+    console.log(loss.data)
+    // Reset the gradients to zero after each training step:
+    optimizer.zero_grad();
+  }
+}
+
+const loss_func = new CrossEntropyLoss();
+let optimizer = new Adam(model.parameters(), 3e-3, 0);
+test_module(model)
+
+save(model, 'model.json')
+
+const placeholder = new NeuralNet(4)
+const newModel = load(placeholder, 'model.json')
+
+optimizer = new Adam(newModel.parameters(), 3e-3, 0);
+test_module(newModel)
