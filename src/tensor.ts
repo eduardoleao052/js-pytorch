@@ -1813,22 +1813,41 @@ function _masked_fill(
   }
 }
 
-export function _reshape(a: Array<any>, shape: Array<number>): Array<any> {
-  // Rebuilds flattened array "flat" with shape "shape":
-  function _build(a: any[], shape: any[]): Array<any> {
-    if (shape.length > 1) {
-      const emptyArray = Array(shape[0]).fill(0);
-      return emptyArray.map(() => _build(a, shape.slice(1)));
+// export function _reshape(a: Array<any>, shape: Array<number>): Array<any> {
+//   // Rebuilds flattened array "flat" with shape "shape":
+//   function _build(a: any[], shape: any[]): Array<any> {
+//     if (shape.length > 1) {
+//       const emptyArray = Array(shape[0]).fill(0);
+//       return emptyArray.map(() => _build(a, shape.slice(1)));
+//     } else {
+//       const emptyArray = Array(shape[0]).fill(0);
+//       return emptyArray.map(() => a.shift());
+//     }
+//   }
+
+//   // Flatten array with a's data:
+//   const flat = a.flat(Infinity);
+//   // Rebuild a with new shape:
+//   return _build(flat, shape);
+// }
+
+export function _reshape(a: Array<any>, shape: number[]) {
+  if (getShape(a).reduce((a,b)=>a*b,1) != shape.reduce((a,b)=>a*b,1)) {throw new Error('Attempting to reshape into invalid shape.')}
+  function _build(a2: any[], shape2: number[], idx: number, numberOfEls: number): any[] {
+    if (shape2.length > 1) {
+      const emptyArray = Array(shape2[0]).fill(0);
+      let offSet = idx;
+      numberOfEls = (numberOfEls / shape2[0]);
+      const myArray = emptyArray.map((_, idx) => _build(a2, shape2.slice(1), offSet + idx*numberOfEls, numberOfEls));
+      return myArray;
     } else {
-      const emptyArray = Array(shape[0]).fill(0);
-      return emptyArray.map(() => a.shift());
+      const myArray =  a2.slice(idx,idx+numberOfEls);
+      return myArray;
     }
   }
-
-  // Flatten array with a's data:
   const flat = a.flat(Infinity);
-  // Rebuild a with new shape:
-  return _build(flat, shape);
+  const built = _build(flat, shape, 0, flat.length);
+  return built;
 }
 
 // <<< Tensor Initialization Methods >>> //

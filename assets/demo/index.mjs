@@ -1344,17 +1344,24 @@ function _masked_fill(a, mask, condition, value) {
   }
 }
 function _reshape(a, shape) {
-  function _build(a2, shape2) {
+  if (getShape(a).reduce((a2, b) => a2 * b, 1) != shape.reduce((a2, b) => a2 * b, 1)) {
+    throw new Error("Attempting to reshape into invalid shape.");
+  }
+  function _build(a2, shape2, idx, numberOfEls) {
     if (shape2.length > 1) {
       const emptyArray = Array(shape2[0]).fill(0);
-      return emptyArray.map(() => _build(a2, shape2.slice(1)));
+      let offSet = idx;
+      numberOfEls = numberOfEls / shape2[0];
+      const myArray = emptyArray.map((_, idx2) => _build(a2, shape2.slice(1), offSet + idx2 * numberOfEls, numberOfEls));
+      return myArray;
     } else {
-      const emptyArray = Array(shape2[0]).fill(0);
-      return emptyArray.map(() => a2.shift());
+      const myArray = a2.slice(idx, idx + numberOfEls);
+      return myArray;
     }
   }
   const flat = a.flat(Infinity);
-  return _build(flat, shape);
+  const built = _build(flat, shape, 0, flat.length);
+  return built;
 }
 function _tensorInitializer(shape, valueFunc) {
   if (shape.length === 1) {
