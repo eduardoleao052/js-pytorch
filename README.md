@@ -182,6 +182,25 @@ for (let i = 0; i < 40; i++) {
 }
 ```
 
+### Saving and Loading models:
+
+```typescript
+// Instantiate your model:
+const model = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p);
+
+// Train the model:
+trainModel(model);
+
+// Save model to JSON file:
+torch.save(model, 'model.json')
+
+// To load, instantiate placeHolder using the original model's architecture:
+const placeHolder = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p);
+// Load weights into placeHolder:
+const newModel = torch.load(placeHolder, 'model.json')
+```
+
+
 <br/>
 
 ## 3. Distribution & Devtools
