@@ -1583,9 +1583,10 @@ class Linear extends Module {
   W;
   b;
   has_bias;
-  constructor(in_size, out_size, bias = true, xavier = true) {
+  constructor(in_size, out_size, device = "cpu", bias = true, xavier = true) {
     super();
     this.W = randn([in_size, out_size], true, xavier);
+    this.W.device = device;
     this.b = zeros([out_size], true);
     this.has_bias = bias;
   }
@@ -1612,12 +1613,12 @@ class MultiHeadSelfAttention extends Module {
   residual_dropout;
   softmax;
   H;
-  constructor(in_size, out_size, n_heads, n_timesteps, dropout_prob = 0) {
+  constructor(in_size, out_size, n_heads, n_timesteps, dropout_prob = 0, device = "cpu") {
     super();
-    this.Wk = new Linear(in_size, in_size, false, true);
-    this.Wq = new Linear(in_size, in_size, false, true);
-    this.Wv = new Linear(in_size, in_size, false, true);
-    this.residual_proj = new Linear(in_size, out_size, false, true);
+    this.Wk = new Linear(in_size, in_size, device, true, false);
+    this.Wq = new Linear(in_size, in_size, device, true, false);
+    this.Wv = new Linear(in_size, in_size, device, true, false);
+    this.residual_proj = new Linear(in_size, out_size, device, true, false);
     this.mask = tril([n_timesteps, n_timesteps], false);
     this.att_dropout = new Dropout(dropout_prob);
     this.residual_dropout = new Dropout(dropout_prob);
@@ -1661,9 +1662,9 @@ class FullyConnected extends Module {
   relu;
   l2;
   dropout;
-  constructor(in_size, out_size, dropout_prob = 0) {
+  constructor(in_size, out_size, dropout_prob = 0, device = "cpu", bias = true) {
     super();
-    this.l1 = new Linear(in_size, in_size * 2);
+    this.l1 = new Linear(in_size, in_size * 2, device, true, bias);
     this.relu = new ReLU();
     this.l2 = new Linear(in_size * 2, out_size);
     this.dropout = new Dropout(dropout_prob);
@@ -1686,17 +1687,18 @@ class Block extends Module {
   ln1;
   fcc;
   ln2;
-  constructor(in_size, out_size, n_heads, n_timesteps, dropout_prob = 0) {
+  constructor(in_size, out_size, n_heads, n_timesteps, dropout_prob = 0, device = "cpu") {
     super();
     this.att = new MultiHeadSelfAttention(
       in_size,
       in_size,
       n_heads,
       n_timesteps,
-      dropout_prob
+      dropout_prob,
+      device
     );
     this.ln1 = new LayerNorm(in_size);
-    this.fcc = new FullyConnected(in_size, out_size, dropout_prob);
+    this.fcc = new FullyConnected(in_size, out_size, dropout_prob, device, true);
     this.ln2 = new LayerNorm(out_size);
   }
   /**
@@ -1956,66 +1958,3 @@ const torch = {
 };
 
 export { torch };
-
-function test_autograd(device) {
-  // Define loss function as Cross Entropy Loss and learning rate:
-  const loss_func = new CrossEntropyLoss();
-  const learning_rate = 3e-6;
-
-  //  Instantiate input and output:
-  const x = randn([8, 4, 16], false, false, device);
-  const y = randint(0, 10, [8, 4]);
-  let loss;
-
-  // Instantiate Neural Network's Layers:
-  const w1 = randn([16, 32], true, true, device);
-  const relu1 = new ReLU();
-  const w2 = randn([32, 32], true, true, device);
-  const relu2 = new ReLU();
-  const w3 = randn([32, 50], true, true, device);
-
-  // Training Loop:
-  for (let i = 0; i < 1024; i++) {
-    let z = matmul(x, w1);
-    z = relu1.forward(z);
-    z = add(z, matmul(z, w2));
-    z = relu2.forward(z);
-    z = matmul(z, w3);
-
-    // Get loss:
-    loss = loss_func.forward(z, y);
-    // Backpropagate the loss using neuralforge.tensor:
-    loss.backward();
-
-    // Update the weights:
-    w1._data = w1.add(w1._grad.mul(learning_rate).neg()).data;
-    w2._data = w2.add(w2._grad?.mul(learning_rate).neg()).data;
-    w3._data = w3.add(w3._grad?.mul(learning_rate).neg()).data;
-    // Reset the gradients to zero after each training step:
-    loss.zero_grad_graph();
-  }
-  console.log(loss.data)
-  // Return loss:
-  return loss.data[0];
-}
-
-let device = 'gpu';
-
-console.time(device)
-test_autograd(device)
-console.timeEnd(device)
-
-device = 'cpu';
-
-console.time(device)
-test_autograd(device)
-console.timeEnd(device)
-
-
-
-
-
-
-
-
-
