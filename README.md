@@ -95,7 +95,7 @@ const { torch } = require("js-pytorch");
 
 // Instantiate Tensors:
 let x = torch.randn([8, 4, 5]);
-let w = torch.randn([8, 5, 4], (requires_grad = true));
+let w = torch.randn([8, 5, 4], (requires_grad = true), (device = 'gpu));
 let b = torch.tensor([0.2, 0.5, 0.1, 0.0], (requires_grad = true));
 
 // Make calculations:
@@ -116,6 +116,7 @@ console.log(b.grad);
 const { torch } = require("js-pytorch");
 const nn = torch.nn;
 const optim = torch.optim;
+const device = 'gpu';
 
 // Define training hyperparameters:
 const vocab_size = 52;
@@ -127,15 +128,15 @@ const batch_size = 8;
 
 // Create Transformer decoder Module:
 class Transformer extends nn.Module {
-  constructor(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p) {
+  constructor(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p, device) {
     super();
     // Instantiate Transformer's Layers:
     this.embed = new nn.Embedding(vocab_size, hidden_size);
     this.pos_embed = new nn.PositionalEmbedding(n_timesteps, hidden_size);
-    this.b1 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps,dropout_p);
-    this.b2 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps,dropout_p);
+    this.b1 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p, device);
+    this.b2 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p, device);
     this.ln = new nn.LayerNorm(hidden_size);
-    this.linear = new nn.Linear(hidden_size, vocab_size);
+    this.linear = new nn.Linear(hidden_size, vocab_size, device);
   }
 
   forward(x) {
@@ -150,7 +151,7 @@ class Transformer extends nn.Module {
 }
 
 // Instantiate your custom nn.Module:
-const model = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p);
+const model = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p, device);
 
 // Define loss function and optimizer:
 const loss_func = new nn.CrossEntropyLoss();
