@@ -73,6 +73,9 @@ class Tensor {
   m;
   v;
   device;
+  forwardKernel;
+  backwardKernelA;
+  backwardKernelB;
   /**
    * Creates new instance of the Tensor class.
    * @param {object} data - Iterable containing the data to be stored in the Tensor.
@@ -90,6 +93,7 @@ class Tensor {
     this.shape = getShape(data);
     this.device = device;
     this.requires_grad = requires_grad;
+    this.forwardKernel = null;
     if (this.requires_grad) {
       this._grad = zeros(this.shape);
     }
@@ -274,11 +278,45 @@ class Tensor {
    */
   matmul(other) {
     const operation = new MatMul();
-    let device = "cpu";
+    let device;
     if (this.device === "gpu" || other.device === "gpu") {
       device = "gpu";
+    } else {
+      device = "cpu";
     }
-    return operation.forward(this, other, device);
+    if (other.forwardKernel === null) {
+      if (device === "gpu") {
+        const gpu = new GPU();
+        const kernelFunc = function(a, b, len) {
+          let sum2 = 0;
+          for (let i = 0; i < len; i++) {
+            sum2 += a[this.thread.y][i] * b[i][this.thread.x];
+          }
+          return sum2;
+        };
+        other.forwardKernel = gpu.createKernel(kernelFunc, { loopMaxIterations: other.shape.at(-2) }).setOutput([other.shape.at(-1), this.shape.at(-2)]);
+        other.backwardKernelA = gpu.createKernel(kernelFunc, { loopMaxIterations: other.shape.at(-1) }).setOutput([this.shape.at(-1), this.shape.at(-2)]);
+        other.backwardKernelB = gpu.createKernel(kernelFunc, { loopMaxIterations: this.shape.at(-2) }).setOutput([other.shape.at(-1), other.shape.at(-2)]);
+      } else {
+        const kernelFunc = function(a, b, len) {
+          const out = Array(a.length).fill(0).map(() => Array(b[0].length).fill(0));
+          for (let i = 0; i < a.length; i++) {
+            for (let j = 0; j < b[0].length; j++) {
+              let currentIndex = 0;
+              for (let k = 0; k < len; k++) {
+                currentIndex += a[i][k] * b[k][j];
+              }
+              out[i][j] = currentIndex;
+            }
+          }
+          return out;
+        };
+        other.forwardKernel = kernelFunc;
+        other.backwardKernelA = kernelFunc;
+        other.backwardKernelB = kernelFunc;
+      }
+    }
+    return operation.forward(this, other);
   }
   /**
    * Get tensor to element-wise power of n.
@@ -539,50 +577,20 @@ class Div {
   }
 }
 class MatMul {
-  device;
   cache;
   kernelFunc;
   thread;
-  kernel;
-  forward(a, b, device) {
+  forward(a, b) {
     this.cache = [a, b];
     let aData = a.data;
     let bData = b.data;
-    this.device = device;
-    let kernel;
-    if (device === "gpu") {
-      const gpu = new GPU();
-      this.kernelFunc = function(a2, b2, len) {
-        let sum2 = 0;
-        for (let i = 0; i < len; i++) {
-          sum2 += a2[this.thread.y][i] * b2[i][this.thread.x];
-        }
-        return sum2;
-      };
-      kernel = gpu.createKernel(this.kernelFunc, { loopMaxIterations: getShape(bData).at(-2) }).setOutput([getShape(bData).at(-1), getShape(aData).at(-2)]);
-    } else {
-      this.kernel = function(a2, b2, len) {
-        const out = Array(a2.length).fill(0).map(() => Array(b2[0].length).fill(0));
-        for (let i = 0; i < a2.length; i++) {
-          for (let j = 0; j < b2[0].length; j++) {
-            let currentIndex = 0;
-            for (let k = 0; k < len; k++) {
-              currentIndex += a2[i][k] * b2[k][j];
-            }
-            out[i][j] = currentIndex;
-          }
-        }
-        return out;
-      };
-      kernel = this.kernel;
-    }
     if (a.shape.length < b.shape.length) {
       aData = broadcastUp(aData, bData);
     } else {
       bData = broadcastUp(bData, aData);
     }
     const z = new Tensor(
-      _matmul(aData, bData, kernel),
+      _matmul(aData, bData, b.forwardKernel),
       // data;
       requiresGrad(a) || requiresGrad(b)
       // requires_grad;
@@ -604,14 +612,7 @@ class MatMul {
       const dzData = dz.data;
       let b_T = _transpose(b.data, b.ndims - 2);
       b_T = broadcastUp(b_T, dzData);
-      let kernel;
-      if (this.device === "gpu") {
-        const gpu = new GPU();
-        kernel = gpu.createKernel(this.kernelFunc, { loopMaxIterations: getShape(b_T).at(-2) }).setOutput([getShape(b_T).at(-1), getShape(dzData).at(-2)]);
-      } else {
-        kernel = this.kernel;
-      }
-      let da = new Tensor(_matmul(dzData, b_T, kernel));
+      let da = new Tensor(_matmul(dzData, b_T, b.backwardKernelA));
       da = broadcast(da, a);
       a.backward(da, z);
     }
@@ -619,14 +620,7 @@ class MatMul {
       const dzData = dz.data;
       let a_T = _transpose(a.data, a.ndims - 2);
       a_T = broadcastUp(a_T, dzData);
-      let kernel;
-      if (this.device === "gpu") {
-        const gpu = new GPU();
-        kernel = gpu.createKernel(this.kernelFunc, { loopMaxIterations: getShape(dzData).at(-2) }).setOutput([getShape(dzData).at(-1), getShape(a_T).at(-2)]);
-      } else {
-        kernel = this.kernel;
-      }
-      let db = new Tensor(_matmul(a_T, dzData, kernel));
+      let db = new Tensor(_matmul(a_T, dzData, b.backwardKernelB));
       db = broadcast(db, b);
       b.backward(db, z);
     }
@@ -1962,3 +1956,66 @@ const torch = {
 };
 
 export { torch };
+
+function test_autograd(device) {
+  // Define loss function as Cross Entropy Loss and learning rate:
+  const loss_func = new CrossEntropyLoss();
+  const learning_rate = 3e-6;
+
+  //  Instantiate input and output:
+  const x = randn([8, 4, 16], false, false, device);
+  const y = randint(0, 10, [8, 4]);
+  let loss;
+
+  // Instantiate Neural Network's Layers:
+  const w1 = randn([16, 32], true, true, device);
+  const relu1 = new ReLU();
+  const w2 = randn([32, 32], true, true, device);
+  const relu2 = new ReLU();
+  const w3 = randn([32, 50], true, true, device);
+
+  // Training Loop:
+  for (let i = 0; i < 1024; i++) {
+    let z = matmul(x, w1);
+    z = relu1.forward(z);
+    z = add(z, matmul(z, w2));
+    z = relu2.forward(z);
+    z = matmul(z, w3);
+
+    // Get loss:
+    loss = loss_func.forward(z, y);
+    // Backpropagate the loss using neuralforge.tensor:
+    loss.backward();
+
+    // Update the weights:
+    w1._data = w1.add(w1._grad.mul(learning_rate).neg()).data;
+    w2._data = w2.add(w2._grad?.mul(learning_rate).neg()).data;
+    w3._data = w3.add(w3._grad?.mul(learning_rate).neg()).data;
+    // Reset the gradients to zero after each training step:
+    loss.zero_grad_graph();
+  }
+  console.log(loss.data)
+  // Return loss:
+  return loss.data[0];
+}
+
+let device = 'gpu';
+
+console.time(device)
+test_autograd(device)
+console.timeEnd(device)
+
+device = 'cpu';
+
+console.time(device)
+test_autograd(device)
+console.timeEnd(device)
+
+
+
+
+
+
+
+
+

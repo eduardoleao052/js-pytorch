@@ -15,6 +15,9 @@ export class Tensor {
   public m!: Tensor;
   public v!: Tensor;
   public device: string;
+  public forwardKernel: any;
+  public backwardKernelA: any;
+  public backwardKernelB: any;
 
   /**
    * Creates new instance of the Tensor class.
@@ -33,6 +36,7 @@ export class Tensor {
     this.shape = getShape(data);
     this.device = device;
     this.requires_grad = requires_grad;
+    this.forwardKernel = null;
 
     // Initialize momentum and velocity cumulatives for every parameter:
     if (this.requires_grad) {
@@ -249,9 +253,43 @@ export class Tensor {
    */
   matmul(other: Tensor): Tensor {
     const operation = new MatMul();
-    let device = 'cpu';
-    if (this.device === 'gpu' || other.device === 'gpu') { device = 'gpu' };
-    return operation.forward(this, other, device);
+    let device: string;
+    if (this.device === 'gpu' || other.device === 'gpu') { device = 'gpu' } else { device = 'cpu' };
+    if (other.forwardKernel === null) { 
+      if (device === 'gpu') {
+        const gpu = new GPU();
+        const kernelFunc = function(this: any, a: number[][], b: number[][], len: number): number {
+          let sum = 0;
+          for (let i = 0; i < len; i++) {
+            sum += a[this.thread.y][i] * b[i][this.thread.x];
+          }
+          return sum;
+        }
+        other.forwardKernel = gpu.createKernel(kernelFunc, { loopMaxIterations: other.shape.at(-2) }).setOutput([other.shape.at(-1), this.shape.at(-2)]);
+        other.backwardKernelA = gpu.createKernel(kernelFunc, { loopMaxIterations: other.shape.at(-1) }).setOutput([this.shape.at(-1), this.shape.at(-2)]);
+        other.backwardKernelB = gpu.createKernel(kernelFunc, { loopMaxIterations: this.shape.at(-2) }).setOutput([other.shape.at(-1), other.shape.at(-2)]);
+
+      } else {
+        const kernelFunc = function (a: number[][], b: number[][], len: number) {
+          const out = Array(a.length).fill(0).map(() => Array(b[0].length).fill(0));
+          for (let i = 0; i < a.length; i++) {
+            for (let j = 0; j < b[0].length; j++) {
+              let currentIndex = 0;
+              for (let k = 0; k < len; k++) {
+                currentIndex += a[i][k] * b[k][j];
+              }
+              out[i][j] = currentIndex;
+            }
+          }
+          return out;
+        }
+        other.forwardKernel = kernelFunc;
+        other.backwardKernelA = kernelFunc;
+        other.backwardKernelB = kernelFunc;
+
+      }
+    }
+    return operation.forward(this, other);
   }
 
   /**
@@ -593,46 +631,16 @@ export class Div {
 }
 
 class MatMul {
-  device: any;
   cache: any;
   kernelFunc: any;
   thread: any;
-  kernel: any;
-  forward(a: Tensor, b: Tensor, device: string) {
+  forward(a: Tensor, b: Tensor) {
     this.cache = [a, b];
     let aData = a.data;
     let bData = b.data;
-    this.device = device;
-    let kernel;
     // ESCOLHER UMA DAS DUAS SEGUINTES, UMA É PADRÃO, OUTRA COM GPU. TEM Q TER UM IF.
     // ACHO QUE SÓ PRECISA INSTANCIAR KERNEL NO FORWARD. A PARTE nÂO'GPU TALVEZ POSSA FICAR SO NA _MATMUL.
     // PASSAR TUDO PRA ARQUIVOS SRC TYPESCRIPT!!!! <<<<<<<<
-    if ( device === 'gpu') {
-      const gpu = new GPU();
-      this.kernelFunc = function(a: number[][], b: number[][], len: number) {
-        let sum = 0;
-        for (let i = 0; i < len; i++) {
-          sum += a[this.thread.y][i] * b[i][this.thread.x];
-        }
-        return sum;
-      }
-      kernel = gpu.createKernel(this.kernelFunc, { loopMaxIterations: getShape(bData).at(-2) }).setOutput([getShape(bData).at(-1), getShape(aData).at(-2)]);
-    } else {
-      this.kernel = function (a: number[][], b: number[][], len: number) {
-        const out = Array(a.length).fill(0).map(() => Array(b[0].length).fill(0));
-        for (let i = 0; i < a.length; i++) {
-          for (let j = 0; j < b[0].length; j++) {
-            let currentIndex = 0;
-            for (let k = 0; k < len; k++) {
-              currentIndex += a[i][k] * b[k][j];
-            }
-            out[i][j] = currentIndex;
-          }
-        }
-        return out;
-      }
-      kernel = this.kernel;
-    } 
     
     if (a.shape.length < b.shape.length) {
       aData = broadcastUp(aData, bData);
@@ -640,7 +648,7 @@ class MatMul {
       bData = broadcastUp(bData, aData);
     }
     const z = new Tensor(
-      _matmul(aData, bData, kernel),
+      _matmul(aData, bData, b.forwardKernel),
       // data;
       requiresGrad(a) || requiresGrad(b)
       // requires_grad;
@@ -662,14 +670,7 @@ class MatMul {
       const dzData = dz.data;
       let b_T = _transpose(b.data, b.ndims - 2);
       b_T = broadcastUp(b_T, dzData);
-      let kernel;
-      if (this.device === 'gpu') {
-        const gpu = new GPU();
-        kernel = gpu.createKernel(this.kernelFunc, { loopMaxIterations: getShape(b_T).at(-2) }).setOutput([getShape(b_T).at(-1), getShape(dzData).at(-2)]);
-      } else {
-        kernel = this.kernel;
-      }
-      let da = new Tensor(_matmul(dzData, b_T, kernel));
+      let da = new Tensor(_matmul(dzData, b_T, b.backwardKernelA));
       da = broadcast(da, a);
       a.backward(da, z);
     }
@@ -677,14 +678,7 @@ class MatMul {
       const dzData = dz.data;
       let a_T = _transpose(a.data, a.ndims - 2);
       a_T = broadcastUp(a_T, dzData);
-      let kernel;
-      if (this.device === 'gpu') {
-        const gpu = new GPU();
-        kernel = gpu.createKernel(this.kernelFunc, { loopMaxIterations: getShape(dzData).at(-2) }).setOutput([getShape(dzData).at(-1), getShape(a_T).at(-2)]);
-      } else {
-        kernel = this.kernel;
-      }
-      let db = new Tensor(_matmul(a_T, dzData, kernel));
+      let db = new Tensor(_matmul(a_T, dzData, b.backwardKernelB));
       db = broadcast(db, b);
       b.backward(db, z);
     }
