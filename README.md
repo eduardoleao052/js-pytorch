@@ -23,6 +23,7 @@
 # PyTorch in JavaScript
 
 - JS-PyTorch is a Deep Learning **JavaScript library** built from scratch, to closely follow PyTorch's syntax.
+- This library has **GPU support**, using GPU.js.
 - It contains a fully functional [Tensor](src/tensor.ts) object, which can track gradients, Deep Learning [Layers](src/layers.ts) and functions, and an **Automatic Differentiation** engine.
 - Feel free to try out the <a href="https://eduardoleao052.github.io/js-pytorch/assets/demo/demo.html" target="blank">Web Demo</a>!
 
