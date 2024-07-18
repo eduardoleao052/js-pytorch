@@ -1964,8 +1964,8 @@ export function randn(
 ): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => {
-      const mean = Math.random() + 0.00001;
-      const variance = Math.random() + 0.00001;
+      const mean = Math.random() * 0.98 + 1e-3;
+      const variance = Math.random() * 0.98 + 1e-3;;
       const num =
         Math.sqrt(-2.0 * Math.log(mean)) * Math.cos(2.0 * Math.PI * variance);
       if (xavier) {

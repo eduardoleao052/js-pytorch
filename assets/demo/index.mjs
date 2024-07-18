@@ -1411,8 +1411,8 @@ function rand(shape, requires_grad = false, device = "cpu") {
 function randn(shape, requires_grad = false, xavier = false, device = "cpu") {
   return new Tensor(
     _tensorInitializer(shape, () => {
-      const mean2 = Math.random() + 1e-5;
-      const variance2 = Math.random() + 1e-5;
+      const mean2 = Math.random() * 0.98 + 1e-3;
+      const variance2 = Math.random() * 0.98 + 1e-3;
       const num = Math.sqrt(-2 * Math.log(mean2)) * Math.cos(2 * Math.PI * variance2);
       if (xavier) {
         return num / Math.sqrt(shape[0]);
@@ -1652,7 +1652,7 @@ class MultiHeadSelfAttention extends Module {
     v = v.reshape([B, T, nh, H]).transpose(1, 2);
     const kT = k.transpose(-2, -1);
     let att = q.matmul(kT);
-    att = att.div(H ** 0.5);
+    att = att.div(H ** 2);
     const mask = broadcast(this.mask, att);
     att = att.masked_fill(mask, (el) => el === 0, -Infinity);
     att = this.softmax.forward(att, -1);

@@ -197,7 +197,7 @@ export class MultiHeadSelfAttention extends Module {
     let att = q.matmul(kT); // (B, nh, T, H) @ (B, nh, H, T) -> (B, nh, T, T)
 
     // Reduce module before going into softmax:
-    att = att.div(H ** 0.5);
+    att = att.div(H ** 2);
 
     // Apply mask (to block out future characters), softmax, and dropout:
     const mask = broadcast(this.mask, att);
