@@ -23,7 +23,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "pkgroll && copyfiles -u 1 ./dist/*.mjs ./assets/demo",
+    "build": "pkgroll && copyfiles -u 1 ./dist/*.mjs",
     "format": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "lint": "eslint . --ext .ts",
     "watch": "pkgroll --watch",
