@@ -55,6 +55,9 @@
     "url": "https://github.com/eduardoleao052/js-torch/issues"
   },
   "homepage": "https://github.com/eduardoleao052/js-torch#readme",
+  "dependencies": {
+    "gpu.js": "1.10.4"
+  },
   "devDependencies": {
     "@babel/core": "^7.24.3",
     "@babel/preset-env": "^7.24.3",

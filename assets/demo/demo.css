@@ -141,6 +141,20 @@ button:active {
     background-color: #821414;
 }
 
+.device-button {
+    width: 10%;
+    background-color: #818181;
+    padding-left: 1%;
+}
+
+.device-button:hover {
+    background-color: #5f5f5f;
+}
+
+.device-button:active {
+    background-color: #3a3a3a;
+}
+
 .icon {
     width: 72%;
     margin: auto;
@@ -201,4 +215,3 @@ input {
     font-size: 16px;
     color:#1b1b1b;
 }
-
