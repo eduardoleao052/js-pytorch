@@ -1,5 +1,3 @@
-const fs = require('fs');
-
 function getShape(data, shape = []) {
   if (data instanceof Array && data.length === 0) {
     return [0];
@@ -54,7 +52,6 @@ function getData(a) {
   return a._data;
 }
 
-const GPU = require("gpu.js");
 class Tensor {
   requires_grad = false;
   _data;
@@ -280,7 +277,7 @@ class Tensor {
     }
     if (other.forwardKernel === null) {
       if (device === "gpu") {
-        const gpu = new GPU();
+        const gpu = new GPU.GPU();
         const kernelFunc = function(a, b, len) {
           let sum2 = 0;
           for (let i = 0; i < len; i++) {

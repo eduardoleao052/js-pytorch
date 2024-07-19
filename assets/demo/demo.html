@@ -6,10 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neural Network Demo</title>
 
-    <script src="bundle.js"></script>
+    <!-- <script src="bundle.js"></script> -->
     <script type="module" src="index.js"></script>
 
-    <link rel="script" href="demo.js">
     <link rel="stylesheet" href="demo.css">
 </head>
 
@@ -101,7 +100,7 @@
             <a target="_blank" href="https://www.linkedin.com/in/eduardo-leao-368bb6259/"><img class="logos" src="../../assets/linkedin.png"  style="width: 25px; height: 25px; display: inline-block; margin-bottom: 0px;"></a>
         </div>
     </div>
-
+    <script src="./gpu-browser.min.js"></script>
     <script>
         let boxCount = [];
         let data = [];
@@ -113,9 +112,8 @@
         let device = 'cpu';
 
         function doMytest() {
-            const GPU = require('gpu.js')
-            const gpu = new GPU();
-            const kernelFunc = function(a, b, len) {
+            const gpu = new GPU.GPU();
+            const kernelFunc = function(a, b) {
             let sum2 = 0;
             for (let i = 0; i < len; i++) {
                 sum2 += a[this.thread.y][i] * b[i][this.thread.x];
@@ -162,7 +160,7 @@
                 inputField.type = 'number';
                 // The next Box has as many neurons as last current Box:
                 inputField.value = boxCount[boxCount.length -1] || '10';
-                inputField.max = '100';
+                inputField.max = '256';
                 inputField.idx = boxCount.length;
                 inputField.id = `box-input`;
                 inputField.onchange = function() {
@@ -183,8 +181,8 @@
         };
 
         function changeDim(el, boxCount) {
-            if (el.value > 100) {
-                el.value = 100;
+            if (el.value > 256) {
+                el.value = 256;
             };
             boxCount[el.idx] = Number(el.value);                
         };
