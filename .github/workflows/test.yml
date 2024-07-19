@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2 # checkout the repo
+      - name: Download dependencies  # execute tests in tests/
+        run: |
+          npm install
       - name: Execute tests  # execute tests in tests/
         run: |
           npm run test
