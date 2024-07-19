@@ -86,17 +86,25 @@
   - `src/optim.ts`: Submodule of the framework. Contains Adam Optimizer.
 - `tests/`: Folder with unit tests. Contains `test.ts`.
 
-## 2. Running it Yourself
+## 2. Installation
+
+- On MacOS, Windows, and Ubuntu, you can install the library with `npm install js-pytorch`.
+- On Windows, if you run into an error, you might need to install the latest version of [Visual Studio](https://visualstudio.microsoft.com/downloads/?cid=learn-navbar-download-cta), including the "Desktop development with C++" workload.
+
+## 3. Running it Yourself
 
 ### Simple Autograd Example:
 
 ```typescript
 const { torch } = require("js-pytorch");
 
+// Pass device as an argument to a Tensor or nn.Module (same as PyTorch):
+const device = 'gpu';
+
 // Instantiate Tensors:
 let x = torch.randn([8, 4, 5]);
-let w = torch.randn([8, 5, 4], (requires_grad = true), (device = 'gpu));
-let b = torch.tensor([0.2, 0.5, 0.1, 0.0], (requires_grad = true));
+let w = torch.randn([8, 5, 4], true, device);
+let b = torch.tensor([0.2, 0.5, 0.1, 0.0], true);
 
 // Make calculations:
 let out = torch.matmul(x, w);
@@ -205,7 +213,7 @@ const newModel = torch.load(placeHolder, 'model.json')
 
 <br/>
 
-## 3. Distribution & Devtools
+## 4. Distribution & Devtools
 
 - **Build for Distribution** by running `npm run build`. CJS and ESM modules and `index.d.ts` will be output in the `dist/` folder.
 - **Check the Code** with ESLint at any time, running `npm run lint`.
@@ -213,7 +221,7 @@ const newModel = torch.load(placeHolder, 'model.json')
 - **Performance Benchmarks** are also included in the `tests/benchmarks/` directory. Run all benchmarks with `npm run bench` and save new benchmarks with `npm run bench:update`.
 
 
-## 4. Results
+## 5. Results
 
 - The models implemented in the [unit tests](tests/test.ts) all converged to **near-zero losses**.
 - Run them with `npm test`!
