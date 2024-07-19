@@ -80,10 +80,6 @@
 - `assets/` : Folder to store images and the Demo.
   - `assets/demo/` : JS-PyTorch's [Web Demo](https://eduardoleao052.github.io/js-pytorch/assets/demo/demo.html).
 - `src/` : Framework with JavaScript files.
-  - `src/tensor.ts`: File with the `Tensor` class and all of the tensor `Operations`.
-  - `src/utils.ts`: File with operations and helper functions.
-  - `src/layers.ts`: Submodule of the framework. Contains full layers.
-  - `src/optim.ts`: Submodule of the framework. Contains Adam Optimizer.
 - `tests/`: Folder with unit tests. Contains `test.ts`.
 
 ## 2. Installation
