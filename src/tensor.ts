@@ -1,5 +1,4 @@
-﻿const GPU = require('gpu.js');
-import { getShape, getData, assureArray } from "./utils";
+﻿import { getShape, getData, assureArray } from "./utils";
 
 // <<< Tensor class, holds n-dimensional tensors, and multiple useful methods >>> //
 
@@ -257,6 +256,7 @@ export class Tensor {
     if (this.device === 'gpu' || other.device === 'gpu') { device = 'gpu' } else { device = 'cpu' };
     if (other.forwardKernel === null) { 
       if (device === 'gpu') {
+        const {GPU} = require('gpu.js');
         const gpu = new GPU();
         const kernelFunc = function(this: any, a: number[][], b: number[][], len: number): number {
           let sum = 0;
@@ -638,9 +638,6 @@ class MatMul {
     this.cache = [a, b];
     let aData = a.data;
     let bData = b.data;
-    // ESCOLHER UMA DAS DUAS SEGUINTES, UMA É PADRÃO, OUTRA COM GPU. TEM Q TER UM IF.
-    // ACHO QUE SÓ PRECISA INSTANCIAR KERNEL NO FORWARD. A PARTE nÂO'GPU TALVEZ POSSA FICAR SO NA _MATMUL.
-    // PASSAR TUDO PRA ARQUIVOS SRC TYPESCRIPT!!!! <<<<<<<<
     
     if (a.shape.length < b.shape.length) {
       aData = broadcastUp(aData, bData);
