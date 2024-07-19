@@ -14,6 +14,8 @@
   log,
   _reshape
 } from "./tensor";
+import fs from 'fs';
+
 
 // Interface that contains all the types of Module's attributes:
 interface ModuleInterface {
@@ -95,6 +97,7 @@ export class Module implements ModuleInterface {
  *
  * @param {number} in_size - size of the last dimention of the input array.
  * @param {number} out_size - size of the last dimention of the output array.
+ * @param {string} device - Device to perform Tensor operations. Either "gpu" or "cpu".
  * @param {boolean} bias - wether to include a bias term.
  * @param {boolean} xavier - Wether to use xavier initialization (divide by square root of first input dimension).
  */
@@ -103,9 +106,10 @@ export class Linear extends Module {
   public b: Tensor;
   public has_bias: boolean;
 
-  constructor(in_size: number, out_size: number, bias = true, xavier = true) {
+  constructor(in_size: number, out_size: number, device = 'cpu', bias = true, xavier = true) {
     super();
     this.W = randn([in_size, out_size], true, xavier);
+    this.W.device = device;
     this.b = zeros([out_size], true);
     this.has_bias = bias;
   }
@@ -132,6 +136,7 @@ export class Linear extends Module {
  * @param {number} n_heads - number of parallel heads to be computed (must equally divide in_size).
  * @param {number} n_timesteps - length of text sequence to be processed bt Transformer.
  * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
+ * @param {string} device - Device to perform Tensor operations. Either "gpu" or "cpu".
  */
 export class MultiHeadSelfAttention extends Module {
   public Wk: Linear;
@@ -149,13 +154,14 @@ export class MultiHeadSelfAttention extends Module {
     out_size: number,
     n_heads: number,
     n_timesteps: number,
-    dropout_prob = 0
+    dropout_prob = 0,
+    device = 'cpu'
   ) {
     super();
-    this.Wk = new Linear(in_size, in_size, false, true);
-    this.Wq = new Linear(in_size, in_size, false, true);
-    this.Wv = new Linear(in_size, in_size, false, true);
-    this.residual_proj = new Linear(in_size, out_size, false, true);
+    this.Wk = new Linear(in_size, in_size, device, true, false);
+    this.Wq = new Linear(in_size, in_size, device, true, false);
+    this.Wv = new Linear(in_size, in_size, device, true, false);
+    this.residual_proj = new Linear(in_size, out_size, device, true, false);
     this.mask = tril([n_timesteps, n_timesteps], false);
     this.att_dropout = new Dropout(dropout_prob);
     this.residual_dropout = new Dropout(dropout_prob);
@@ -193,7 +199,7 @@ export class MultiHeadSelfAttention extends Module {
     let att = q.matmul(kT); // (B, nh, T, H) @ (B, nh, H, T) -> (B, nh, T, T)
 
     // Reduce module before going into softmax:
-    att = att.div(H ** 0.5);
+    att = att.div(H ** 2);
 
     // Apply mask (to block out future characters), softmax, and dropout:
     const mask = broadcast(this.mask, att);
@@ -221,6 +227,8 @@ export class MultiHeadSelfAttention extends Module {
  * @param {number} in_size - size of the last dimention of the input array.
  * @param {number} out_size - size of the last dimention of the output array.
  * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
+ * @param {string} device - Device to perform Tensor operations. Either "gpu" or "cpu".
+ * @param {boolean} bias - wether to include a bias term.
  */
 export class FullyConnected extends Module {
   public l1: Linear;
@@ -228,10 +236,10 @@ export class FullyConnected extends Module {
   public l2: Linear;
   public dropout: Dropout;
 
-  constructor(in_size: number, out_size: number, dropout_prob = 0) {
+  constructor(in_size: number, out_size: number, dropout_prob = 0, device: string = 'cpu', bias: boolean = true) {
     super();
 
-    this.l1 = new Linear(in_size, in_size * 2);
+    this.l1 = new Linear(in_size, in_size * 2, device, true, bias);
     this.relu = new ReLU();
     this.l2 = new Linear(in_size * 2, out_size);
     this.dropout = new Dropout(dropout_prob);
@@ -259,6 +267,7 @@ export class FullyConnected extends Module {
  * @param {number} n_heads - number of parallel heads to be computed (must equally divide in_size).
  * @param {number} n_timesteps - length of text sequence to be processed bt Transformer.
  * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
+ * @param {string} device - Device to perform Tensor operations. Either "gpu" or "cpu".
  */
 export class Block extends Module {
   public att: MultiHeadSelfAttention;
@@ -271,7 +280,8 @@ export class Block extends Module {
     out_size: number,
     n_heads: number,
     n_timesteps: number,
-    dropout_prob = 0
+    dropout_prob = 0,
+    device = 'cpu'
   ) {
     super();
     this.att = new MultiHeadSelfAttention(
@@ -279,10 +289,11 @@ export class Block extends Module {
       in_size,
       n_heads,
       n_timesteps,
-      dropout_prob
+      dropout_prob,
+      device
     );
     this.ln1 = new LayerNorm(in_size);
-    this.fcc = new FullyConnected(in_size, out_size, dropout_prob);
+    this.fcc = new FullyConnected(in_size, out_size, dropout_prob, device, true);
     this.ln2 = new LayerNorm(out_size);
   }
 
@@ -527,5 +538,42 @@ export class CrossEntropyLoss extends Module {
     let loss = log_losses.sum(-1).neg();
     loss = loss.div(B);
     return loss;
+  }
+}
+
+/**
+ * Saves the model to a JSON file.
+ * @param {Module} model - Model to be saved in JSON file.
+ * @param {string} file - JSON file.
+ */
+export function save(model: Module, file: string) {
+  const data = JSON.stringify(model);
+  fs.writeFileSync(file, data);
+}
+
+/**
+ * Loads a model from a JSON file.
+ * @param {Module} model - Blank model to load weights into (placeholder). Needs to be identical to model.
+ * @param {string} file - JSON file.
+ * @returns {Module} loadedModel - Model to be loaded from JSON file.
+ */
+export function load(model: Module, file: string): Module {
+  const loadedData = fs.readFileSync(file);
+  let loadedModel = JSON.parse(loadedData.toString());
+  loadParameters(loadedModel, model)
+  return model;  
+}
+
+function loadParameters(source: Module, target: Module) {
+  for (const [key, value] of target.entries()) {
+    // Add every Module, Parameter or Tensor with requires_grad set to True:
+    if (value instanceof Module) {
+      loadParameters(source[key], target[key]);
+    } else if (value instanceof Parameter || value instanceof Tensor) {
+      target[key]._data = source[key]._data;
+      target[key].m = source[key].m;
+      target[key].v = source[key].v;
+
+    }
   }
 }

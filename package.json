@@ -1,6 +1,6 @@
 {
   "name": "js-pytorch",
-  "version": "0.3.4",
+  "version": "0.4.4",
   "description": "A JavaScript library like PyTorch, built from scratch.",
   "type": "module",
   "directories": {
@@ -23,7 +23,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "pkgroll && copyfiles -u 1 ./dist/*.mjs ./assets/demo",
+    "build": "pkgroll && copyfiles -u 1 ./dist/*.mjs",
     "format": "prettier --config .prettierrc 'src/**/*.ts' --write",
     "lint": "eslint . --ext .ts",
     "watch": "pkgroll --watch",
@@ -55,6 +55,14 @@
     "url": "https://github.com/eduardoleao052/js-torch/issues"
   },
   "homepage": "https://github.com/eduardoleao052/js-torch#readme",
+  "dependencies": {
+    "gpu.js": "^2.15.0"
+  },
+  "overrides": {
+    "gpu.js": {
+      "gl": "8.0.2"
+    }
+  },
   "devDependencies": {
     "@babel/core": "^7.24.3",
     "@babel/preset-env": "^7.24.3",

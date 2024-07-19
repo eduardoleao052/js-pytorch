@@ -22,9 +22,12 @@
 
 # PyTorch in JavaScript
 
-- JS-Torch is a Deep Learning **JavaScript library** built from scratch, to closely follow PyTorch's syntax.
-- It contains a fully functional [Tensor](src/tensor.ts) object, which can track gradients, Deep Learning [Layers](src/layers.ts) and functions, and an **Automatic Differentiation** engine.
-- Feel free to try out the <a href="https://eduardoleao052.github.io/js-torch/assets/demo/demo.html" target="blank">Web Demo</a>!
+- JS-PyTorch is a Deep Learning **JavaScript library** built from scratch, to closely follow PyTorch's syntax.
+- This library has **GPU support**, using GPU.js.
+- It contains a gradient-tracking [Tensor](src/tensor.ts) object, Deep Learning [Layers](src/layers.ts) and functions, and an **Automatic Differentiation** engine.
+- Feel free to try out the <a href="https://eduardoleao052.github.io/js-pytorch/assets/demo/demo.html" target="blank">Web Demo</a>!
+
+> **Note:** You can install the package locally with: `npm install js-pytorch`
 
 <br>
 
@@ -72,28 +75,35 @@
 </details>
 <br/>
 
-## 1. Project Structure
+## 1.Table of Contents
 
-- `assets/` : Folder to store images and the Demo.
-  - `assets/demo/` : JS-Torch's [Web Demo](https://eduardoleao052.github.io/js-torch/assets/demo/demo.html).
-- `src/` : Framework with JavaScript files.
-  - `src/tensor.ts`: File with the `Tensor` class and all of the tensor `Operations`.
-  - `src/utils.ts`: File with operations and helper functions.
-  - `src/layers.ts`: Submodule of the framework. Contains full layers.
-  - `src/optim.ts`: Submodule of the framework. Contains Adam Optimizer.
-- `tests/`: Folder with unit tests. Contains `test.ts`.
+* [Installation](#2-installation)
+* [Running it Yourself](#3-Running-it-Yourself)
+  * [Simple Autograd Example](#simple-autograd-example)
+  * [Complex Autograd Example (Transformer)](#complex-autograd-example-transformer)
+  * [Saving and Loading models](#saving-and-loading-models)
+* [Distribution & Devtools](#4-distribution--devtools)
+* [Future Work](#5-future-work)
 
-## 2. Running it Yourself
+## 2. Installation
+
+- On **MacOS**, **Windows**, and **Ubuntu**, you can install the library with `npm install js-pytorch`.
+- On **Windows**, if you run into an error, you might need to install the latest version of [Visual Studio](https://visualstudio.microsoft.com/downloads/?cid=learn-navbar-download-cta), including the "Desktop development with C++" workload.
+
+## 3. Running it Yourself
 
 ### Simple Autograd Example:
 
 ```typescript
-import { torch } from "js-pytorch";
+const { torch } = require("js-pytorch");
+
+// Pass device as an argument to a Tensor or nn.Module (same as PyTorch):
+const device = 'gpu';
 
 // Instantiate Tensors:
 let x = torch.randn([8, 4, 5]);
-let w = torch.randn([8, 5, 4], (requires_grad = true));
-let b = torch.tensor([0.2, 0.5, 0.1, 0.0], (requires_grad = true));
+let w = torch.randn([8, 5, 4], true, device);
+let b = torch.tensor([0.2, 0.5, 0.1, 0.0], true);
 
 // Make calculations:
 let out = torch.matmul(x, w);
@@ -110,31 +120,30 @@ console.log(b.grad);
 ### Complex Autograd Example (Transformer):
 
 ```typescript
-import { torch } from "js-pytorch";
+const { torch } = require("js-pytorch");
 const nn = torch.nn;
+const optim = torch.optim;
+const device = 'gpu';
 
+// Define training hyperparameters:
+const vocab_size = 52;
+const hidden_size = 32;
+const n_timesteps = 16;
+const n_heads = 4;
+const dropout_p = 0;
+const batch_size = 8;
+
+// Create Transformer decoder Module:
 class Transformer extends nn.Module {
-  constructor(vocab_size, hidden_size, n_timesteps, n_heads, p) {
+  constructor(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p, device) {
     super();
     // Instantiate Transformer's Layers:
     this.embed = new nn.Embedding(vocab_size, hidden_size);
     this.pos_embed = new nn.PositionalEmbedding(n_timesteps, hidden_size);
-    this.b1 = new nn.Block(
-      hidden_size,
-      hidden_size,
-      n_heads,
-      n_timesteps,
-      (dropout_p = p)
-    );
-    this.b2 = new nn.Block(
-      hidden_size,
-      hidden_size,
-      n_heads,
-      n_timesteps,
-      (dropout_p = p)
-    );
+    this.b1 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p, device);
+    this.b2 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p, device);
     this.ln = new nn.LayerNorm(hidden_size);
-    this.linear = new nn.Linear(hidden_size, vocab_size);
+    this.linear = new nn.Linear(hidden_size, vocab_size, device);
   }
 
   forward(x) {
@@ -149,13 +158,7 @@ class Transformer extends nn.Module {
 }
 
 // Instantiate your custom nn.Module:
-const model = new Transformer(
-  vocab_size,
-  hidden_size,
-  n_timesteps,
-  n_heads,
-  dropout_p
-);
+const model = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p, device);
 
 // Define loss function and optimizer:
 const loss_func = new nn.CrossEntropyLoss();
@@ -182,28 +185,46 @@ for (let i = 0; i < 40; i++) {
 
   // Reset the gradients to zero after each training step:
   optimizer.zero_grad();
+
+  // Print loss at every iteration:
+  console.log(`Iter ${i} - Loss ${loss.data[0].toFixed(4)}`)
 }
 ```
 
-> **Note:** You can install the package locally with: `npm install js-pytorch`
+### Saving and Loading models:
+
+```typescript
+// Instantiate your model:
+const model = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p);
+
+// Train the model:
+trainModel(model);
+
+// Save model to JSON file:
+torch.save(model, 'model.json')
+
+// To load, instantiate placeHolder using the original model's architecture:
+const placeHolder = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p);
+
+// Load weights into placeHolder:
+const newModel = torch.load(placeHolder, 'model.json')
+```
+
 
 <br/>
 
-## 3. Distribution & Devtools
+## 4. Distribution & Devtools
 
-- To **Build for Distribution**, run `npm run build`. CJS and ESM modules and `index.d.ts` will be output in the `dist/` folder.
-- To check the code with **ESLint** at any time, run `npm run lint`.
-- To improve code formatting with **prettier**, run `npm run prettier`.
+- **Build for Distribution** by running `npm run build`. CJS and ESM modules and `index.d.ts` will be output in the `dist/` folder.
+- **Check the Code** with ESLint at any time, running `npm run lint`.
+- **Run tests** run `npm test`.
+- **Improve Code Formatting** with prettier, running `npm run prettier`.
+- **Performance Benchmarks** are also included in the `tests/benchmarks/` directory. Run all benchmarks with `npm run bench` and save new benchmarks with `npm run bench:update`.
 
-## 4. Results
 
-- The models implemented in the [unit tests](tests/test.ts) all converged to **near-zero losses**.
-- Run them with `npm test`!
+## 5. Future Work
+
 - This package is not as optimized as PyTorch yet, but I tried making it more interpretable. Efficiency improvements are incoming!
+- Feel free to **contribute**! Create a merge request to the `develop` branch, and also feel free to reach out. I will try to answer as soon as possible.
 - Hope you enjoy!
 
-## 5. Benchmarks
-
-- Performance benchmarks are also included and tracked in the `tests/benchmarks/` directory.
-- Run all benchmarks with `npm run bench`
-- Save new benchmarks with `npm run bench:update` and add the updated files to your commit.

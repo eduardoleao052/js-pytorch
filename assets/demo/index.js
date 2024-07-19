@@ -1,11 +1,16 @@
+const fs = require('fs');
+
 function getShape(data, shape = []) {
+  if (data instanceof Array && data.length === 0) {
+    return [0];
+  }
   if (typeof data === "number") {
     if (JSON.stringify(shape) === "[]") {
       return [1];
     }
     return shape;
   }
-  if (typeof data[0] === "number") {
+  if (typeof data[0] === "number" && Array.isArray(data)) {
     for (const element of data) {
       if (typeof element != "number") {
         throw new Error("The requested array has an inhomogeneous shape.");
@@ -14,17 +19,19 @@ function getShape(data, shape = []) {
     shape.push(data.length);
     return shape;
   }
-  let elementLength = data[0].length;
-  for (const element of data) {
-    if (elementLength != element.length) {
-      throw new Error("The requested array has an inhomogeneous shape.");
+  if (Array.isArray(data[0])) {
+    let elementLength = data[0].length;
+    for (const element of data) {
+      if (typeof element != "object" && typeof element != "number") {
+        throw new Error("TypeError: the input data is not a number.");
+      } else if (Array.isArray(element) && elementLength != element.length) {
+        throw new Error("The requested array has an inhomogeneous shape.");
+      } else if (Array.isArray(element)) {
+        elementLength = element.length;
+      }
     }
-    elementLength = element.length;
-    if (typeof element != "object" && typeof element != "number") {
-      throw new Error("TypeError: the input data is not a number.");
-    }
+    shape.push(data.length);
   }
-  shape.push(data.length);
   return getShape(data[0], shape);
 }
 function assureArray(a) {
@@ -58,12 +65,17 @@ class Tensor {
   visited = false;
   m;
   v;
+  device;
+  forwardKernel;
+  backwardKernelA;
+  backwardKernelB;
   /**
    * Creates new instance of the Tensor class.
    * @param {object} data - Iterable containing the data to be stored in the Tensor.
    * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
+   * @param {string} device - Device to store Tensor. Either "gpu" or "cpu".
    */
-  constructor(data, requires_grad = false) {
+  constructor(data, requires_grad = false, device = "cpu") {
     if (typeof data === "object") {
       this._data = data;
     } else if (typeof data === "number") {
@@ -72,7 +84,9 @@ class Tensor {
       throw Error('Your argument "data" is not a number or an iterable.');
     }
     this.shape = getShape(data);
+    this.device = device;
     this.requires_grad = requires_grad;
+    this.forwardKernel = null;
     if (this.requires_grad) {
       this._grad = zeros(this.shape);
     }
@@ -127,6 +141,15 @@ class Tensor {
         this.operation.backward(this._grad, this);
       }
     }
+  }
+  /**
+   * Sends this Tensor to the provided device.
+   * @param {string} device - Device to store Tensor. Either "gpu" or "cpu".
+   * @param {boolean} requires_grad - Whether to keep track of this tensor's gradients.
+   * @param {string} device - gpu or cpu: device to store Tensor.
+   */
+  to(device) {
+    this.device = device;
   }
   /**
    * Reset this Tensor's gradients to zero.
@@ -234,8 +257,8 @@ class Tensor {
   }
   /**
    * Divide this Tensor by integer or other Tensor.
-   * @param {any} other - Tensor or integer to divide this Tensor by.
-   * @returns {object} New tensor.
+   * @param {Tensor | number} other - Tensor or integer to divide this Tensor by.
+   * @returns {Tensor} New tensor.
    */
   div(other) {
     const operation = new Div();
@@ -244,10 +267,48 @@ class Tensor {
   /**
    * Multiply this Tensor by integer or other Tensor.
    * @param {Tensor | number} other - Tensor or integer to multiply this Tensor by.
-   * @returns {object} New tensor.
+   * @returns {Tensor} New tensor.
    */
   matmul(other) {
     const operation = new MatMul();
+    let device;
+    if (this.device === "gpu" || other.device === "gpu") {
+      device = "gpu";
+    } else {
+      device = "cpu";
+    }
+    if (other.forwardKernel === null) {
+      if (device === "gpu") {
+        const gpu = new GPU.GPU();
+        const kernelFunc = function(a, b, len) {
+          let sum2 = 0;
+          for (let i = 0; i < len; i++) {
+            sum2 += a[this.thread.y][i] * b[i][this.thread.x];
+          }
+          return sum2;
+        };
+        other.forwardKernel = gpu.createKernel(kernelFunc, { loopMaxIterations: other.shape.at(-2) }).setOutput([other.shape.at(-1), this.shape.at(-2)]);
+        other.backwardKernelA = gpu.createKernel(kernelFunc, { loopMaxIterations: other.shape.at(-1) }).setOutput([this.shape.at(-1), this.shape.at(-2)]);
+        other.backwardKernelB = gpu.createKernel(kernelFunc, { loopMaxIterations: this.shape.at(-2) }).setOutput([other.shape.at(-1), other.shape.at(-2)]);
+      } else {
+        const kernelFunc = function(a, b, len) {
+          const out = Array(a.length).fill(0).map(() => Array(b[0].length).fill(0));
+          for (let i = 0; i < a.length; i++) {
+            for (let j = 0; j < b[0].length; j++) {
+              let currentIndex = 0;
+              for (let k = 0; k < len; k++) {
+                currentIndex += a[i][k] * b[k][j];
+              }
+              out[i][j] = currentIndex;
+            }
+          }
+          return out;
+        };
+        other.forwardKernel = kernelFunc;
+        other.backwardKernelA = kernelFunc;
+        other.backwardKernelB = kernelFunc;
+      }
+    }
     return operation.forward(this, other);
   }
   /**
@@ -510,6 +571,8 @@ class Div {
 }
 class MatMul {
   cache;
+  kernelFunc;
+  thread;
   forward(a, b) {
     this.cache = [a, b];
     let aData = a.data;
@@ -520,7 +583,7 @@ class MatMul {
       bData = broadcastUp(bData, aData);
     }
     const z = new Tensor(
-      _matmul(aData, bData),
+      _matmul(aData, bData, b.forwardKernel),
       // data;
       requiresGrad(a) || requiresGrad(b)
       // requires_grad;
@@ -542,7 +605,7 @@ class MatMul {
       const dzData = dz.data;
       let b_T = _transpose(b.data, b.ndims - 2);
       b_T = broadcastUp(b_T, dzData);
-      let da = new Tensor(_matmul(dzData, b_T));
+      let da = new Tensor(_matmul(dzData, b_T, b.backwardKernelA));
       da = broadcast(da, a);
       a.backward(da, z);
     }
@@ -550,7 +613,7 @@ class MatMul {
       const dzData = dz.data;
       let a_T = _transpose(a.data, a.ndims - 2);
       a_T = broadcastUp(a_T, dzData);
-      let db = new Tensor(_matmul(a_T, dzData));
+      let db = new Tensor(_matmul(a_T, dzData, b.backwardKernelB));
       db = broadcast(db, b);
       b.backward(db, z);
     }
@@ -697,7 +760,7 @@ class Sum {
       throw Error("Dimension larger than array.");
     }
     const z = new Tensor(
-      _sum(a._data, dim, keepdims = keepdims),
+      _sum(a._data, dim, keepdims),
       // New data.
       requiresGrad(a)
       // requires_grad.
@@ -1176,24 +1239,18 @@ function _div(a, b) {
     }
   }
 }
-function _matmul(a, b) {
+function _matmul(a, b, kernel) {
   if (typeof a === "number") {
     throw new Error("Cannot perform MatMul with given shapes.");
   }
   if (typeof a[0][0] === "object") {
-    return a.map((element, idx) => _matmul(element, b[idx]));
+    return a.map(
+      (element, idx) => _matmul(element, b[idx], kernel)
+    );
   } else {
     if (a[0].length === b.length && typeof a[0][0] === "number") {
-      const out = Array(a.length).fill(0).map(() => Array(b[0].length).fill(0));
-      for (let i = 0; i < a.length; i++) {
-        for (let j = 0; j < b[0].length; j++) {
-          let currentIndex = 0;
-          for (let k = 0; k < b.length; k++) {
-            currentIndex += a[i][k] * b[k][j];
-          }
-          out[i][j] = currentIndex;
-        }
-      }
+      let out = kernel(a, b, b.length);
+      out = out.map((el) => Array.from(el));
       return out;
     } else {
       throw Error(
@@ -1280,17 +1337,24 @@ function _masked_fill(a, mask, condition, value) {
   }
 }
 function _reshape(a, shape) {
-  function _build(a2, shape2) {
+  if (getShape(a).reduce((a2, b) => a2 * b, 1) != shape.reduce((a2, b) => a2 * b, 1)) {
+    throw new Error("Attempting to reshape into invalid shape.");
+  }
+  function _build(a2, shape2, idx, numberOfEls) {
     if (shape2.length > 1) {
       const emptyArray = Array(shape2[0]).fill(0);
-      return emptyArray.map(() => _build(a2, shape2.slice(1)));
+      let offSet = idx;
+      numberOfEls = numberOfEls / shape2[0];
+      const myArray = emptyArray.map((_, idx2) => _build(a2, shape2.slice(1), offSet + idx2 * numberOfEls, numberOfEls));
+      return myArray;
     } else {
-      const emptyArray = Array(shape2[0]).fill(0);
-      return emptyArray.map(() => a2.shift());
+      const myArray = a2.slice(idx, idx + numberOfEls);
+      return myArray;
     }
   }
   const flat = a.flat(Infinity);
-  return _build(flat, shape);
+  const built = _build(flat, shape, 0, flat.length);
+  return built;
 }
 function _tensorInitializer(shape, valueFunc) {
   if (shape.length === 1) {
@@ -1302,22 +1366,24 @@ function _tensorInitializer(shape, valueFunc) {
     return emptyArray.map(() => _tensorInitializer(shape.slice(1), valueFunc));
   }
 }
-function tensor(data, requires_grad = false) {
-  return new Tensor(data, requires_grad);
+function tensor(data, requires_grad = false, device = "cpu") {
+  return new Tensor(data, requires_grad, device);
 }
-function zeros(shape, requires_grad = false) {
+function zeros(shape, requires_grad = false, device = "cpu") {
   return new Tensor(
     _tensorInitializer(shape, () => 0),
-    requires_grad
+    requires_grad,
+    device
   );
 }
-function ones(shape, requires_grad = false) {
+function ones(shape, requires_grad = false, device = "cpu") {
   return new Tensor(
     _tensorInitializer(shape, () => 1),
-    requires_grad
+    requires_grad,
+    device
   );
 }
-function tril(shape, requires_grad = false) {
+function tril(shape, requires_grad = false, device = "cpu") {
   const z = ones(shape, requires_grad);
   for (let i = 0; i < shape[0]; i++) {
     for (let j = 0; j < shape[0]; j++) {
@@ -1326,19 +1392,20 @@ function tril(shape, requires_grad = false) {
       }
     }
   }
-  return new Tensor(z._data, requires_grad);
+  return new Tensor(z._data, requires_grad, device);
 }
-function rand(shape, requires_grad = false) {
+function rand(shape, requires_grad = false, device = "cpu") {
   return new Tensor(
     _tensorInitializer(shape, () => Math.random()),
-    requires_grad
+    requires_grad,
+    device
   );
 }
-function randn(shape, requires_grad = false, xavier = false) {
+function randn(shape, requires_grad = false, xavier = false, device = "cpu") {
   return new Tensor(
     _tensorInitializer(shape, () => {
-      const mean2 = Math.random() + 1e-5;
-      const variance2 = Math.random() + 1e-5;
+      const mean2 = Math.random() * 0.98 + 1e-3;
+      const variance2 = Math.random() * 0.98 + 1e-3;
       const num = Math.sqrt(-2 * Math.log(mean2)) * Math.cos(2 * Math.PI * variance2);
       if (xavier) {
         return num / Math.sqrt(shape[0]);
@@ -1346,7 +1413,8 @@ function randn(shape, requires_grad = false, xavier = false) {
         return num;
       }
     }),
-    requires_grad
+    requires_grad,
+    device
   );
 }
 function randint(low = 0, high = 1, shape = [1], requires_grad = false) {
@@ -1354,7 +1422,7 @@ function randint(low = 0, high = 1, shape = [1], requires_grad = false) {
     _tensorInitializer(shape, () => {
       return Math.floor(Math.random() * (high - low)) + low;
     }),
-    requires_grad = requires_grad
+    requires_grad
   );
 }
 function requiresGrad(a) {
@@ -1512,17 +1580,13 @@ class Module {
   }
 }
 class Linear extends Module {
-  /**
-   * Simple linear layer, with weight matrix and optional bias. Does not contain nonlinearity.
-   *
-   * @param {number} in_size - size of the last dimention of the input array.
-   * @param {number} out_size - size of the last dimention of the output array.
-   * @param {boolean} bias - wether to include a bias term.
-   * @param {boolean} xavier - Wether to use xavier initialization (divide by square root of first input dimension).
-   */
-  constructor(in_size, out_size, bias = true, xavier = true) {
+  W;
+  b;
+  has_bias;
+  constructor(in_size, out_size, device = "cpu", bias = true, xavier = true) {
     super();
     this.W = randn([in_size, out_size], true, xavier);
+    this.W.device = device;
     this.b = zeros([out_size], true);
     this.has_bias = bias;
   }
@@ -1540,21 +1604,21 @@ class Linear extends Module {
   }
 }
 class MultiHeadSelfAttention extends Module {
-  /**
-   * Full transformer Layer implementation.
-   *
-   * @param {number} in_size - size of the last dimention of the input array.
-   * @param {number} out_size - size of the last dimention of the output array.
-   * @param {number} n_heads - number of parallel heads to be computed (must equally divide in_size).
-   * @param {number} n_timesteps - length of text sequence to be processed bt Transformer.
-   * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
-   */
-  constructor(in_size, out_size, n_heads, n_timesteps, dropout_prob = 0) {
+  Wk;
+  Wq;
+  Wv;
+  residual_proj;
+  mask;
+  att_dropout;
+  residual_dropout;
+  softmax;
+  H;
+  constructor(in_size, out_size, n_heads, n_timesteps, dropout_prob = 0, device = "cpu") {
     super();
-    this.Wk = new Linear(in_size, in_size, false, true);
-    this.Wq = new Linear(in_size, in_size, false, true);
-    this.Wv = new Linear(in_size, in_size, false, true);
-    this.residual_proj = new Linear(in_size, out_size, false, true);
+    this.Wk = new Linear(in_size, in_size, device, true, false);
+    this.Wq = new Linear(in_size, in_size, device, true, false);
+    this.Wv = new Linear(in_size, in_size, device, true, false);
+    this.residual_proj = new Linear(in_size, out_size, device, true, false);
     this.mask = tril([n_timesteps, n_timesteps], false);
     this.att_dropout = new Dropout(dropout_prob);
     this.residual_dropout = new Dropout(dropout_prob);
@@ -1581,7 +1645,7 @@ class MultiHeadSelfAttention extends Module {
     v = v.reshape([B, T, nh, H]).transpose(1, 2);
     const kT = k.transpose(-2, -1);
     let att = q.matmul(kT);
-    att = att.div(H ** 0.5);
+    att = att.div(H ** 2);
     const mask = broadcast(this.mask, att);
     att = att.masked_fill(mask, (el) => el === 0, -Infinity);
     att = this.softmax.forward(att, -1);
@@ -1594,16 +1658,13 @@ class MultiHeadSelfAttention extends Module {
   }
 }
 class FullyConnected extends Module {
-  /**
-   * Small block composed of two Linear layers, a ReLU non-linearity and a Dropout layer.
-   *
-   * @param {number} in_size - size of the last dimention of the input array.
-   * @param {number} out_size - size of the last dimention of the output array.
-   * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
-   */
-  constructor(in_size, out_size, dropout_prob = 0) {
+  l1;
+  relu;
+  l2;
+  dropout;
+  constructor(in_size, out_size, dropout_prob = 0, device = "cpu", bias = true) {
     super();
-    this.l1 = new Linear(in_size, in_size * 2);
+    this.l1 = new Linear(in_size, in_size * 2, device, true, bias);
     this.relu = new ReLU();
     this.l2 = new Linear(in_size * 2, out_size);
     this.dropout = new Dropout(dropout_prob);
@@ -1622,26 +1683,22 @@ class FullyConnected extends Module {
   }
 }
 class Block extends Module {
-  /**
-   * Full transformer decoder block. Composed of Multi Head Self Attention, Fully connected layers and Layer Norms.
-   *
-   * @param {number} in_size - size of the last dimention of the input array.
-   * @param {number} out_size - size of the last dimention of the output array.
-   * @param {number} n_heads - number of parallel heads to be computed (must equally divide in_size).
-   * @param {number} n_timesteps - length of text sequence to be processed bt Transformer.
-   * @param {number} dropout_prob - probability of zeroing each activation in dropout Layer.
-   */
-  constructor(in_size, out_size, n_heads, n_timesteps, dropout_prob = 0) {
+  att;
+  ln1;
+  fcc;
+  ln2;
+  constructor(in_size, out_size, n_heads, n_timesteps, dropout_prob = 0, device = "cpu") {
     super();
     this.att = new MultiHeadSelfAttention(
       in_size,
       in_size,
       n_heads,
       n_timesteps,
-      dropout_prob
+      dropout_prob,
+      device
     );
     this.ln1 = new LayerNorm(in_size);
-    this.fcc = new FullyConnected(in_size, out_size, dropout_prob);
+    this.fcc = new FullyConnected(in_size, out_size, dropout_prob, device, true);
     this.ln2 = new LayerNorm(out_size);
   }
   /**
@@ -1656,12 +1713,7 @@ class Block extends Module {
   }
 }
 class Embedding extends Module {
-  /**
-   * Embedding class, turns indexes into vectors.
-   *
-   * @param {number} in_size - number of different indexes (vocabulary size).
-   * @param {number} out_size - size of the embedding vector generated.
-   */
+  E;
   constructor(in_size, embed_size) {
     super();
     this.E = randn([in_size, embed_size], true, false);
@@ -1679,12 +1731,7 @@ class Embedding extends Module {
   }
 }
 class PositionalEmbedding extends Module {
-  /**
-   * Embedding class, turns indexes into vectors.
-   *
-   * @param {number} n_timesteps - number of different embeddings (number of timesteps in each instance in batch).
-   * @param {number} embed_size - size of the embedding vector generated.
-   */
+  E;
   constructor(n_timesteps, embed_size) {
     super();
     this.E = randn([n_timesteps, embed_size], true, false);
@@ -1701,9 +1748,6 @@ class PositionalEmbedding extends Module {
   }
 }
 class ReLU extends Module {
-  /**
-   * Rectified Linear Unit nonlinearity. Returns z if z>0 else 0.
-   */
   constructor() {
     super();
   }
@@ -1733,9 +1777,6 @@ class ReLU extends Module {
   }
 }
 class Softmax extends Module {
-  /**
-   * Softmax nonlinearity class. Returns distribution of values (sum=1).
-   */
   constructor() {
     super();
   }
@@ -1752,11 +1793,7 @@ class Softmax extends Module {
   }
 }
 class Dropout extends Module {
-  /**
-   * Dropout class, added usually after other layers, to drop values to zero with given probability
-   *
-   * @param {number} drop_prob - probability to drop each value in input.
-   */
+  p;
   constructor(drop_prob) {
     super();
     this.p = drop_prob;
@@ -1784,11 +1821,8 @@ class Dropout extends Module {
   }
 }
 class LayerNorm extends Module {
-  /**
-   * Layer Norm class, added usually after other layers to normalize across all of the output.
-   *
-   * @param {number} n_embed - size of the last dimention of the input.
-   */
+  gamma;
+  beta;
   constructor(n_embed) {
     super();
     this.gamma = ones([n_embed], true);
@@ -1802,9 +1836,6 @@ class LayerNorm extends Module {
   }
 }
 class CrossEntropyLoss extends Module {
-  /**
-   * Cross Entropy Loss class, returns the loss given the output and the expected indexes.
-   */
   constructor() {
     super();
   }
@@ -1823,12 +1854,33 @@ class CrossEntropyLoss extends Module {
     const logitsExp = exp(z);
     const logitsSum = logitsExp.sum(1, true);
     const logits = logitsExp.div(logitsSum);
-    let y_array = _reshape(y.data, [B]);
+    const y_array = _reshape(y.data, [B]);
     const at_logits = logits.at([...Array(B).keys()], y_array);
     const log_losses = log(at_logits);
     let loss = log_losses.sum(-1).neg();
     loss = loss.div(B);
     return loss;
+  }
+}
+function save(model, file) {
+  const data = JSON.stringify(model);
+  fs.writeFileSync(file, data);
+}
+function load(model, file) {
+  const loadedData = fs.readFileSync(file);
+  let loadedModel = JSON.parse(loadedData.toString());
+  loadParameters(loadedModel, model);
+  return model;
+}
+function loadParameters(source, target) {
+  for (const [key, value] of target.entries()) {
+    if (value instanceof Module) {
+      loadParameters(source[key], target[key]);
+    } else if (value instanceof Parameter || value instanceof Tensor) {
+      target[key]._data = source[key]._data;
+      target[key].m = source[key].m;
+      target[key].v = source[key].v;
+    }
   }
 }
 
@@ -1840,14 +1892,6 @@ class Adam {
   b1;
   b2;
   eps;
-  /**
-   * Adam optimizer class.
-   * @param {(Parameter | Tensor)[]} params - List of all Parameter or Tensor (with requires_grad = True) to be optimized by Adam. "params" is usually set to nn.Module.parameters(), which automatically returns all parameters in a list form.
-   * @param {number} lr - Scalar multiplying each learning step, controls speed of learning.
-   * @param {number} reg - Scalar controling strength l2 regularization.
-   * @param {(number)[]} betas - Two scalar floats controling how slowly the optimizer changes the "m" and "v" attributes.
-   * @param {number} eps - Scalar added to denominator to stop it from ever going to zero.
-   */
   constructor(params, lr = 1e-3, reg = 0, betas = [0.9, 0.99], eps = 1e-9) {
     this.params = params;
     this.lr = lr;
@@ -1928,9 +1972,12 @@ const torch = {
   ones,
   zeros,
   broadcast,
+  save,
+  load,
   // Add submodules:
   nn,
-  optim
+  optim,
+  getShape
 };
 
 export { torch };

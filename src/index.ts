@@ -38,9 +38,12 @@ import {
   Softmax,
   Dropout,
   LayerNorm,
-  CrossEntropyLoss
+  CrossEntropyLoss,
+  save,
+  load
 } from "./layers.js";
 import { Adam } from "./optim.js";
+import { getShape } from "./utils.js";
 
 const nn = {
   Module,
@@ -87,7 +90,10 @@ export const torch = {
   ones,
   zeros,
   broadcast,
+  save,
+  load,
   // Add submodules:
   nn,
-  optim
+  optim,
+  getShape
 };

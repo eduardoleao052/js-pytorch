@@ -6,28 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neural Network Demo</title>
 
-    <script type="module" src="index.mjs"></script>
+    <script src="bundle.js"></script>
+    <script type="module" src="index.js"></script>
 
-    <link rel="script" href="demo.js">
     <link rel="stylesheet" href="demo.css">
 </head>
 
 <body>
     <script type="module">
-        import { torch } from './index.mjs';
+        import { torch } from './index.js';
         window.torch = torch;
     </script>
 
     <div style="height: 20px;"></div>
     <div class="container">
         <div class="separator" id="right-separator" style="display: block; padding-bottom: 0px;">
-            <img style="display: block;" class='icon' src="../../assets/icon_gray_bg.png">
-            <a target="_blank" href="https://github.com/eduardoleao052/js-torch"> <img class="logos" src="../../assets/github.png" style="width: 25px; height: 25px; display: inline-block; margin-bottom: 5px;"></a>
+            <img style="display: block;" class='icon' src="../../assets/demo_logo.png">
+            <a target="_blank" href="https://github.com/eduardoleao052/js-pytorch"> <img class="logos" src="../../assets/github.png" style="width: 25px; height: 25px; display: inline-block; margin-bottom: 5px;"></a>
             <a target="_blank" href="https://www.linkedin.com/in/eduardo-leao-368bb6259/"> <img class="logos" src="../../assets/linkedin.png" style="width: 25px; height: 25px; display: inline-block; margin-bottom: 5px;"></a>
         </div>
     
         <div class="separator" id="right-separator" style="margin-top: 10px; display: block;">
-            <p style="display: block; font-size: 16px; color: #292929; margin-bottom: 25px;">Welcome to <b>JS-Torch's Web Demo</b>! You can choose the <b>Model Hyperparameters</b> on the left, set the <b>Model Layers</b> on the right (number of layers and hidden dimension on each). </p>
+            <p style="display: block; font-size: 16px; color: #292929; margin-bottom: 25px;">Welcome to <b>JS-PyTorch's Web Demo</b>! You can choose the <b>Model Hyperparameters</b> on the left, set the <b>Model Layers</b> on the right (number of layers and hidden dimension on each). </p>
             <ul> 
                 <li>This model was trained on a <b>Dummy dataset</b>, composed of <b>randomly generated images</b>. </li>
                 <br>
@@ -78,6 +78,9 @@
                 <button id="start-button" onclick="trainLoopInitializer()">Train</button>
                 <button id="stop-button" onclick="pauseTraining()">Pause</button>
                 <button id="reset-button" onclick="resetTraining()">Reset</button>
+                <div style="width: 25px; display: inline-block;"></div>
+                <button id="cpu-trigger" class="device-button" onclick="CPUCaller()">CPU</button>
+                <button id="gpu-trigger" class="device-button" onclick="GPUCaller()">GPU</button>
             </div>
         </div>
     </div>
@@ -90,13 +93,14 @@
             <p id="iter"> <b>Iteration:</b> </p>
             <p id="total-visited"> <b>Total Training Examples:</b> </p>
             <p id="loss"> <b>Loss:</b> </p>
+            <p id="device-showcase"> <b>Device:</b> </p>
         </div>
         <divs tyle="display: inline-block;">
-            <a target="_blank" href="https://github.com/eduardoleao052/js-torch"><img class="logos" src="../../assets/github.png"  style="width: 25px; height: 25px; display: inline-block; margin-bottom: 0px;"></a>
+            <a target="_blank" href="https://github.com/eduardoleao052/js-pytorch"><img class="logos" src="../../assets/github.png"  style="width: 25px; height: 25px; display: inline-block; margin-bottom: 0px;"></a>
             <a target="_blank" href="https://www.linkedin.com/in/eduardo-leao-368bb6259/"><img class="logos" src="../../assets/linkedin.png"  style="width: 25px; height: 25px; display: inline-block; margin-bottom: 0px;"></a>
         </div>
     </div>
-
+    <script src="./gpu-browser.min.js"></script>
     <script>
         let boxCount = [];
         let data = [];
@@ -105,6 +109,43 @@
         let overFlow = 1;
         let iter = 0;
         let total_visited = 0;
+        let device = 'cpu';
+
+        function doMytest() {
+            const gpu = new GPU.GPU();
+            const kernelFunc = function(a, b) {
+            let sum2 = 0;
+            for (let i = 0; i < len; i++) {
+                sum2 += a[this.thread.y][i] * b[i][this.thread.x];
+            }
+            return sum2;
+            };
+            let forwardKernel = gpu.createKernel(kernelFunc, { loopMaxIterations: 512 }).setOutput([512, 512]);
+            let a = torch.randn([512,512])
+            let b = torch.randn([512,512])
+            let c = forwardKernel(a.data, b.data)
+            console.log(c)
+        }
+
+        function GPUCaller() {
+            if (!training) {
+                device = 'gpu';
+                let _cpu = document.getElementById('cpu-trigger');
+                let _gpu = document.getElementById('gpu-trigger');
+                _gpu.style.backgroundColor = '#3e3e3e';
+                _cpu.style.backgroundColor = '';
+            }
+        }
+        function CPUCaller() {
+            if (!training) {
+                device = 'cpu';
+                let _cpu = document.getElementById('cpu-trigger');
+                let _gpu = document.getElementById('gpu-trigger');
+                _cpu.style.backgroundColor = '#3e3e3e';
+                _gpu.style.backgroundColor = '';
+            }
+        }
+
 
         function addBox() {
             if (boxCount.length < 5 && !training) {
@@ -119,7 +160,7 @@
                 inputField.type = 'number';
                 // The next Box has as many neurons as last current Box:
                 inputField.value = boxCount[boxCount.length -1] || '10';
-                inputField.max = '100';
+                inputField.max = '256';
                 inputField.idx = boxCount.length;
                 inputField.id = `box-input`;
                 inputField.onchange = function() {
@@ -140,8 +181,8 @@
         };
 
         function changeDim(el, boxCount) {
-            if (el.value > 100) {
-                el.value = 100;
+            if (el.value > 256) {
+                el.value = 256;
             };
             boxCount[el.idx] = Number(el.value);                
         };
@@ -183,27 +224,34 @@
                 for (button of buttons) {
                     button.style.backgroundColor = '#0056b3';
                 };
+                let _cpu = document.getElementById('cpu-trigger');
+                let _gpu = document.getElementById('gpu-trigger');
+                if (device === 'cpu') {
+                    _cpu.style.backgroundColor = '#3e3e3e';
+                } else {
+                    _gpu.style.backgroundColor = '#3e3e3e';
+                }
                 // Implement dummy torch.nn.Module class:
                 class NeuralNet extends torch.nn.Module {
                     constructor() {
                         super();
                         // Instantiate Neural Network's Layers:
-                        this.wIn = new torch.nn.Linear(32,boxCount[0]);
+                        this.wIn = new torch.nn.Linear(32,boxCount[0],device);
                         this.reluIn = new torch.nn.ReLU();
                         if (boxCount.length > 1) {
-                            this.w1 = new torch.nn.Linear(boxCount[0],boxCount[1]);
+                            this.w1 = new torch.nn.Linear(boxCount[0],boxCount[1],device);
                             this.relu1 = new torch.nn.ReLU();
                         } if (boxCount.length > 2) {
-                            this.w2 = new torch.nn.Linear(boxCount[1],boxCount[2]);
+                            this.w2 = new torch.nn.Linear(boxCount[1],boxCount[2],device);
                             this.relu2 = new torch.nn.ReLU();
                         } if (boxCount.length > 3) {
-                            this.w3 = new torch.nn.Linear(boxCount[2],boxCount[3]);
+                            this.w3 = new torch.nn.Linear(boxCount[2],boxCount[3],device);
                             this.relu3 = new torch.nn.ReLU();
                         } if (boxCount.length > 4) {
-                            this.w4 = new torch.nn.Linear(boxCount[3],boxCount[4]);
+                            this.w4 = new torch.nn.Linear(boxCount[3],boxCount[4],device);
                             this.relu4 = new torch.nn.ReLU();
                         };
-                        this.wOut = new torch.nn.Linear(boxCount[boxCount.length-1], 32);
+                        this.wOut = new torch.nn.Linear(boxCount[boxCount.length-1], 32, device);
                         
                         this.reluOut = new torch.nn.ReLU();
 
@@ -285,6 +333,7 @@
                 document.getElementById('iter').innerHTML = `<b>Iteration:</b> ${iter}`;
                 document.getElementById('total-visited').innerHTML = `<b>Total Training Examples:</b> ${total_visited}`;
                 document.getElementById('loss').innerHTML = `<b>Loss:</b> ${loss.data[0].toFixed(3)}`;
+                document.getElementById('device-showcase').innerHTML = `<b>Device:</b> ${device}`;
                 iter += 1;
                 total_visited += batch_size;
             
@@ -307,7 +356,11 @@
             for (button of buttons) {
                 button.style.backgroundColor = '';
 
-            };
+            }
+            buttons = document.getElementsByClassName('device-button');
+            for (button of buttons) {
+                button.style.backgroundColor = '';
+            }
         };
 
         function plotGraph() {

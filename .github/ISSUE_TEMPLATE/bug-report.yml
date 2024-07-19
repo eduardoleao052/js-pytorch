@@ -1,0 +1,65 @@
+name: "Bug Report"
+description: Report a bug on js-torch. Please fill out the template so that the error is clearer, and quicker to fix :D
+labels: ["02 Bug Report"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Thank you for sharing your bug report. The following steps are in place to reduce response-time, and help identifying and fixing the bug faster!
+  - type: textarea
+    id: bug_description
+    validations:
+      required: true
+    attributes:
+      label: Describe the Bug
+      description: Please give a clear and concise description of the bug. Explain what is happening, and what you expected.
+      placeholder: |
+        * What is your environment (Operating System, browser, version)?
+        * What is happening? 
+        * What did you expect?
+  - type: textarea
+    id: code
+    attributes:
+      label: Minimal Reproducible Code
+      description: |
+        Please provide a self-contained, minimal, reproducible, example of your observed bug.
+
+          * If possible, follow this [guideline](https://stackoverflow.com/help/minimal-reproducible-example).
+          * When applicable, add comments to your code or succinctly describe the error.
+
+      placeholder: |
+        The following code throws this error:
+        
+        ```typescript
+        function isNotWorking(arg1, arg2) {
+          // Add some comments to explain if possible.
+          return result;
+        }
+        ```
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshot or Screen Recording (optional)
+      description: |
+        If applicable, add a screenshot or a screen recording showing your bug.
+
+          * This is optional, but can help getting your bug solved faster.
+          * Try to get screenshots that really explain the issue, like a stack trace and code snippets.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Issue Checkbox
+      description: Please confirm and check all the following requirements.
+      options:
+        - label: I added a descriptive title to this issue.
+          required: true
+        - label: I searched the other issues on js-torch, and didn't find any reporting this same bug.
+          required: true
+        - label: The bug is not resolved by updating to the latest version of js-pytorch on npm.
+          required: true
+  - type: dropdown
+    id: assign
+    attributes:
+      label: "Would you like to work on this issue?"
+      options:
+        - "Yes"
