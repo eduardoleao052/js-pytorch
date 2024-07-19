@@ -1,6 +1,6 @@
 # This workflow deploys the current model to PyPI after a new release is created on GitHub.
 
-name: Test JS-Torch
+name: Test JS-PyTorch
 
 on:
   push:
