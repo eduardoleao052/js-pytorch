@@ -75,12 +75,19 @@
 </details>
 <br/>
 
-## 1. Project Structure
+## 1. Table of Contents
 
-- `assets/` : Folder to store images and the Demo.
-  - `assets/demo/` : JS-PyTorch's [Web Demo](https://eduardoleao052.github.io/js-pytorch/assets/demo/demo.html).
-- `src/` : Framework with JavaScript files.
-- `tests/`: Folder with unit tests. Contains `test.ts`.
+* [Installation](#installation)
+* [Running it Yourself](#installation)
+  * [Simple Autograd Example](#declaring-variablesfunctions-within-kernels)
+  * [Simple Autograd Example](#declaring-variablesfunctions-within-kernels)
+  * [Simple Autograd Example](#declaring-variablesfunctions-within-kernels)
+* [Distribution and Devtools](#creating-and-running-functions)
+* [Debugging](#debugging)
+* [Accepting Input](#accepting-input)
+* [Graphical Output](#graphical-output)
+* [Combining Kernels](#combining-kernels)
+* [Create Kernel Map](#create-kernel-map)
 
 ## 2. Installation
 
@@ -213,14 +220,14 @@ const newModel = torch.load(placeHolder, 'model.json')
 
 - **Build for Distribution** by running `npm run build`. CJS and ESM modules and `index.d.ts` will be output in the `dist/` folder.
 - **Check the Code** with ESLint at any time, running `npm run lint`.
+- **Run tests** run `npm test`.
 - **Improve Code Formatting** with prettier, running `npm run prettier`.
 - **Performance Benchmarks** are also included in the `tests/benchmarks/` directory. Run all benchmarks with `npm run bench` and save new benchmarks with `npm run bench:update`.
 
 
-## 5. Results
+## 5. Future Work
 
-- The models implemented in the [unit tests](tests/test.ts) all converged to **near-zero losses**.
-- Run them with `npm test`!
 - This package is not as optimized as PyTorch yet, but I tried making it more interpretable. Efficiency improvements are incoming!
+- Feel free to **contribute**! Create a merge request to the `develop` branch, and also feel free to reach out. I will try to answer as soon as possible.
 - Hope you enjoy!
 
