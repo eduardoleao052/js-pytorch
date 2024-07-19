@@ -75,10 +75,10 @@
 </details>
 <br/>
 
-## 1. Table of Contents
+## 1.Table of Contents
 
-* [Installation](#installation)
-* [Running it Yourself](#installation)
+* [Installation](#2.-installation)
+* [Running it Yourself](#3.-Running-it-Yourself)
   * [Simple Autograd Example](#declaring-variablesfunctions-within-kernels)
   * [Simple Autograd Example](#declaring-variablesfunctions-within-kernels)
   * [Simple Autograd Example](#declaring-variablesfunctions-within-kernels)
