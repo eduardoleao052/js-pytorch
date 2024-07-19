@@ -205,6 +205,7 @@ torch.save(model, 'model.json')
 
 // To load, instantiate placeHolder using the original model's architecture:
 const placeHolder = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p);
+
 // Load weights into placeHolder:
 const newModel = torch.load(placeHolder, 'model.json')
 ```
