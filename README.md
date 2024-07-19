@@ -80,14 +80,10 @@
 * [Installation](#2-installation)
 * [Running it Yourself](#3-Running-it-Yourself)
   * [Simple Autograd Example](#simple-autograd-example)
-  * [Complex Autograd Example (Transformer)](#complex-autograd-example-(transformer))
-  * [Simple Autograd Example](#declaring-variablesfunctions-within-kernels)
-* [Distribution and Devtools](#creating-and-running-functions)
-* [Debugging](#debugging)
-* [Accepting Input](#accepting-input)
-* [Graphical Output](#graphical-output)
-* [Combining Kernels](#combining-kernels)
-* [Create Kernel Map](#create-kernel-map)
+  * [Complex Autograd Example (Transformer)](#complex-autograd-example-transformer)
+  * [Saving and Loading models](#saving-and-loading-models)
+* [Distribution and Devtools](#distribution-and-devtools)
+* [Future Work](#future-work)
 
 ## 2. Installation
 
