@@ -82,8 +82,8 @@
   * [Simple Autograd Example](#simple-autograd-example)
   * [Complex Autograd Example (Transformer)](#complex-autograd-example-transformer)
   * [Saving and Loading models](#saving-and-loading-models)
-* [Distribution and Devtools](#distribution-and-devtools)
-* [Future Work](#future-work)
+* [Distribution and Devtools](#4-distribution-and-devtools)
+* [Future Work](#5-future-work)
 
 ## 2. Installation
 
