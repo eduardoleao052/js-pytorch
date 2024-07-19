@@ -77,8 +77,8 @@
 
 ## 1.Table of Contents
 
-* [Installation](#2.-installation)
-* [Running it Yourself](#3.-Running-it-Yourself)
+* [Installation](#2-installation)
+* [Running it Yourself](#3-Running-it-Yourself)
   * [Simple Autograd Example](#declaring-variablesfunctions-within-kernels)
   * [Simple Autograd Example](#declaring-variablesfunctions-within-kernels)
   * [Simple Autograd Example](#declaring-variablesfunctions-within-kernels)
