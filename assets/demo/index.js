@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 function getShape(data, shape = []) {
   if (data instanceof Array && data.length === 0) {
     return [0];
