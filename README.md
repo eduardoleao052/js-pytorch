@@ -79,8 +79,8 @@
 
 * [Installation](#2-installation)
 * [Running it Yourself](#3-Running-it-Yourself)
-  * [Simple Autograd Example](#declaring-variablesfunctions-within-kernels)
-  * [Simple Autograd Example](#declaring-variablesfunctions-within-kernels)
+  * [Simple Autograd Example](#simple-autograd-example)
+  * [Complex Autograd Example (Transformer)](#complex-autograd-example-(transformer))
   * [Simple Autograd Example](#declaring-variablesfunctions-within-kernels)
 * [Distribution and Devtools](#creating-and-running-functions)
 * [Debugging](#debugging)
@@ -91,8 +91,8 @@
 
 ## 2. Installation
 
-- On MacOS, Windows, and Ubuntu, you can install the library with `npm install js-pytorch`.
-- On Windows, if you run into an error, you might need to install the latest version of [Visual Studio](https://visualstudio.microsoft.com/downloads/?cid=learn-navbar-download-cta), including the "Desktop development with C++" workload.
+- On **MacOS**, **Windows**, and **Ubuntu**, you can install the library with `npm install js-pytorch`.
+- On **Windows**, if you run into an error, you might need to install the latest version of [Visual Studio](https://visualstudio.microsoft.com/downloads/?cid=learn-navbar-download-cta), including the "Desktop development with C++" workload.
 
 ## 3. Running it Yourself
 
