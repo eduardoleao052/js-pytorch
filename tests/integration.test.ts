@@ -29,11 +29,11 @@ function test_autograd(): number {
   let loss!: Tensor;
 
   // Instantiate Neural Network's Layers:
-  const w1 = randn([16, 32], true, true);
+  const w1 = randn([16, 32], true, 'cpu', true);
   const relu1 = new ReLU();
-  const w2 = randn([32, 32], true, true);
+  const w2 = randn([32, 32], true, 'cpu', true);
   const relu2 = new ReLU();
-  const w3 = randn([32, 50], true, true);
+  const w3 = randn([32, 50], true, 'cpu', true);
 
   // Training Loop:
   for (let i = 0; i < 128; i++) {
