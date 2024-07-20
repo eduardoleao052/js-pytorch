@@ -398,11 +398,11 @@ export class Tensor {
 
 // <<< Parameter class, tensor that always tracks gradients >>> //
 
-/**
- * Creates new Parameter (an instance of the Tensor class that always tracks gradients).
- * @param {object} data - Iterable containing the data to be stored in the Tensor.
- */
 export class Parameter extends Tensor {
+  /**
+   * Creates new Parameter (an instance of the Tensor class that always tracks gradients).
+   * @param {object} data - Iterable containing the data to be stored in the Tensor.
+   */
   constructor(data: Array<any> | number) {
     super(data, true);
   }
@@ -681,8 +681,6 @@ class MatMul {
     }
   }
 }
-// ================================ NUEVO ================================ //
-// ================================ NUEVO ================================ //
 
 export class Pow {
   cache: any;
@@ -1956,8 +1954,8 @@ export function rand(shape: Array<number>, requires_grad = false, device = 'cpu'
 export function randn(
   shape: Array<number>,
   requires_grad = false,
-  xavier = false,
-  device = 'cpu'
+  device = 'cpu',
+  xavier = false
 ): Tensor {
   return new Tensor(
     _tensorInitializer(shape, () => {

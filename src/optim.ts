@@ -1,13 +1,5 @@
 ﻿import { Parameter, Tensor, zeros } from "./tensor";
 
-/**
- * Adam optimizer class.
- * @param {(Parameter | Tensor)[]} params - List of all Parameter or Tensor (with requires_grad = True) to be optimized by Adam. "params" is usually set to nn.Module.parameters(), which automatically returns all parameters in a list form.
- * @param {number} lr - Scalar multiplying each learning step, controls speed of learning.
- * @param {number} reg - Scalar controling strength l2 regularization.
- * @param {(number)[]} betas - Two scalar floats controling how slowly the optimizer changes the "m" and "v" attributes.
- * @param {number} eps - Scalar added to denominator to stop it from ever going to zero.
- */
 export class Adam {
   // Declare Adam's types:
   params: (Parameter | Tensor)[];
@@ -16,7 +8,15 @@ export class Adam {
   b1: number;
   b2: number;
   eps: number;
-
+  
+  /**
+   * Adam optimizer class.
+   * @param {(Parameter | Tensor)[]} params - List of all Parameter or Tensor (with requires_grad = True) to be optimized by Adam. "params" is usually set to nn.Module.parameters(), which automatically returns all parameters in a list form.
+   * @param {number} lr - Scalar multiplying each learning step, controls speed of learning.
+   * @param {number} reg - Scalar controling strength l2 regularization.
+   * @param {(number)[]} betas - Two scalar floats controling how slowly the optimizer changes the "m" and "v" attributes.
+   * @param {number} eps - Scalar added to denominator to stop it from ever going to zero.
+   */
   constructor(
     params: (Parameter | Tensor)[],
     lr = 1e-3,
