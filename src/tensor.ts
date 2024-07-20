@@ -256,7 +256,7 @@ export class Tensor {
     if (this.device === 'gpu' || other.device === 'gpu') { device = 'gpu' } else { device = 'cpu' };
     if (other.forwardKernel === null) { 
       if (device === 'gpu') {
-        const {GPU} = require('gpu.js');
+        const {GPU} = require('@eduardoleao052/gpu');
         const gpu = new GPU();
         const kernelFunc = function(this: any, a: number[][], b: number[][], len: number): number {
           let sum = 0;

@@ -56,12 +56,7 @@
   },
   "homepage": "https://github.com/eduardoleao052/js-torch#readme",
   "dependencies": {
-    "gpu.js": "^2.15.0"
-  },
-  "overrides": {
-    "gpu.js": {
-      "gl": "8.0.2"
-    }
+    "@eduardoleao052/gpu": "2.19.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.3",
