@@ -1,6 +1,6 @@
 {
   "name": "js-pytorch",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "A JavaScript library like PyTorch, built from scratch.",
   "type": "module",
   "directories": {
