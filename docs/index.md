@@ -1,4 +1,4 @@
-<a href="https://www.github.com/eduardoleao052/">
+<a href="https://www.github.com/eduardoleao052/js-pytorch">
     <img src="https://img.shields.io/badge/GitHub-%23121011.svg?style=flat-square&logo=github&logoColor=white">
 </a>
 <a href="https://www.linkedin.com/in/eduardoleao052/">
