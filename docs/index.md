@@ -5,7 +5,7 @@
     <img src="https://img.shields.io/badge/-LinkedIn-blue?style=flat-square&logo=linkedin">
 </a>
 
-# Welcome to Js-Pytorch's documentation
+# Welcome to JS-Pytorch's documentation
 
 For access to the source code, visit <a href="https://github.com/eduardoleao052", target="_blank">The GitHub repo</a>.
 

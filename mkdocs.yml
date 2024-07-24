@@ -1,4 +1,4 @@
-site_name: Js-PyTorch Documentation
+site_name: JS-PyTorch Documentation
 nav:
     - Home: index.md
     - Tensor: tensor.md
