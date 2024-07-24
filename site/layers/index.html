@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Layers - Js-PyTorch Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Layers";
+        var mkdocs_page_input_path = "layers.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Js-PyTorch Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../tensor/">Tensor</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../operations/">Operations</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Layers</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#nnlinear">nn.Linear</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#learnable-variables">Learnable Variables</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#nnmultiheadselfattention">nn.MultiHeadSelfAttention</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_1">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#learnable-variables_1">Learnable Variables</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_1">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#nnfullyconnected">nn.FullyConnected</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_2">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#learnable-variables_2">Learnable Variables</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_2">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#nnblock">nn.Block</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_3">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#learnable-modules">Learnable Modules</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../tutorials/">Tutorials</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Js-PyTorch Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Layers</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p><a href="https://www.github.com/eduardoleao052/">
+    <img src="https://img.shields.io/badge/GitHub-%23121011.svg?style=flat-square&logo=github&logoColor=white">
+</a>
+<a href="https://www.linkedin.com/in/eduardoleao052/">
+    <img src="https://img.shields.io/badge/-LinkedIn-blue?style=flat-square&logo=linkedin">
+</a></p>
+<h1 id="layers">Layers</h1>
+<p>In this section are listed all of the <strong>Layers</strong> and <strong>Modules</strong>.</p>
+<h2 id="nnlinear">nn.Linear</h2>
+<pre><code>new nn.Linear(in_size,
+              out_size,
+              device, 
+              bias, 
+              xavier) → Tensor
+</code></pre>
+<p>Applies a linear transformation to the input tensor.
+Input is matrix-multiplied by a <code>w</code> tensor and added to a <code>b</code> tensor.</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><strong>in_size (number)</strong> - Size of the last dimension of the input data.</li>
+<li><strong>out_size (number)</strong> - Size of the last dimension of the output data.</li>
+<li><strong>device (string)</strong> - Device on which the model's calculations will run. Either <code>'cpu'</code> or <code>'gpu'</code>.</li>
+<li><strong>bias (boolean)</strong> - Whether to use a bias term <code>b</code>.</li>
+<li><strong>xavier (boolean)</strong> - Whether to use Xavier initialization on the weights.</li>
+</ul>
+<h4 id="learnable-variables">Learnable Variables</h4>
+<ul>
+<li><strong>w</strong> - <em>[input_size, output_size]</em> Tensor.</li>
+<li><strong>b</strong> - <em>[output_size]</em> Tensor.</li>
+</ul>
+<h4 id="example">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let linear = new nn.Linear(10,15,'gpu');
+&gt;&gt;&gt; let x = torch.randn([100,50,10], true, 'gpu');
+&gt;&gt;&gt; let y = linear.forward(x);
+&gt;&gt;&gt; y.shape
+// [100, 50, 15]
+</code></pre>
+<p></br></p>
+<h2 id="nnmultiheadselfattention">nn.MultiHeadSelfAttention</h2>
+<pre><code>new nn.MultiHeadSelfAttention(in_size,
+                              out_size,
+                              n_heads,
+                              n_timesteps,
+                              dropout_prob,
+                              device) → Tensor
+</code></pre>
+<p>Applies a self-attention layer on the input tensor.</p>
+<ul>
+<li>Matrix-multiplies input by <code>Wk</code>, <code>Wq</code>, <code>Wv</code>, resulting in Key, Query and Value tensors.</li>
+<li>Computes attention multiplying Query and transpose Key.</li>
+<li>Applies Mask, Dropout and Softmax to attention activations.</li>
+<li>Multiplies result by Values.</li>
+<li>Multiplies result by <code>residual_proj</code>.</li>
+<li>Applies final Dropout.</li>
+</ul>
+<h4 id="parameters_1">Parameters</h4>
+<ul>
+<li><strong>in_size (number)</strong> - Size of the last dimension of the input data.</li>
+<li><strong>out_size (number)</strong> - Size of the last dimension of the output data.</li>
+<li><strong>n_heads (boolean)</strong> - Number of parallel attention heads the data is divided into. In_size must be divided evenly by n_heads.</li>
+<li><strong>n_timesteps (boolean)</strong> - Number of timesteps computed in parallel by the transformer.</li>
+<li><strong>dropout_prob (boolean)</strong> - probability of randomly dropping an activation during training (to improve regularization).</li>
+<li><strong>device (string)</strong> - Device on which the model's calculations will run. Either <code>'cpu'</code> or <code>'gpu'</code>.</li>
+</ul>
+<h4 id="learnable-variables_1">Learnable Variables</h4>
+<ul>
+<li><strong>Wk</strong> - <em>[input_size, input_size]</em> Tensor.</li>
+<li><strong>Wq</strong> - <em>[input_size, input_size]</em> Tensor.</li>
+<li><strong>Wv</strong> - <em>[input_size, input_size]</em> Tensor.</li>
+<li><strong>residual_proj</strong> - <em>[input_size, output_size]</em> Tensor.</li>
+</ul>
+<h4 id="example_1">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let att = new nn.MultiHeadSelfAttention(10, 15, 2, 32, 0.2, 'gpu');
+&gt;&gt;&gt; let x = torch.randn([100,50,10], true, 'gpu');
+&gt;&gt;&gt; let y = att.forward(x);
+&gt;&gt;&gt; y.shape
+// [100, 50, 15]
+</code></pre>
+<p></br></p>
+<h2 id="nnfullyconnected">nn.FullyConnected</h2>
+<pre><code>new nn.FullyConnected(in_size,
+                      out_size,
+                      dropout_prob,
+                      device,
+                      bias) → Tensor
+</code></pre>
+<p>Applies a fully-connected layer on the input tensor.</p>
+<ul>
+<li>Matrix-multiplies input by Linear layer <code>l1</code>, upscaling the input.</li>
+<li>Passes tensor through ReLU.</li>
+<li>Matrix-multiplies tensor by Linear layer <code>l2</code>, downscaling the input.</li>
+<li>Passes tensor through Dropout.</li>
+</ul>
+<pre><code class="language-javascript">forward(x: Tensor): Tensor {
+    let z = this.l1.forward(x);
+    z = this.relu.forward(z);
+    z = this.l2.forward(z);
+    z = this.dropout.forward(z);
+    return z;
+}
+</code></pre>
+<h4 id="parameters_2">Parameters</h4>
+<ul>
+<li><strong>in_size (number)</strong> - Size of the last dimension of the input data.</li>
+<li><strong>out_size (number)</strong> - Size of the last dimension of the output data.</li>
+<li><strong>dropout_prob (boolean)</strong> - probability of randomly dropping an activation during training (to improve regularization).</li>
+<li><strong>device (string)</strong> - Device on which the model's calculations will run. Either <code>'cpu'</code> or <code>'gpu'</code>.</li>
+<li><strong>bias (boolean)</strong> - Whether to use a bias term <code>b</code>.</li>
+</ul>
+<h4 id="learnable-variables_2">Learnable Variables</h4>
+<ul>
+<li><strong>l1</strong> - <em>[input_size, 4</em>input_size]* Tensor.</li>
+<li><strong>l2</strong> - <em>[4</em>input_size, input_size]* Tensor.</li>
+</ul>
+<h4 id="example_2">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let fc = new nn.FullyConnected(10, 15, 0.2, 'gpu');
+&gt;&gt;&gt; let x = torch.randn([100,50,10], true, 'gpu');
+&gt;&gt;&gt; let y = fc.forward(x);
+&gt;&gt;&gt; y.shape
+// [100, 50, 15]
+</code></pre>
+<p></br></p>
+<h2 id="nnblock">nn.Block</h2>
+<pre><code>new nn.Block(in_size,
+             out_size,
+             n_heads,
+             n_timesteps,
+             dropout_prob,
+             device) → Tensor
+</code></pre>
+<p>Applies a transformer Block layer on the input tensor.</p>
+<pre><code class="language-javascript">forward(x: Tensor): Tensor {
+    // Pass through Layer Norm and Self Attention:
+    let z = x.add(this.att.forward(this.ln1.forward(x)));
+    // Pass through Layer Norm and Fully Connected:
+    z = z.add(this.fcc.forward(this.ln2.forward(z)));
+    return z;
+}
+</code></pre>
+<h4 id="parameters_3">Parameters</h4>
+<ul>
+<li><strong>in_size (number)</strong> - Size of the last dimension of the input data.</li>
+<li><strong>out_size (number)</strong> - Size of the last dimension of the output data.</li>
+<li><strong>n_heads (boolean)</strong> - Number of parallel attention heads the data is divided into. In_size must be divided evenly by n_heads.</li>
+<li><strong>n_timesteps (boolean)</strong> - Number of timesteps computed in parallel by the transformer.</li>
+<li><strong>dropout_prob (boolean)</strong> - probability of randomly dropping an activation during training (to improve regularization).</li>
+<li><strong>device (string)</strong> - Device on which the model's calculations will run. Either <code>'cpu'</code> or <code>'gpu'</code>.</li>
+</ul>
+<h4 id="learnable-modules">Learnable Modules</h4>
+<ul>
+<li><strong>nn.MultiHeadSelfAttention</strong> - <code>Wk</code>, <code>Wq</code>, <code>Wv</code>, <code>residual_proj</code>.</li>
+<li><strong>nn.LayerNorm</strong> - <code>gamma</code>, <code>beta</code>.</li>
+<li><strong>nn.FullyConnecyed</strong> - <code>l1</code>, <code>l2</code>.</li>
+<li><strong>nn.LayerNorm</strong> - <code>gamma</code>, <code>beta</code>.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../operations/" class="btn btn-neutral float-left" title="Operations"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../tutorials/" class="btn btn-neutral float-right" title="Tutorials">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../operations/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../tutorials/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Tutorials - Js-PyTorch Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Tutorials";
+        var mkdocs_page_input_path = "tutorials.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Js-PyTorch Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../tensor/">Tensor</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../operations/">Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../layers/">Layers</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Tutorials</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#gradients">Gradients</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#neural-network">Neural Network</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#transformer">Transformer</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#saving-and-loading-models">Saving and Loading Models</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Js-PyTorch Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Tutorials</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p><a href="https://www.github.com/eduardoleao052/">
+    <img src="https://img.shields.io/badge/GitHub-%23121011.svg?style=flat-square&logo=github&logoColor=white">
+</a>
+<a href="https://www.linkedin.com/in/eduardoleao052/">
+    <img src="https://img.shields.io/badge/-LinkedIn-blue?style=flat-square&logo=linkedin">
+</a></p>
+<h1 id="tutorials">Tutorials</h1>
+<p>This section contains ready-to-use examples of JS-PyTorch in action, with increasing complexity and explainations along the way.</p>
+<h2 id="gradients">Gradients</h2>
+<p>To use the autograd functionality (get Tensor's gradients), first create your input tensor, and your parameter tensors. We want to see the gradients of the parameter tensors relative to the output, so we set <code>requires_grad=true</code> on them.</p>
+<pre><code class="language-typescript">const { torch } = require(&quot;js-pytorch&quot;);
+
+// Instantiate Input Tensor:
+let x = torch.randn([8, 4, 5], false);
+
+// Instantiate Parameter Tensors:
+let w = torch.randn([8, 5, 4], true);
+let b = torch.tensor([0.2, 0.5, 0.1, 0.0], true);
+</code></pre>
+<ul>
+<li>The parameter tensor <code>w</code> will be multiplied by the input tensor <code>x</code>.</li>
+<li>The parameter tensor <code>b</code> will be added to the input tensor <code>x</code>.</li>
+</ul>
+<pre><code class="language-javascript">// Make calculations:
+let y = torch.matmul(x, w);
+y = torch.add(out, b);
+</code></pre>
+<p>Now, compute the gradients of <code>w</code> and <code>b</code> using <code>tensor.backward</code> on the output tensor <code>y</code>.</p>
+<pre><code class="language-javascript">// Compute gradients on whole graph:
+y.backward();
+
+// Get gradients from specific Tensors:
+console.log(w.grad);
+console.log(b.grad);
+</code></pre>
+<p>To access the gradients of a tensor after calling <code>tensor.backward</code> on the output, use the syntax <code>tensor.grad</code>.</p>
+<h2 id="neural-network">Neural Network</h2>
+<p>To train a neural network from scratch, first import the <code>torch</code>, <code>torch.nn</code> and <code>torch.optim</code> modules.</p>
+<pre><code class="language-javascript">const torch = require(&quot;js-pytorch&quot;);
+const nn = torch.nn;
+const optim = torch.optim;
+</code></pre>
+<p>Now, create the Neural Network class. This class extends the <code>nn.Module</code> object.
+In the constructor, add the <strong>layers</strong> that make up your model, adding them as attributes of your Neural Network class.
+In this case, there is:</p>
+<ul>
+<li>A <strong>Linear</strong> layer, stored in <code>this.w1</code>.</li>
+<li>A <strong>ReLU</strong> activation function, stored in <code>this.relu1</code>.</li>
+<li>A <strong>Linear</strong> layer, stored in <code>this.w2</code>.</li>
+<li>A <strong>ReLU</strong> activation function, stored in  <code>this.relu2</code>.</li>
+<li>A <strong>Linear</strong> layer, stored in <code>this.w3</code>.</li>
+</ul>
+<p>The size of these layers depends on three parameters, passed into the constructor: </p>
+<ul>
+<li><strong>input_size</strong>, defines the size of the last dimension of the input tensor.</li>
+<li><strong>hidden_size</strong>, defines the size of each <strong>hidden layer</strong> in the model.</li>
+<li><strong>out_size</strong> defines the size of the last dimension of the output tensor. This is the same as the number of classes of the output.</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> The <strong>input_size</strong> must be the input size of the first layer, and <strong>out_size</strong> must be the output size of the last layer.</p>
+</blockquote>
+<p>After the constructor, create a forward method, where an input is passed through each layer in the model.
+To pass the input through a layer, use:</p>
+<pre><code class="language-javascript">this.layer.forward(input);
+</code></pre>
+<p>The final class is as follows:</p>
+<pre><code class="language-javascript">
+// Implement Module class:
+class NeuralNet extends nn.Module {
+  constructor(in_size, hidden_size, out_size) {
+    super();
+    // Instantiate Neural Network's Layers:
+    this.w1 = new nn.Linear(in_size, hidden_size);
+    this.relu1 = new nn.ReLU();
+    this.w2 = new nn.Linear(hidden_size, hidden_size);
+    this.relu2 = new nn.ReLU();
+    this.w3 = new nn.Linear(hidden_size, out_size);
+  };
+
+  forward(x) {
+    let z;
+    z = this.w1.forward(x);
+    z = this.relu1.forward(z);
+    z = this.w2.forward(z);
+    z = this.relu2.forward(z);
+    z = this.w3.forward(z);
+    return z;
+  };
+};
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> To add the module to the <strong>gpu</strong> for faster computation, pass the argument <code>'gpu'</code> to the <strong>Linear</strong> layers.</p>
+</blockquote>
+<p>Now, create an instance of your NeuralNetwork class. Declare the <strong>in_size</strong>, <strong>hidden_size</strong> and <strong>out_size</strong> according to your data, and  fine a batch size:</p>
+<pre><code class="language-javascript">// Instantiate Model:
+let in_size = 16;
+let hidden_size = 32;
+let out_size = 10;
+let batch_size = 16;
+
+let model = new NeuralNet(in_size,hidden_size,out_size);
+</code></pre>
+<p>Instantiate the loss function and optimizer, passing the parameters of the models using the <code>model.parameters()</code> method and the learning rate.</p>
+<pre><code class="language-javascript">// Define loss function and optimizer:
+let loss_func = new nn.CrossEntropyLoss();
+let optimizer = new optim.Adam(model.parameters(), 3e-3);
+</code></pre>
+<p>Import the data, and add it to <strong>x (input)</strong> and <strong>y (target)</strong> variables.</p>
+<blockquote>
+<p><strong>Note:</strong> Here, we are generating a dummy dataset (random input and target).</p>
+</blockquote>
+<pre><code class="language-javascript">// Instantiate input and output:
+let x = torch.randn([batch_size, in_size]);
+let y = torch.randint(0, out_size, [batch_size]);
+let loss;
+</code></pre>
+<p>Create a <strong>train loop</strong> to train your model:</p>
+<pre><code class="language-javascript">// Training Loop:
+for (let i = 0; i &lt; 256; i++) {
+  let z = model.forward(x);
+
+  // Get loss:
+  loss = loss_func.forward(z, y);
+
+  // Backpropagate the loss using torch.tensor's backward() method:
+  loss.backward();
+
+  // Update the weights:
+  optimizer.step();
+
+  // Reset the gradients to zero after each training step:
+  optimizer.zero_grad();
+
+  // Print current loss:
+  console.log(`Iter: ${i} - Loss: ${loss.data}`);
+}
+</code></pre>
+<details>
+<summary> <b>Detailing</b> </summary>
+
+</br>
+
+On each pass through the training loop, the following happens:
+
+</br>
+
+</br>
+
+
+- The input is passed through the model:
+
+
+<pre><code class="language-javascript">let z = model.forward(x);
+</code></pre>
+
+
+- The loss is calculated:
+
+
+<pre><code class="language-javascript">loss = loss_func.forward(z, y);
+</code></pre>
+
+
+- The gradients are computed: 
+
+
+<pre><code class="language-javascript">loss.backward();
+</code></pre>
+
+
+- The parameters are optimized:
+
+
+<pre><code class="language-javascript">optimizer.step();
+</code></pre>
+
+
+- The gradients are reset:
+
+
+<pre><code class="language-javascript">optimizer.zero_grad();
+</code></pre>
+
+
+- The current loss is printed to the console:
+
+
+<pre><code class="language-javascript">console.log(`Iter: ${i} - Loss: ${loss.data}`);
+</code></pre>
+
+
+</details>
+<p></br>
+Now, the entire Neural Network, with:</p>
+<ul>
+<li>Class declaration.</li>
+<li>Hyperparameter Definition.</li>
+<li>Train Loop.
+</br></li>
+</ul>
+<details>
+<summary><b>Full Implementation</b></summary>
+
+
+<pre><code class="language-javascript">const torch = require(&quot;js-pytorch&quot;);
+const nn = torch.nn;
+const optim = torch.optim;
+
+// Implement Module class:
+class NeuralNet extends nn.Module {
+  constructor(in_size, hidden_size, out_size) {
+    super();
+    // Instantiate Neural Network's Layers:
+    this.w1 = new nn.Linear(in_size, hidden_size);
+    this.relu1 = new nn.ReLU();
+    this.w2 = new nn.Linear(hidden_size, hidden_size);
+    this.relu2 = new nn.ReLU();
+    this.w3 = new nn.Linear(hidden_size, out_size);
+  };
+
+  forward(x) {
+    let z;
+    z = this.w1.forward(x);
+    z = this.relu1.forward(z);
+    z = this.w2.forward(z);
+    z = this.relu2.forward(z);
+    z = this.w3.forward(z);
+    return z;
+  };
+};
+
+// Instantiate Model:
+let in_size = 16;
+let hidden_size = 32;
+let out_size = 10;
+let batch_size = 16;
+
+let model = new NeuralNet(in_size,hidden_size,out_size);
+
+// Define loss function and optimizer:
+let loss_func = new nn.CrossEntropyLoss();
+let optimizer = new optim.Adam(model.parameters(), 3e-3);
+
+// Instantiate input and output:
+let x = torch.randn([batch_size, in_size]);
+let y = torch.randint(0, out_size, [batch_size]);
+let loss;
+
+// Training Loop:
+for (let i = 0; i &lt; 256; i++) {
+  let z = model.forward(x);
+
+  // Get loss:
+  loss = loss_func.forward(z, y);
+
+  // Backpropagate the loss using torch.tensor's backward() method:
+  loss.backward();
+
+  // Update the weights:
+  optimizer.step();
+
+  // Reset the gradients to zero after each training step:
+  optimizer.zero_grad();
+
+  // Print current loss:
+  console.log(`Iter: ${i} - Loss: ${loss.data}`);
+}
+</code></pre>
+
+
+</details>
+
+<p></br></p>
+<h2 id="transformer">Transformer</h2>
+<p>Following the exact same steps as the last tutorial, we can create a <strong>Transformer Model</strong>.</p>
+<p>The inputs of the constructor are:</p>
+<ul>
+<li><strong>vocab_size</strong>, defines the size of the last dimension of the input and output tensor. It is the number of characters or words that compose your vocabulary.</li>
+<li><strong>hidden_size</strong>, defines the size of each <strong>hidden layer</strong> in the model.</li>
+<li><strong>n_timesteps</strong> number of timesteps computed in parallel by the transformer.</li>
+<li><strong>dropout_p</strong> probability of randomly dropping an activation during training (to improve regularization).</li>
+<li><strong>device</strong> is the device on which the model's calculations will run. Either <code>'cpu'</code> or <code>'gpu'</code>.</li>
+</ul>
+<details>
+<summary><b>Full Implementation</b></summary>
+
+
+<pre><code class="language-typescript">const { torch } = require(&quot;js-pytorch&quot;);
+const nn = torch.nn;
+const optim = torch.optim;
+const device = 'gpu';
+
+// Create Transformer decoder Module:
+class Transformer extends nn.Module {
+  constructor(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p, device) {
+    super();
+    // Instantiate Transformer's Layers:
+    this.embed = new nn.Embedding(vocab_size, hidden_size);
+    this.pos_embed = new nn.PositionalEmbedding(n_timesteps, hidden_size);
+    this.b1 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p, device);
+    this.b2 = new nn.Block(hidden_size, hidden_size, n_heads, n_timesteps, dropout_p, device);
+    this.ln = new nn.LayerNorm(hidden_size);
+    this.linear = new nn.Linear(hidden_size, vocab_size, device);
+  }
+
+  forward(x) {
+    let z;
+    z = torch.add(this.embed.forward(x), this.pos_embed.forward(x));
+    z = this.b1.forward(z);
+    z = this.b2.forward(z);
+    z = this.ln.forward(z);
+    z = this.linear.forward(z);
+    return z;
+  }
+}
+
+// Define training hyperparameters:
+const vocab_size = 52;
+const hidden_size = 32;
+const n_timesteps = 16;
+const n_heads = 4;
+const dropout_p = 0;
+const batch_size = 8;
+
+// Instantiate your custom nn.Module:
+const model = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p, device);
+
+// Define loss function and optimizer:
+const loss_func = new nn.CrossEntropyLoss();
+const optimizer = new optim.Adam(model.parameters(), (lr = 5e-3), (reg = 0));
+
+// Instantiate sample input and output:
+let x = torch.randint(0, vocab_size, [batch_size, n_timesteps, 1]);
+let y = torch.randint(0, vocab_size, [batch_size, n_timesteps]);
+let loss;
+
+// Training Loop:
+for (let i = 0; i &lt; 256; i++) {
+  // Forward pass through the Transformer:
+  let z = model.forward(x);
+
+  // Get loss:
+  loss = loss_func.forward(z, y);
+
+  // Backpropagate the loss using torch.tensor's backward() method:
+  loss.backward();
+
+  // Update the weights:
+  optimizer.step();
+
+  // Reset the gradients to zero after each training step:
+  optimizer.zero_grad();
+
+  // Print loss at every iteration:
+  console.log(`Iter ${i} - Loss ${loss.data[0].toFixed(4)}`)
+}
+</code></pre>
+
+
+</details>
+
+<p></br></p>
+<h2 id="saving-and-loading-models">Saving and Loading Models</h2>
+<p>To <strong>save</strong> a model, first <strong>instantiate a class</strong> extending <code>nn.Module</code> for your model, as explained in the previous tutorials.</p>
+<pre><code class="language-typescript">// Instantiate your model:
+const model = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p);
+</code></pre>
+<p>Then, <strong>train</strong> your model.
+When you are finished, or during training (to generate snapshots), save the model to a JSON file using <code>torch.save()</code>:</p>
+<pre><code class="language-javascript">// Save model to JSON file:
+torch.save(model, 'model.json')
+</code></pre>
+<p>To <strong>load</strong> the model, instantiate a placeholder as an empty instance of the same model:</p>
+<pre><code class="language-javascript">// To load, instantiate placeHolder using the original model's architecture:
+const placeHolder = new Transformer(vocab_size, hidden_size, n_timesteps, n_heads, dropout_p);
+</code></pre>
+<p>Then, load the weights of the trained model into the placeholder using <code>torch.load()</code>:</p>
+<pre><code class="language-javascript">// Load weights into placeHolder:
+const newModel = torch.load(placeHolder, 'model.json')
+</code></pre>
+<h2 id="testing">Testing</h2>
+<p>To test a model, just run your test data through the trained model using <code>model.forward()</code>:</p>
+<pre><code class="language-javascript">// Load weights into placeHolder:
+let z = model.forward(x);
+</code></pre>
+<p>Then, use a <strong>loss function</strong> or a custom function to calculate your loss or accuracy in comparaison with the <strong>target</strong>:</p>
+<pre><code class="language-javascript">let loss = nn.CrossEntropyLoss(z,y);
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../layers/" class="btn btn-neutral float-left" title="Layers"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../layers/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

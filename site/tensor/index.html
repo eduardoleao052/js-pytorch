@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Tensor - Js-PyTorch Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Tensor";
+        var mkdocs_page_input_path = "tensor.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Js-PyTorch Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Tensor</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#torchtensor">torch.tensor</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchzeros">torch.zeros</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_1">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_1">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchones">torch.ones</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_2">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_2">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchtril">torch.tril</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_3">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_3">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchrandn">torch.randn</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_4">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_4">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchrand">torch.rand</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_5">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_5">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchrandint">torch.randint</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_6">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_6">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tensorbackward">tensor.backward</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example_7">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tensorzero_grad">tensor.zero_grad</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example_8">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tensorzero_grad_graph">tensor.zero_grad_graph</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example_9">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tensortolist">tensor.tolist</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example_10">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tensordata">tensor.data</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example_11">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tensorlength">tensor.length</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example_12">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tensorndims">tensor.ndims</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example_13">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tensorgrad">tensor.grad</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example_14">Example</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../operations/">Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../layers/">Layers</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../tutorials/">Tutorials</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Js-PyTorch Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Tensor</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p><a href="https://www.github.com/eduardoleao052/">
+    <img src="https://img.shields.io/badge/GitHub-%23121011.svg?style=flat-square&logo=github&logoColor=white">
+</a>
+<a href="https://www.linkedin.com/in/eduardoleao052/">
+    <img src="https://img.shields.io/badge/-LinkedIn-blue?style=flat-square&logo=linkedin">
+</a></p>
+<h1 id="tensor">Tensor</h1>
+<p>The Tensor is the main object of this library. In this section are listed all of the <strong>Tensor</strong> methods.</p>
+<h2 id="torchtensor">torch.tensor</h2>
+<pre><code>torch.tensor(data,
+            requires_grad=false,
+            device='cpu') → Tensor
+</code></pre>
+<p>Returns a tensor filled with the data in the argument <code>data</code>.</p>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><strong>data (Array)</strong> - Javascript Array containing the data to be stored in the Tensor. This array can have any number of dimensions, but must have a homogenous shape, and only numbers.</li>
+<li><strong>requires_grad (boolean)</strong> - Whether to keep track of this tensor's gradients. Set this to true if you want to <strong>learn</strong> this parameter in your model. Default: <code>false</code>.</li>
+<li><strong>device (string)</strong> - Device to store Tensor. Either "gpu" or "cpu". If your device has a gpu, large models will train faster on it.</li>
+</ul>
+<h4 id="example">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.tensor([[1,2,3],[4,5,6]], false, 'gpu');
+&gt;&gt;&gt; console.log(a.data);
+//[[1,2,3],
+// [4,5,6]]
+</code></pre>
+<h2 id="torchzeros">torch.zeros</h2>
+<pre><code>torch.zeros(*shape,
+            requires_grad=false,
+            device='cpu') → Tensor
+</code></pre>
+<p>Returns a tensor filled with zeros with dimensions like <code>shape</code>.</p>
+<h4 id="parameters_1">Parameters</h4>
+<ul>
+<li><strong>shape (Array)</strong> - Javascript Array containing the shape of the Tensor.</li>
+<li><strong>requires_grad (boolean)</strong> - Whether to keep track of this tensor's gradients. Set this to true if you want to <strong>learn</strong> this parameter in your model. Default: <code>false</code>.</li>
+<li><strong>device (string)</strong> - Device to store Tensor. Either "gpu" or "cpu". If your device has a gpu, large models will train faster on it.</li>
+</ul>
+<h4 id="example_1">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.zeros([3,2], false, 'gpu');
+&gt;&gt;&gt; console.log(a.data);
+//[[0, 0],
+// [0, 0]
+// [0, 0]]
+</code></pre>
+<h2 id="torchones">torch.ones</h2>
+<pre><code>torch.ones(*shape,
+            requires_grad=false,
+            device='cpu') → Tensor
+</code></pre>
+<p>Returns a tensor filled with ones with dimensions like <code>shape</code>.</p>
+<h4 id="parameters_2">Parameters</h4>
+<ul>
+<li><strong>shape (Array)</strong> - Javascript Array containing the shape of the Tensor.</li>
+<li><strong>requires_grad (boolean)</strong> - Whether to keep track of this tensor's gradients. Set this to true if you want to <strong>learn</strong> this parameter in your model. Default: <code>false</code>.</li>
+<li><strong>device (string)</strong> - Device to store Tensor. Either "gpu" or "cpu". If your device has a gpu, large models will train faster on it.</li>
+</ul>
+<h4 id="example_2">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.ones([3,2], false, 'gpu');
+&gt;&gt;&gt; console.log(a.data);
+//[[1, 1],
+// [1, 1]
+// [1, 1]]
+</code></pre>
+<h2 id="torchtril">torch.tril</h2>
+<pre><code>torch.tril(*shape,
+            requires_grad=false,
+            device='cpu') → Tensor
+</code></pre>
+<p>Returns a 2D lower triangular tensor.</p>
+<h4 id="parameters_3">Parameters</h4>
+<ul>
+<li><strong>shape (Array)</strong> - Javascript Array containing the shape of the Tensor.</li>
+<li><strong>requires_grad (boolean)</strong> - Whether to keep track of this tensor's gradients. Set this to true if you want to <strong>learn</strong> this parameter in your model. Default: <code>false</code>.</li>
+<li><strong>device (string)</strong> - Device to store Tensor. Either "gpu" or "cpu". If your device has a gpu, large models will train faster on it.</li>
+</ul>
+<h4 id="example_3">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.tril([4,3], false, 'gpu');
+&gt;&gt;&gt; console.log(a.data);
+//[[1, 0, 0],
+// [1, 1, 0]
+// [1, 1, 1]
+// [1, 1, 1]]
+&gt;&gt;&gt; let b = torch.tril([3,4], false, 'gpu');
+&gt;&gt;&gt; console.log(b.data);
+//[[1, 0, 0, 0],
+// [1, 1, 0, 0]
+// [1, 1, 1, 0]
+</code></pre>
+<h2 id="torchrandn">torch.randn</h2>
+<pre><code>torch.randn(*shape,
+            requires_grad=false,
+            device='cpu') → Tensor
+</code></pre>
+<p>Returns a tensor filled with randomly sampled data with dimensions like <code>shape</code>. The sample is from a normal distribution.</p>
+<h4 id="parameters_4">Parameters</h4>
+<ul>
+<li><strong>shape (Array)</strong> - Javascript Array containing the shape of the Tensor.</li>
+<li><strong>requires_grad (boolean)</strong> - Whether to keep track of this tensor's gradients. Set this to true if you want to <strong>learn</strong> this parameter in your model. Default: <code>false</code>.</li>
+<li><strong>device (string)</strong> - Device to store Tensor. Either "gpu" or "cpu". If your device has a gpu, large models will train faster on it.</li>
+</ul>
+<h4 id="example_4">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randn([3,2], false, 'gpu');
+&gt;&gt;&gt; console.log(a.data);
+//[[1.001, 0.122],
+// [-0.93, 0.125]
+// [0.123,-0.001]]
+</code></pre>
+<h2 id="torchrand">torch.rand</h2>
+<pre><code>torch.rand(*shape,
+            requires_grad=false,
+            device='cpu') → Tensor
+</code></pre>
+<p>Creates new instance of the Tensor class filled with numbers in a uniform distribution in ]0,1[.</p>
+<h4 id="parameters_5">Parameters</h4>
+<ul>
+<li><strong>shape (Array)</strong> - Javascript Array containing the shape of the Tensor.</li>
+<li><strong>requires_grad (boolean)</strong> - Whether to keep track of this tensor's gradients. Set this to true if you want to <strong>learn</strong> this parameter in your model. Default: <code>false</code>.</li>
+<li><strong>device (string)</strong> - Device to store Tensor. Either "gpu" or "cpu". If your device has a gpu, large models will train faster on it.</li>
+</ul>
+<h4 id="example_5">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.rand([3,2], false, 'gpu');
+&gt;&gt;&gt; console.log(a.data);
+//[[0.011, 0.122],
+// [-0.03, 0.105]
+// [-0.90,-0.202]]
+</code></pre>
+<h2 id="torchrandint">torch.randint</h2>
+<pre><code>torch.rand(low,
+            high,
+            *shape,
+            requires_grad=false,
+            device='cpu') → Tensor
+</code></pre>
+<p>Creates new instance of the Tensor class filled with random integers between <code>low</code> and <code>high</code>.</p>
+<h4 id="parameters_6">Parameters</h4>
+<ul>
+<li><strong>low</strong> - Lowest integer that can be sampled.</li>
+<li><strong>high</strong> - One above highest integer that can be sampled.</li>
+<li><strong>shape (Array)</strong> - Javascript Array containing the shape of the Tensor.</li>
+<li><strong>requires_grad (boolean)</strong> - Whether to keep track of this tensor's gradients. Set this to true if you want to <strong>learn</strong> this parameter in your model. Default: <code>false</code>.</li>
+<li><strong>device (string)</strong> - Device to store Tensor. Either "gpu" or "cpu". If your device has a gpu, large models will train faster on it.</li>
+</ul>
+<h4 id="example_6">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.rand([3,2], false, 'gpu');
+&gt;&gt;&gt; console.log(a.data);
+//[[0.011, 0.122],
+// [-0.03, 0.105]
+// [-0.90,-0.202]]
+</code></pre>
+<h2 id="tensorbackward">tensor.backward</h2>
+<p>Performs backpropagation from this tensor backwards. It fills the gradients of every tensor that led to this one with gradients relative to <strong>this</strong> tensor.</p>
+<blockquote>
+<p><strong>Note:</strong> This only happens to tensors that have <code>requires_grad</code> set to true.</p>
+</blockquote>
+<h4 id="example_7">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randn([3,2], true, 'gpu');
+&gt;&gt;&gt; let b = torch.randn([2,4], false, 'gpu');
+&gt;&gt;&gt; let c = torch.matmul(a,b);
+&gt;&gt;&gt; c.backward();
+&gt;&gt;&gt; console.log(a.grad);
+//[[0.001, -0.99],
+// [-0.13, 0.333]
+// [-0.91,-0.044]]
+</code></pre>
+<h2 id="tensorzero_grad">tensor.zero_grad</h2>
+<p>Clears the gradients stored in this tensor. Sets the gadients to zero. This is used after the gradients have been used to update the parameters of a model, to set the model up for the next iteration.</p>
+<h4 id="example_8">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randn([3,2], true, 'gpu');
+&gt;&gt;&gt; let b = torch.randn([2,4], false, 'gpu');
+&gt;&gt;&gt; let c = torch.matmul(a,b);
+&gt;&gt;&gt; c.backward();
+&gt;&gt;&gt; console.log(a.grad);
+//[[0.001, -0.99],
+// [-0.13, 0.333]
+// [-0.91,-0.044]]
+&gt;&gt;&gt; a.zero_grad();
+&gt;&gt;&gt; console.log(a.grad);
+//[[0, 0],
+// [0, 0]
+// [0, 0]]
+</code></pre>
+<h2 id="tensorzero_grad_graph">tensor.zero_grad_graph</h2>
+<p>Clears the gradients stored in this tensor, setting the gadients to zero, and does the same for every tensor that led to this one. This is used after the gradients have been used to update the parameters of a model, to set the model up for the next iteration.</p>
+<h4 id="example_9">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randn([3,2], true, 'gpu');
+&gt;&gt;&gt; let b = torch.randn([2,4], true, 'gpu');
+&gt;&gt;&gt; let c = torch.matmul(a,b);
+&gt;&gt;&gt; c.backward();
+&gt;&gt;&gt; console.log(a.grad);
+//[[0.001, -0.99],
+// [-0.13, 0.333]
+// [-0.91,-0.044]]
+&gt;&gt;&gt; c.zero_grad_graph(); // Clears gradients of c, b, and a.
+&gt;&gt;&gt; console.log(a.grad);
+//[[0, 0],
+// [0, 0]
+// [0, 0]]
+</code></pre>
+<h2 id="tensortolist">tensor.tolist</h2>
+<p>Returns an Array with the tensor's data.</p>
+<h4 id="example_10">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randn([3,2], true, 'gpu');
+&gt;&gt;&gt; let aArray = a.tolist();
+&gt;&gt;&gt; console.log(aArray);
+//[[0.001, -0.99],
+// [-0.13, 0.333]
+// [-0.91,-0.044]]
+</code></pre>
+<h2 id="tensordata">tensor.data</h2>
+<p>Returns the tensor's data as a javascript Array.</p>
+<h4 id="example_11">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randn([3,2], true, 'gpu');
+&gt;&gt;&gt; console.log(a.data);
+//[[0.001, -0.99],
+// [-0.13, 0.333]
+// [-0.91,-0.044]]
+</code></pre>
+<h2 id="tensorlength">tensor.length</h2>
+<p>Returns the tensor's length (size of first dimension).</p>
+<h4 id="example_12">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randn([3,2], true, 'gpu');
+&gt;&gt;&gt; console.log(a.length);
+// 3
+</code></pre>
+<h2 id="tensorndims">tensor.ndims</h2>
+<p>Returns the number of dimensions in the Tensor.</p>
+<h4 id="example_13">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randn([3,2,1,4], true, 'gpu');
+&gt;&gt;&gt; console.log(a.ndims);
+// 4
+</code></pre>
+<h2 id="tensorgrad">tensor.grad</h2>
+<p>Returns the gradients currently stored in the Tensor.</p>
+<h4 id="example_14">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randn([3,2], true, 'gpu');
+&gt;&gt;&gt; let b = torch.randn([2,4], true, 'gpu');
+&gt;&gt;&gt; let c = torch.matmul(a,b);
+&gt;&gt;&gt; c.backward();
+&gt;&gt;&gt; console.log(a.grad);
+//[[0.001, -0.99],
+// [-0.13, 0.333]
+// [-0.91,-0.044]]
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../operations/" class="btn btn-neutral float-right" title="Operations">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../operations/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

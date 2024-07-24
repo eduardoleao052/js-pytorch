@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Operations - Js-PyTorch Documentation</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Operations";
+        var mkdocs_page_input_path = "operations.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Js-PyTorch Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../tensor/">Tensor</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Operations</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#torchadd">torch.add</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchsub">torch.sub</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_1">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_1">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchneg">torch.neg</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_2">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_2">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchmul">torch.mul</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_3">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_3">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchdiv">torch.div</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_4">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_4">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchmatmul">torch.matmul</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_5">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_5">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchsum">torch.sum</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_6">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_6">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchmean">torch.mean</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_7">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_7">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchvariance">torch.variance</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_8">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_8">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchtranspose">torch.transpose</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_9">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_9">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchat">torch.at</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_10">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_10">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchmasked_fill">torch.masked_fill</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_11">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_11">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchpow">torch.pow</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_12">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_12">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchsqrt">torch.sqrt</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_13">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_13">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchexp">torch.exp</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_14">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_14">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#torchlog">torch.log</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters_15">Parameters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_15">Example</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../layers/">Layers</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../tutorials/">Tutorials</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Js-PyTorch Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Operations</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <p><a href="https://www.github.com/eduardoleao052/">
+    <img src="https://img.shields.io/badge/GitHub-%23121011.svg?style=flat-square&logo=github&logoColor=white">
+</a>
+<a href="https://www.linkedin.com/in/eduardoleao052/">
+    <img src="https://img.shields.io/badge/-LinkedIn-blue?style=flat-square&logo=linkedin">
+</a></p>
+<h1 id="tensor-operations">Tensor Operations</h1>
+<p>In this section are listed all of the <strong>Tensor Operation</strong> methods.</p>
+<h2 id="torchadd">torch.add</h2>
+<pre><code>torch.add(a,
+          b) → Tensor
+</code></pre>
+<ul>
+<li>If both tensors are scalars, the simple sum is returned.</li>
+<li>If one tensor is a scalar, the element-wise sum of the scalar and the tensor is returned.</li>
+<li>If tensors both are n-dimensional tensors, JS-PyTorch will attempt to broadcast their shapes, and add them element-wise.</li>
+</ul>
+<h4 id="parameters">Parameters</h4>
+<ul>
+<li><strong>a (Tensor | number)</strong> - Input Tensor or number.</li>
+<li><strong>b (Tensor | number)</strong> - Other Tensor or number.</li>
+</ul>
+<h4 id="example">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.tensor([[1,1,2,3],
+                          [6,7,8,9]]);
+&gt;&gt;&gt; let b = torch.tensor([1]);
+&gt;&gt;&gt; let c = torch.add(a,b);
+&gt;&gt;&gt; c.data;
+//[[2,2,3,4],
+// [7,8,9,10]]
+&gt;&gt;&gt; b = torch.tensor([[0],
+                      [2]]);
+&gt;&gt;&gt; c = torch.add(a,b);
+&gt;&gt;&gt; c.data;
+//[[1,1,2,3],
+// [8,9,10,11]]
+&gt;&gt;&gt; b = torch.tensor([[0,0,0,0],
+                      [0,0,100,0]]);
+&gt;&gt;&gt; c = torch.add(a,b);
+&gt;&gt;&gt; c.data;
+//[[1,1,2,3],
+// [6,7,108,9]]
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.add(a, b)</code> is the same as <code>a.add(b)</code>.
+</br></p>
+</blockquote>
+<h2 id="torchsub">torch.sub</h2>
+<pre><code>torch.sub(a,
+          b) → Tensor
+</code></pre>
+<ul>
+<li>If both tensors are scalars, the simple subtraction is returned.</li>
+<li>If one tensor is a scalar, the element-wise subtraction of the scalar and the tensor is returned.</li>
+<li>If tensors both are n-dimensional tensors, JS-PyTorch will attempt to broadcast their shapes, and subtract them element-wise.</li>
+</ul>
+<h4 id="parameters_1">Parameters</h4>
+<ul>
+<li><strong>a (Tensor | number)</strong> - Input Tensor or number.</li>
+<li><strong>b (Tensor | number)</strong> - Other Tensor or number.</li>
+</ul>
+<h4 id="example_1">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.tensor([[1,1,2,3],
+                          [6,7,8,9]]);
+&gt;&gt;&gt; let b = torch.tensor([1]);
+&gt;&gt;&gt; let c = torch.sub(a,b);
+&gt;&gt;&gt; c.data;
+//[[0,0,1,2],
+// [5,6,7,8]]
+&gt;&gt;&gt; b = torch.tensor([[0],
+                      [2]]);
+&gt;&gt;&gt; c = torch.sub(a,b);
+&gt;&gt;&gt; c.data;
+//[[1,1,2,3],
+// [4,5,6,7]]
+&gt;&gt;&gt; b = torch.tensor([[0,0,0,0],
+                      [0,0,8,0]]);
+&gt;&gt;&gt; c = torch.sub(a,b);
+&gt;&gt;&gt; c.data;
+//[[1,1,2,3],
+// [6,7,0,9]]
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.sub(a, b)</code> is the same as <code>a.sub(b)</code>.
+</br></p>
+</blockquote>
+<h2 id="torchneg">torch.neg</h2>
+<pre><code>torch.neg(a) → Tensor
+</code></pre>
+<p>Returns the element-wise opposite of the given Tensor.</p>
+<h4 id="parameters_2">Parameters</h4>
+<ul>
+<li><strong>a (Tensor | number)</strong> - Input Tensor or number.</li>
+</ul>
+<h4 id="example_2">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.tensor([1]);
+&gt;&gt;&gt; let b = torch.neg(a);
+&gt;&gt;&gt; c.data;
+// [-1]
+&gt;&gt;&gt; a = torch.tensor([-3]);
+&gt;&gt;&gt; b = torch.neg(a);
+&gt;&gt;&gt; c.data;
+// [3]
+&gt;&gt;&gt; a = torch.tensor([[0,1,0,-1],
+                      [-3,2,1,0]]);
+&gt;&gt;&gt; b = torch.neg(a);
+&gt;&gt;&gt; c.data;
+//[[0,-1,0,1],
+// [3,-2,-1,0]]
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.neg(a)</code> is the same as <code>a.neg()</code>.
+</br></p>
+</blockquote>
+<h2 id="torchmul">torch.mul</h2>
+<pre><code>torch.mul(a,
+          b) → Tensor
+</code></pre>
+<ul>
+<li>If both tensors are scalars, the simple dot product is returned.</li>
+<li>If one tensor is a scalar, the element-wise product of the scalar and the tensor is returned.</li>
+<li>If tensors both are n-dimensional tensors, JS-PyTorch will attempt to broadcast their shapes, and multiply them element-wise.</li>
+</ul>
+<h4 id="parameters_3">Parameters</h4>
+<ul>
+<li><strong>a (Tensor | number)</strong> - Input Tensor or number.</li>
+<li><strong>b (Tensor | number)</strong> - Other Tensor or number.</li>
+</ul>
+<h4 id="example_3">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.tensor([[1,1,2,3],
+                          [6,7,8,9]]);
+&gt;&gt;&gt; let b = torch.tensor([2]);
+&gt;&gt;&gt; let c = torch.mul(a,b);
+&gt;&gt;&gt; c.data;
+//[[0,0,1,2],
+// [5,6,7,8]]
+&gt;&gt;&gt; b = torch.tensor([[0],
+                      [-1]]);
+&gt;&gt;&gt; c = torch.mul(a,b);
+&gt;&gt;&gt; c.data;
+//[[0, 0, 0, 0],
+// [-6,-7,-8,-9]]
+&gt;&gt;&gt; b = torch.tensor([[0,0,0,0],
+                      [0,0,8,0]]);
+&gt;&gt;&gt; c = torch.mul(a,b);
+&gt;&gt;&gt; c.data;
+//[[1,1,2,3],
+// [6,7,0,9]]
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.mul(a, b)</code> is the same as <code>a.mul(b)</code>.
+</br></p>
+</blockquote>
+<h2 id="torchdiv">torch.div</h2>
+<pre><code>torch.div(a,
+          b) → Tensor
+</code></pre>
+<ul>
+<li>If both tensors are scalars, the simple division is returned.</li>
+<li>If one tensor is a scalar, the element-wise division of the scalar and the tensor is returned.</li>
+<li>If tensors both are n-dimensional tensors, JS-PyTorch will attempt to broadcast their shapes, and divide them element-wise.</li>
+</ul>
+<h4 id="parameters_4">Parameters</h4>
+<ul>
+<li><strong>a (Tensor | number)</strong> - Input Tensor or number.</li>
+<li><strong>b (Tensor | number)</strong> - Other Tensor or number.</li>
+</ul>
+<h4 id="example_4">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.tensor([[2,-2,4,6],
+                          [6,-6,8,8]]);
+&gt;&gt;&gt; let b = torch.tensor([2]);
+&gt;&gt;&gt; let c = torch.div(a,b);
+&gt;&gt;&gt; c.data;
+//[[1,-1,2,3],
+// [3,-3,4,4]]
+&gt;&gt;&gt; b = torch.tensor([[1],
+                      [-1]]);
+&gt;&gt;&gt; c = torch.div(a,b);
+&gt;&gt;&gt; c.data;
+//[[2,-2, 4, 6],
+// [-6,6,-8,-8]]
+&gt;&gt;&gt; b = torch.tensor([[1,1,1,1],
+                      [1,1,16,1]]);
+&gt;&gt;&gt; c = torch.div(a,b);
+&gt;&gt;&gt; c.data;
+//[[2,-2, 4, 6],
+// [6,-6,0.5,8]]
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.div(a, b)</code> is the same as <code>a.div(b)</code>.
+</br></p>
+</blockquote>
+<h2 id="torchmatmul">torch.matmul</h2>
+<pre><code>torch.matlul(a,
+             b) → Tensor
+</code></pre>
+<p>Performs matrix multiplication between the last two dimensions of each Tensor.
+If inputs are of shape <code>[H,W]</code> and <code>[W,C]</code>, the output will have shape <code>[H,C]</code>.
+If the two Tensors have more than two dimensions, they can be <strong>broadcast</strong>:</p>
+<ul>
+<li><code>[B,N,H,W], [B,N,W,C] =&gt; [B,N,H,C]</code></li>
+<li><code>[B,N,H,W], [W,C] =&gt; [B,N,H,C]</code></li>
+<li><code>[H,W], [B,N,W,C] =&gt; [B,N,H,C]</code></li>
+<li><code>[B,N,H,W], [1,1,W,C] =&gt; [B,N,H,C]</code></li>
+</ul>
+<h4 id="parameters_5">Parameters</h4>
+<ul>
+<li><strong>a (Tensor | number)</strong> - Input Tensor.</li>
+<li><strong>b (Tensor | number)</strong> - Other Tensor.</li>
+</ul>
+<h4 id="example_5">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.tensor([[1,1,1,2], 
+                          [3,1,0,0]]); // Shape [2,4]
+&gt;&gt;&gt; let b = torch.tensor([[1],
+                          [0],
+                          [0],
+                          [0]]); // Shape [4,1]
+&gt;&gt;&gt; let c = torch.matmul(a,b); // Shape [2,1]
+&gt;&gt;&gt; c.data;
+//[[1],
+// [3]]
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.matmul(a, b)</code> is the same as <code>a.matmul(b)</code>.
+</br></p>
+</blockquote>
+<h2 id="torchsum">torch.sum</h2>
+<pre><code>torch.sum(a,
+          dim,
+          keepdims=false) → Tensor
+</code></pre>
+<p>Gets the sum of the Tensor over a specified dimension.</p>
+<h4 id="parameters_6">Parameters</h4>
+<ul>
+<li><strong>a (Tensor)</strong> - Input Tensor.</li>
+<li><strong>dim (integer)</strong> - Dimension to perform the sum over.</li>
+<li><strong>keepdims (boolean)</strong> - Whether to keep dimensions of original tensor.</li>
+</ul>
+<h4 id="example_6">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.ones([4,3], false, 'gpu');
+&gt;&gt;&gt; a.data;
+//[[1, 1, 1],
+// [1, 1, 1]
+// [1, 1, 1]
+// [1, 1, 1]]
+&gt;&gt;&gt; let b = torch.sum(a, 0);
+&gt;&gt;&gt; b.data;
+// [[4, 4, 4]]
+&gt;&gt;&gt; b = torch.sum(a, 1);
+&gt;&gt;&gt; b.data;
+// [[3],
+//  [3],
+//  [3],
+//  [3]]
+&gt;&gt;&gt; b = torch.sum(a, 0, true);
+&gt;&gt;&gt; b.data;
+//[[4, 4, 4],
+// [4, 4, 4]
+// [4, 4, 4]
+// [4, 4, 4]]
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.sum(a)</code> is the same as <code>a.sum()</code>.
+</br></p>
+</blockquote>
+<h2 id="torchmean">torch.mean</h2>
+<pre><code>torch.mean(a,
+          dim,
+          keepdims=false) → Tensor
+</code></pre>
+<p>Gets the mean of the Tensor over a specified dimension.</p>
+<h4 id="parameters_7">Parameters</h4>
+<ul>
+<li><strong>a (Tensor)</strong> - Input Tensor.</li>
+<li><strong>dim (integer)</strong> - Dimension to get the mean of.</li>
+<li><strong>keepdims (boolean)</strong> - Whether to keep dimensions of original tensor.</li>
+</ul>
+<h4 id="example_7">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randint(0, 2, [2,3], false, 'gpu');
+&gt;&gt;&gt; a.data;
+//[[0, 1, 0],
+// [1, 1, 1]]
+&gt;&gt;&gt; let b = torch.mean(a, 0);
+&gt;&gt;&gt; b.data;
+// [[0.5, 1, 0.5]]
+&gt;&gt;&gt; b = torch.mean(a, 1);
+&gt;&gt;&gt; b.data;
+// [[0.333333],
+//  [1]]
+&gt;&gt;&gt; b = torch.mean(a, 0, true);
+&gt;&gt;&gt; b.data;
+//[[0.5, 1, 0.5],
+// [0.5, 1, 0.5]]
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.mean(a)</code> is the same as <code>a.mean()</code>.
+</br></p>
+</blockquote>
+<h2 id="torchvariance">torch.variance</h2>
+<pre><code>torch.variance(a,
+          dim,
+          keepdims=false) → Tensor
+</code></pre>
+<p>Gets the variance of the Tensor over a specified dimension.</p>
+<h4 id="parameters_8">Parameters</h4>
+<ul>
+<li><strong>a (Tensor)</strong> - Input Tensor.</li>
+<li><strong>dim (integer)</strong> - Dimension to get the variance of.</li>
+<li><strong>keepdims (boolean)</strong> - Whether to keep dimensions of original tensor.</li>
+</ul>
+<h4 id="example_8">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randint(0, 3, [3,2], false, 'gpu');
+&gt;&gt;&gt; a.data;
+//[[0, 2],
+// [2, 1],
+// [0, 1]]
+&gt;&gt;&gt; let b = torch.variance(a, 0);
+&gt;&gt;&gt; b.data;
+// [[0.9428, 0.471404]]
+&gt;&gt;&gt; b = torch.variance(a, 0, true);
+&gt;&gt;&gt; b.data;
+//[[0.9428, 0.471404]
+// [0.9428, 0.471404]
+// [0.9428, 0.471404]]
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.variance(a)</code> is the same as <code>a.variance()</code>.
+</br></p>
+</blockquote>
+<h2 id="torchtranspose">torch.transpose</h2>
+<pre><code>torch.transpose(a,
+          dim1,
+          dim2) → Tensor
+</code></pre>
+<p>Transposes the tensor along two consecutive dimensions.</p>
+<h4 id="parameters_9">Parameters</h4>
+<ul>
+<li><strong>a (Tensor)</strong> - Input Tensor.</li>
+<li><strong>dim1 (integer)</strong> - First dimension.</li>
+<li><strong>dim2 (boolean)</strong> - Second dimension.</li>
+</ul>
+<h4 id="example_9">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randint(0, 3, [3,2], false, 'gpu');
+&gt;&gt;&gt; a.data;
+//[[0, 2],
+// [2, 1],
+// [0, 1]]
+&gt;&gt;&gt; let b = torch.transpose(a, -1, -2);
+&gt;&gt;&gt; b.data;
+//[[0, 2, 0],
+// [2, 1, 1]]
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.transpose(a)</code> is the same as <code>a.transpose()</code>.
+</br></p>
+</blockquote>
+<h2 id="torchat">torch.at</h2>
+<pre><code>torch.at(a,
+          dim1,
+          dim2) → Tensor
+</code></pre>
+<p>If a single Array <code>index1</code> is passed, returns the elements in the tensor indexed by this Array: <code>tensor[index1]</code>.
+If a two Arrays <code>index1</code> and <code>index2</code> are passed, returns the elements in the tensor indexed by <code>tensor[index1][index2]</code>.</p>
+<h4 id="parameters_10">Parameters</h4>
+<ul>
+<li><strong>a (Tensor)</strong> - Input Tensor.</li>
+<li><strong>index1 (Array)</strong> - Array containing indexes to extract data from in first dimension.</li>
+<li><strong>index2 (Array)</strong> - Array containing indexes to extract data from in second dimension.</li>
+</ul>
+<h4 id="example_10">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.tensor([[1,1,2,3],
+                [6,7,8,9]]);
+&gt;&gt; let b = torch.at(a,[0,1,1], [2,0,3]);
+&gt;&gt;&gt; b.data;
+// [2,6,9]
+&gt;&gt;&gt; b = torch.at(a,[0,1,0]);
+&gt;&gt;&gt; b.data;
+// [[1,1,2,3],
+//  [6,7,8,9],
+//  [1,1,2,3]])
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.at(a)</code> is the same as <code>a.at()</code>.
+</br></p>
+</blockquote>
+<h2 id="torchmasked_fill">torch.masked_fill</h2>
+<pre><code>torch.masked_fill(a,
+                  condition,
+                  value) → Tensor
+</code></pre>
+<p>A condition function scans the <code>a</code> tensor element-wise, returning <code>true</code> or <code>false</code>.
+In places within the <code>a</code> tensor where the "condition" function returns True, we set the value to <code>value</code>.</p>
+<h4 id="parameters_11">Parameters</h4>
+<ul>
+<li><strong>a (Tensor)</strong> - Input Tensor.</li>
+<li><strong>condition (function)</strong> - Function that returns True or False element-wise.</li>
+<li><strong>value (number)</strong> - Value to fill Tensor when condition is met.</li>
+</ul>
+<h4 id="example_11">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.tensor([[1,5,2,3],
+                   [6,7,2,9]]);
+&gt;&gt;&gt; let b = torch.masked_fill(a, mask, (el) =&gt; {return el &gt; 3}, 0);
+&gt;&gt;&gt; b.data;
+// [[1,0,2,3],
+//  [0,0,2,0]]
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.masked_fill(a)</code> is the same as <code>a.masked_fill()</code>.
+</br></p>
+</blockquote>
+<h2 id="torchpow">torch.pow</h2>
+<pre><code>torch.pow(a,
+          n) → Tensor
+</code></pre>
+<p>Returns tensor to element-wise power of n.</p>
+<h4 id="parameters_12">Parameters</h4>
+<ul>
+<li><strong>a (Tensor)</strong> - Input Tensor.</li>
+<li><strong>n (function)</strong> - Exponent.</li>
+</ul>
+<h4 id="example_12">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.tensor([[1,-5],
+                          [6,7]]);
+&gt;&gt;&gt; let b = torch.pow(a, 2);
+&gt;&gt;&gt; b.data;
+// [[1,25],
+//  [36,49]]
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.pow(a)</code> is the same as <code>a.pow()</code>.
+</br></p>
+</blockquote>
+<h2 id="torchsqrt">torch.sqrt</h2>
+<pre><code>torch.sqrt(a) → Tensor
+</code></pre>
+<p>Returns element-wise square root of the tensor.</p>
+<h4 id="parameters_13">Parameters</h4>
+<ul>
+<li><strong>a (Tensor)</strong> - Input Tensor.</li>
+</ul>
+<h4 id="example_13">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.tensor([[1,9],
+                          [4,16]]);
+&gt;&gt;&gt; let b = torch.sqrt(a);
+&gt;&gt;&gt; b.data;
+// [[1,3],
+//  [2,4]]
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.sqrt(a)</code> is the same as <code>a.sqrt()</code>.
+</br></p>
+</blockquote>
+<h2 id="torchexp">torch.exp</h2>
+<pre><code>torch.exp(a) → Tensor
+</code></pre>
+<p>Returns element-wise exponentiation of the tensor.</p>
+<h4 id="parameters_14">Parameters</h4>
+<ul>
+<li><strong>a (Tensor)</strong> - Input Tensor.</li>
+</ul>
+<h4 id="example_14">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.tensor([[1,2],
+                          [0,-1]]);
+&gt;&gt;&gt; let b = torch.exp(a);
+&gt;&gt;&gt; b.data;
+// [[2.71828,7.389056],
+//  [1.00000,0.36788]]
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.exp(a)</code> is the same as <code>a.exp()</code>.
+</br></p>
+</blockquote>
+<h2 id="torchlog">torch.log</h2>
+<pre><code>torch.log(a) → Tensor
+</code></pre>
+<p>Returns element-wise natural log of the tensor.</p>
+<h4 id="parameters_15">Parameters</h4>
+<ul>
+<li><strong>a (Tensor)</strong> - Input Tensor.</li>
+</ul>
+<h4 id="example_15">Example</h4>
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.tensor([[1,2],
+                          [0.01,3]]);
+&gt;&gt;&gt; let b = torch.log(a);
+&gt;&gt;&gt; b.data;
+// [[0.00000,0.693147],
+//  [-4.6051,1.098612]]
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>torch.log(a)</code> is the same as <code>a.log()</code>.</p>
+</blockquote>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../tensor/" class="btn btn-neutral float-left" title="Tensor"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../layers/" class="btn btn-neutral float-right" title="Layers">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../tensor/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../layers/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

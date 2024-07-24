@@ -1,0 +1,12 @@
+site_name: Js-PyTorch Documentation
+nav:
+    - Home: index.md
+    - Tensor: tensor.md
+    - Operations: operations.md
+    - Layers: layers.md
+    - Tutorials: tutorials.md
+
+theme:
+  name: readthedocs
+  palette:
+    primary: blue
