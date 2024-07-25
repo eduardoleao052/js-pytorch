@@ -215,3 +215,35 @@ input {
     font-size: 16px;
     color:#1b1b1b;
 }
+
+ul {
+    display: inline-block;
+    width: 50%;
+}
+
+#mnist-and-list {
+    display: flex;
+    align-items: center;
+}
+
+#mnist-div {
+    width: 40%;
+    display: inline-flex;
+    align-self:center;
+    margin-left: 10%;
+}
+
+#mnist {
+    align-self: center;
+    border-radius: 5%;
+    margin-left: auto;
+    margin-right: auto;
+    width: 55%;
+    opacity: .99;
+}
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 40%;
+  }

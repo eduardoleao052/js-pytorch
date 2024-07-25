@@ -6,50 +6,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neural Network Demo</title>
 
-    <script src="bundle.js"></script>
     <script type="module" src="index.js"></script>
 
     <link rel="stylesheet" href="demo.css">
 </head>
 
 <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/BrowserFS/2.0.0/browserfs.min.js"></script>
+    <script src="bundle.js"></script>
     <script type="module">
         import { torch } from './index.js';
+        import { train, test } from './data/data.js';
+        window.train = train;
+        window.test = test;
         window.torch = torch;
     </script>
 
     <div style="height: 20px;"></div>
     <div class="container">
         <div class="separator" id="right-separator" style="display: block; padding-bottom: 0px;">
-            <img style="display: block;" class='icon' src="../../assets/demo_logo.png">
+            <a target="_blank" href="https://github.com/eduardoleao052/js-pytorch"><img style="display: block;" class='icon' src="../../assets/demo_logo.png"></a>
             <a target="_blank" href="https://github.com/eduardoleao052/js-pytorch"> <img class="logos" src="../../assets/github.png" style="width: 25px; height: 25px; display: inline-block; margin-bottom: 5px;"></a>
             <a target="_blank" href="https://www.linkedin.com/in/eduardo-leao-368bb6259/"> <img class="logos" src="../../assets/linkedin.png" style="width: 25px; height: 25px; display: inline-block; margin-bottom: 5px;"></a>
         </div>
     
         <div class="separator" id="right-separator" style="margin-top: 10px; display: block;">
             <p style="display: block; font-size: 16px; color: #292929; margin-bottom: 25px;">Welcome to <b>JS-PyTorch's Web Demo</b>! You can choose the <b>Model Hyperparameters</b> on the left, set the <b>Model Layers</b> on the right (number of layers and hidden dimension on each). </p>
-            <ul> 
-                <li>This model was trained on a <b>Dummy dataset</b>, composed of <b>randomly generated images</b>. </li>
-                <br>
-                <li>The batch size is <b>8</b>, and the images have a dimension of <b>32x32</b>. </li>
-                <br>
-                <li>The output is a number from 0 to 31.</li>
-                <br>
-                <li>The Model is trained using an <b>Adam Optimizer</b> and a <b>Cross Entropy Loss</b>.</li>
-            </ul>
+            <div id="mnist-and-list">
+                <ul> 
+                    <li>This model was trained on <b>MNIST</b>, using <b>2000</b> training images. </li>
+                    <br>
+                    <li>The images have a dimension of <b>28x28</b>. </li>
+                    <br>
+                    <li>The output is a number from 0 to 9.</li>
+                    <br>
+                    <li>The training uses the <b>Adam Optimizer</b> and a <b>Cross Entropy Loss</b>.</li>
+                </ul>
+                <div id="mnist-div">
+                    <img id='mnist' src="data/image1.png">
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="container" id="upper-container">
         <div class="left-div">
-            <h2 style="display: inline-block; margin-left: 20px; margin-top: 2px; margin-bottom: 10px;">Training Parameters</h2>
+            <h2 style="display: inline-block; margin-left: 20px; margin-top: 2px; margin-bottom: 10px;">Training Hyperparameters</h2>
             <div class="separator" id="left-separator">
 
                 <label for="batch-size">Batch Size:</label>
-                <input type="number" id="batch-size" name="batch-size" min="1" value="8" max="64" onchange="checkInput(this)"> 
+                <input type="number" id="batch-size" name="batch-size" min="1" value="32" max="256" onchange="checkInput(this)"> 
 
                 <label for="learning-rate">Learning Rate:</label>
-                <input type="number" id="learning-rate" name="learning-rate" step="0.001" min="0" value="0.001" required>
+                <input type="number" id="learning-rate" name="learning-rate" step="0.00001" min="0" value="0.0005" required>
 
                 <label for="regularization">L2 Regularization:</label>
                 <input type="number" id="regularization" name="regularization" step="0.001" min="0" value="0.001">
@@ -93,6 +102,7 @@
             <p id="iter"> <b>Iteration:</b> </p>
             <p id="total-visited"> <b>Total Training Examples:</b> </p>
             <p id="loss"> <b>Loss:</b> </p>
+            <p id="epoch"> <b>Epoch:</b> </p>
             <p id="device-showcase"> <b>Device:</b> </p>
         </div>
         <divs tyle="display: inline-block;">
@@ -100,6 +110,7 @@
             <a target="_blank" href="https://www.linkedin.com/in/eduardo-leao-368bb6259/"><img class="logos" src="../../assets/linkedin.png"  style="width: 25px; height: 25px; display: inline-block; margin-bottom: 0px;"></a>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/BrowserFS/2.0.0/browserfs.min.js"></script>
     <script src="./gpu-browser.min.js"></script>
     <script>
         let boxCount = [];
@@ -110,22 +121,6 @@
         let iter = 0;
         let total_visited = 0;
         let device = 'cpu';
-
-        function doMytest() {
-            const gpu = new GPU.GPU();
-            const kernelFunc = function(a, b) {
-            let sum2 = 0;
-            for (let i = 0; i < len; i++) {
-                sum2 += a[this.thread.y][i] * b[i][this.thread.x];
-            }
-            return sum2;
-            };
-            let forwardKernel = gpu.createKernel(kernelFunc, { loopMaxIterations: 512 }).setOutput([512, 512]);
-            let a = torch.randn([512,512])
-            let b = torch.randn([512,512])
-            let c = forwardKernel(a.data, b.data)
-            console.log(c)
-        }
 
         function GPUCaller() {
             if (!training) {
@@ -159,7 +154,7 @@
                 const inputField = document.createElement('input');
                 inputField.type = 'number';
                 // The next Box has as many neurons as last current Box:
-                inputField.value = boxCount[boxCount.length -1] || '10';
+                inputField.value = boxCount[boxCount.length -1] || '64';
                 inputField.max = '256';
                 inputField.idx = boxCount.length;
                 inputField.id = `box-input`;
@@ -188,22 +183,27 @@
         };
 
         function checkInput(el){
-            if (el.value > 32) {
-                el.value = 32;
+            if (el.value > 256) {
+                el.value = 256;
             };
         }
 
-        function getBatch(x, y, batch_size) {
+        function getBatch(data, batch_size) {
             // Instantiate x_batch and y_batch as empty tensors:
             let x_batch = [];
             let y_batch = [];
             // Iteratively add instances to batch:
             for (let i=0 ; i < batch_size ; i++) {
-                p = Math.floor(Math.random() * x.length);
-                x_batch.push(x.data[p])
-                y_batch.push(y.data[p])
+                p = Math.floor(Math.random() * data.length);
+                x_batch.push(Object.entries(data[p])[0][1])
+                y_batch.push(Number(Object.entries(data[p])[0][0]))
             };
             return [torch.tensor(x_batch), torch.tensor(y_batch)];
+        };
+
+        function changeMNIST() {
+            let p = Math.floor(Math.random()*20) + 1;
+            document.getElementById("mnist").src=`data/image${p}.png`;
         };
 
         function trainLoopInitializer() {
@@ -236,7 +236,7 @@
                     constructor() {
                         super();
                         // Instantiate Neural Network's Layers:
-                        this.wIn = new torch.nn.Linear(32,boxCount[0],device);
+                        this.wIn = new torch.nn.Linear(784,boxCount[0],device);
                         this.reluIn = new torch.nn.ReLU();
                         if (boxCount.length > 1) {
                             this.w1 = new torch.nn.Linear(boxCount[0],boxCount[1],device);
@@ -251,9 +251,9 @@
                             this.w4 = new torch.nn.Linear(boxCount[3],boxCount[4],device);
                             this.relu4 = new torch.nn.ReLU();
                         };
-                        this.wOut = new torch.nn.Linear(boxCount[boxCount.length-1], 32, device);
+                        this.wOut = new torch.nn.Linear(boxCount[boxCount.length-1], 10, device);
                         
-                        this.reluOut = new torch.nn.ReLU();
+                        this.softmax = new torch.nn.Softmax();
 
                     };
 
@@ -276,7 +276,8 @@
                             z = this.relu4.forward(z);
                         };
                         z = this.wOut.forward(z);
-                        z = this.reluOut.forward(z);
+                        z = z.div(10);
+                        z = this.softmax.forward(z);
 
                         return z;
                     };
@@ -285,11 +286,6 @@
 
                 // Define loss function and optimizer:
                 globalThis.loss_func = new torch.nn.CrossEntropyLoss();
-                
-                // Instantiate input and output:
-                globalThis.x = torch.randn([8,32,32]);
-                globalThis.y = torch.randint(0,32,[8,32]);
-
             }; 
 
             // Get live learning rate and regularization values.
@@ -306,8 +302,8 @@
 
             // Training Loop:
             for(let i=0 ; i < 1 ; i++) {
-                let [x_batch, y_batch] = getBatch(x, y, batch_size)
-
+                let [x_batch, y_batch] = getBatch(train, batch_size)
+                
                 let z = model.forward(x_batch)
 
                 // Get loss:
@@ -321,19 +317,29 @@
                 
                 // Reset the gradients to zero after each training step:
                 optimizer.zero_grad()
+                
+                // Now, get a batch of test data:
+                let [x_test, y_test] = getBatch(test, batch_size)
+
+                // Run the batch of test data through the model:
+                let z_test = model.forward(x_test)
+
+                // Get the test loss:
+                loss_test = loss_func.forward(z_test, y_test)
 
                 // If loss went to infinity (model way too large for training size), represent that in the graph:
-                if (isNaN(loss.data[0])) {
+                if (isNaN(loss_test.data[0])) {
                     overFlow = overFlow * 1.5;
                     data.push(overFlow + (Math.random() - 0.5) * 15);
                 // If not, just keep adding the loss to the graph:
-                } else {data.push(loss.data)}
-                
+                } else {data.push(loss_test.data)}
+
                 // Display iteration and loss on the screen:
                 document.getElementById('iter').innerHTML = `<b>Iteration:</b> ${iter}`;
                 document.getElementById('total-visited').innerHTML = `<b>Total Training Examples:</b> ${total_visited}`;
-                document.getElementById('loss').innerHTML = `<b>Loss:</b> ${loss.data[0].toFixed(3)}`;
-                document.getElementById('device-showcase').innerHTML = `<b>Device:</b> ${device}`;
+                document.getElementById('loss').innerHTML = `<b>Loss:</b> ${loss_test.data[0].toFixed(3)}`;
+                document.getElementById('device-showcase').innerHTML = `<b>Device:</b> ${device}`
+                document.getElementById('epoch').innerHTML = `<b>Epoch:</b> ${Math.floor(total_visited/train.length)}`;
                 iter += 1;
                 total_visited += batch_size;
             
@@ -451,6 +457,7 @@
 
         // Initial setup
         addBox(); // Add one box initially
+        setInterval(changeMNIST , 1000);
     </script>
 </body>
 

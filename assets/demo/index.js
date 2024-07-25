@@ -277,9 +277,19 @@ class Tensor {
     } else {
       device = "cpu";
     }
-    if (other.forwardKernel === null) {
+    // On first iteration, create CPU or GPU kernel for matmul:
+    if (other.forwardKernel === null || other.batch_size != this.shape.at(-2)) {
       if (device === "gpu") {
-        const gpu = new GPU.GPU();
+        // If the batch size changed, warn user and update the batch size:
+        if (other.batch_size != null){
+          other.batch_size = other.shape.at(-2);
+          if (other.warned === undefined) {
+            console.warn('Testing batch size different from training batch size. JS-PyTorch recreating GPU Kernel (Less efficient)')
+            other.warned = true;
+          }
+        }
+        other.gpu = new GPU.GPU();
+        // Define Kernel function for matmul:
         const kernelFunc = function(a, b, len) {
           let sum2 = 0;
           for (let i = 0; i < len; i++) {
@@ -287,10 +297,12 @@ class Tensor {
           }
           return sum2;
         };
-        other.forwardKernel = gpu.createKernel(kernelFunc, { loopMaxIterations: other.shape.at(-2) }).setOutput([other.shape.at(-1), this.shape.at(-2)]);
-        other.backwardKernelA = gpu.createKernel(kernelFunc, { loopMaxIterations: other.shape.at(-1) }).setOutput([this.shape.at(-1), this.shape.at(-2)]);
-        other.backwardKernelB = gpu.createKernel(kernelFunc, { loopMaxIterations: this.shape.at(-2) }).setOutput([other.shape.at(-1), other.shape.at(-2)]);
+        // Create and store the GPU kernels:
+        other.forwardKernel = other.gpu.createKernel(kernelFunc, { loopMaxIterations: other.shape.at(-2) }).setOutput([other.shape.at(-1), this.shape.at(-2)]);
+        other.backwardKernelA = other.gpu.createKernel(kernelFunc, { loopMaxIterations: other.shape.at(-1) }).setOutput([this.shape.at(-1), this.shape.at(-2)]);
+        other.backwardKernelB = other.gpu.createKernel(kernelFunc, { loopMaxIterations: this.shape.at(-2) }).setOutput([other.shape.at(-1), other.shape.at(-2)]);
       } else {
+        // Build the CPU kernel:
         const kernelFunc = function(a, b, len) {
           const out = Array(a.length).fill(0).map(() => Array(b[0].length).fill(0));
           for (let i = 0; i < a.length; i++) {
@@ -304,11 +316,14 @@ class Tensor {
           }
           return out;
         };
+        // Store the CPU kernels:
         other.forwardKernel = kernelFunc;
         other.backwardKernelA = kernelFunc;
         other.backwardKernelB = kernelFunc;
       }
     }
+    // Store the batch size. If the batch size changes, we will create a new GPU kernel:
+    other.batch_size = this.shape.at(-2);
     return operation.forward(this, other);
   }
   /**

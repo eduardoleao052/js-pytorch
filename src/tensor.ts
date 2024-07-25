@@ -17,6 +17,9 @@ export class Tensor {
   public forwardKernel: any;
   public backwardKernelA: any;
   public backwardKernelB: any;
+  public batch_size: number | null;
+  public gpu: any;
+  public warned: boolean;
 
   /**
    * Creates new instance of the Tensor class.
@@ -36,6 +39,9 @@ export class Tensor {
     this.device = device;
     this.requires_grad = requires_grad;
     this.forwardKernel = null;
+    this.batch_size = null;
+    this.gpu = null;
+    this.warned = false;
 
     // Initialize momentum and velocity cumulatives for every parameter:
     if (this.requires_grad) {
@@ -252,12 +258,27 @@ export class Tensor {
    */
   matmul(other: Tensor): Tensor {
     const operation = new MatMul();
-    let device: string;
-    if (this.device === 'gpu' || other.device === 'gpu') { device = 'gpu' } else { device = 'cpu' };
-    if (other.forwardKernel === null) { 
-      if (device === 'gpu') {
+    let device;
+    if (this.device === "gpu" || other.device === "gpu") {
+      device = "gpu";
+    } else {
+      device = "cpu";
+    }
+    // On first iteration, create CPU or GPU kernel for matmul:
+    if (other.forwardKernel === null || other.batch_size != this.shape.at(-2)) {
+      if (device === "gpu") {
+        // Get GPU from GPU.js:
         const {GPU} = require('@eduardoleao052/gpu');
-        const gpu = new GPU();
+        // If the batch size changed, warn user and update the batch size:
+        if (other.batch_size != null){
+          other.batch_size = other.shape.at(-2);
+          if (other.warned === false) {
+            console.warn('Testing batch size different from training batch size. JS-PyTorch recreating GPU Kernel (Less efficient)')
+            other.warned = true;
+          }
+        }
+        other.gpu = new GPU();
+        // Define Kernel function for matmul:
         const kernelFunc = function(this: any, a: number[][], b: number[][], len: number): number {
           let sum = 0;
           for (let i = 0; i < len; i++) {
@@ -265,11 +286,12 @@ export class Tensor {
           }
           return sum;
         }
-        other.forwardKernel = gpu.createKernel(kernelFunc, { loopMaxIterations: other.shape.at(-2) }).setOutput([other.shape.at(-1), this.shape.at(-2)]);
-        other.backwardKernelA = gpu.createKernel(kernelFunc, { loopMaxIterations: other.shape.at(-1) }).setOutput([this.shape.at(-1), this.shape.at(-2)]);
-        other.backwardKernelB = gpu.createKernel(kernelFunc, { loopMaxIterations: this.shape.at(-2) }).setOutput([other.shape.at(-1), other.shape.at(-2)]);
-
+        // Create and store the GPU kernels:
+        other.forwardKernel = other.gpu.createKernel(kernelFunc, { loopMaxIterations: other.shape.at(-2) }).setOutput([other.shape.at(-1), this.shape.at(-2)]);
+        other.backwardKernelA = other.gpu.createKernel(kernelFunc, { loopMaxIterations: other.shape.at(-1) }).setOutput([this.shape.at(-1), this.shape.at(-2)]);
+        other.backwardKernelB = other.gpu.createKernel(kernelFunc, { loopMaxIterations: this.shape.at(-2) }).setOutput([other.shape.at(-1), other.shape.at(-2)]);
       } else {
+        // Build the CPU kernel:
         const kernelFunc = function (a: number[][], b: number[][], len: number) {
           const out = Array(a.length).fill(0).map(() => Array(b[0].length).fill(0));
           for (let i = 0; i < a.length; i++) {
@@ -283,12 +305,14 @@ export class Tensor {
           }
           return out;
         }
+        // Store the CPU kernels:
         other.forwardKernel = kernelFunc;
         other.backwardKernelA = kernelFunc;
         other.backwardKernelB = kernelFunc;
-
       }
     }
+    // Store the batch size. If the batch size changes, we will create a new GPU kernel:
+    other.batch_size = this.shape.at(-2);
     return operation.forward(this, other);
   }
 
@@ -1669,11 +1693,8 @@ function _div(a: Array<any> | number, b: Array<any> | number): any {
     }
   }
 }
-// =================== ANTIGO ========================= //
 
-// =================== ANTIGO ========================= //
 
-// =================== NUEVO ========================= //
 function _matmul(a: Array<any>, b: Array<any>, kernel: any): Array<any> {
   if (typeof a === "number") {
     throw new Error("Cannot perform MatMul with given shapes.");
