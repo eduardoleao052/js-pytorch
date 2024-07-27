@@ -1,10 +1,3 @@
-<a href="https://www.github.com/eduardoleao052/js-pytorch">
-    <img src="https://img.shields.io/badge/GitHub-%23121011.svg?style=flat-square&logo=github&logoColor=white">
-</a>
-<a href="https://www.linkedin.com/in/eduardoleao052/">
-    <img src="https://img.shields.io/badge/-LinkedIn-blue?style=flat-square&logo=linkedin">
-</a>
-
 # Welcome to JS-Pytorch's documentation
 
 For access to the source code, visit <a href="https://github.com/eduardoleao052", target="_blank">The GitHub repo</a>.

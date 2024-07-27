@@ -1871,6 +1871,13 @@ class CrossEntropyLoss extends Module {
     const logits = logitsExp.div(logitsSum);
     const y_array = _reshape(y.data, [B]);
     const at_logits = logits.at([...Array(B).keys()], y_array);
+    // const myz = torch.tensor(z.data,false)
+    // console.log('logits')
+    // console.log(at_logits.data)
+    // const softmax = new torch.nn.Softmax()
+    // const mylogits2 = softmax.forward(myz).at([...Array(B).keys()], y_array);
+    // console.log('>>.>>>>>')
+    // console.log(mylogits2.data)
     const log_losses = log(at_logits);
     let loss = log_losses.sum(-1).neg();
     loss = loss.div(B);

@@ -1,11 +1,4 @@
-﻿<a href="https://www.github.com/eduardoleao052/js-pytorch">
-    <img src="https://img.shields.io/badge/GitHub-%23121011.svg?style=flat-square&logo=github&logoColor=white">
-</a>
-<a href="https://www.linkedin.com/in/eduardoleao052/">
-    <img src="https://img.shields.io/badge/-LinkedIn-blue?style=flat-square&logo=linkedin">
-</a>
-
-# Layers
+﻿# Layers
 
 In this section are listed all of the **Layers** and **Modules**.
 
@@ -22,18 +15,20 @@ new nn.Linear(in_size,
 Applies a linear transformation to the input tensor.
 Input is matrix-multiplied by a `w` tensor and added to a `b` tensor.
 
-#### Parameters
+Parameters
+
    * **in_size (number)** - Size of the last dimension of the input data.
    * **out_size (number)** - Size of the last dimension of the output data.
    * **device (string)** - Device on which the model's calculations will run. Either `'cpu'` or `'gpu'`.
    * **bias (boolean)** - Whether to use a bias term `b`.
    * **xavier (boolean)** - Whether to use Xavier initialization on the weights.
 
-#### Learnable Variables
+Learnable Variables
+
    * **w** - *[input_size, output_size]* Tensor.
    * **b** - *[output_size]* Tensor.
 
-#### Example
+Example
 
 ```javascript
 >>> let linear = new nn.Linear(10,15,'gpu');
@@ -64,7 +59,8 @@ Applies a self-attention layer on the input tensor.
 * Multiplies result by `residual_proj`.
 * Applies final Dropout.
 
-#### Parameters
+Parameters
+
    * **in_size (number)** - Size of the last dimension of the input data.
    * **out_size (number)** - Size of the last dimension of the output data.
    * **n_heads (boolean)** - Number of parallel attention heads the data is divided into. In_size must be divided evenly by n_heads.
@@ -72,13 +68,14 @@ Applies a self-attention layer on the input tensor.
    * **dropout_prob (boolean)** - probability of randomly dropping an activation during training (to improve regularization).
    * **device (string)** - Device on which the model's calculations will run. Either `'cpu'` or `'gpu'`.
 
-#### Learnable Variables
+Learnable Variables
+
    * **Wk** - *[input_size, input_size]* Tensor.
    * **Wq** - *[input_size, input_size]* Tensor.
    * **Wv** - *[input_size, input_size]* Tensor.
    * **residual_proj** - *[input_size, output_size]* Tensor.
 
-#### Example
+Example
 
 ```javascript
 >>> let att = new nn.MultiHeadSelfAttention(10, 15, 2, 32, 0.2, 'gpu');
@@ -115,18 +112,20 @@ forward(x: Tensor): Tensor {
 }
 ```
 
-#### Parameters
+Parameters
+
    * **in_size (number)** - Size of the last dimension of the input data.
    * **out_size (number)** - Size of the last dimension of the output data.
    * **dropout_prob (boolean)** - probability of randomly dropping an activation during training (to improve regularization).
    * **device (string)** - Device on which the model's calculations will run. Either `'cpu'` or `'gpu'`.
    * **bias (boolean)** - Whether to use a bias term `b`.
 
-#### Learnable Variables
+Learnable Variables
+
    * **l1** - *[input_size, 4*input_size]* Tensor.
    * **l2** - *[4*input_size, input_size]* Tensor.
 
-#### Example
+Example
 
 ```javascript
 >>> let fc = new nn.FullyConnected(10, 15, 0.2, 'gpu');
@@ -160,7 +159,8 @@ forward(x: Tensor): Tensor {
 }
 ```
 
-#### Parameters
+Parameters
+
    * **in_size (number)** - Size of the last dimension of the input data.
    * **out_size (number)** - Size of the last dimension of the output data.
    * **n_heads (boolean)** - Number of parallel attention heads the data is divided into. In_size must be divided evenly by n_heads.
@@ -168,7 +168,8 @@ forward(x: Tensor): Tensor {
    * **dropout_prob (boolean)** - probability of randomly dropping an activation during training (to improve regularization).
    * **device (string)** - Device on which the model's calculations will run. Either `'cpu'` or `'gpu'`.
 
-#### Learnable Modules
+Learnable Modules
+
    * **nn.MultiHeadSelfAttention** - `Wk`, `Wq`, `Wv`, `residual_proj`.
    * **nn.LayerNorm** - `gamma`, `beta`.
    * **nn.FullyConnecyed** - `l1`, `l2`.

@@ -88,7 +88,7 @@ h2 {
 
 label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 3px;
     font-weight: bold;
 }
 
@@ -96,7 +96,7 @@ input[type="number"],
 input[type="text"] {
     width: 50%;
     padding: 8px;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     border: 1px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;
@@ -211,6 +211,24 @@ input {
 }
 
 #loss {
+    margin-left: 50px;
+    font-size: 16px;
+    color:#1b1b1b;
+}
+
+#device-showcase {
+    margin-left: 50px;
+    font-size: 16px;
+    color:#1b1b1b;
+}
+
+#epoch {
+    margin-left: 50px;
+    font-size: 16px;
+    color:#1b1b1b;
+}
+
+#acc {
     margin-left: 50px;
     font-size: 16px;
     color:#1b1b1b;

@@ -1,11 +1,4 @@
-﻿<a href="https://www.github.com/eduardoleao052/js-pytorch">
-    <img src="https://img.shields.io/badge/GitHub-%23121011.svg?style=flat-square&logo=github&logoColor=white">
-</a>
-<a href="https://www.linkedin.com/in/eduardoleao052/">
-    <img src="https://img.shields.io/badge/-LinkedIn-blue?style=flat-square&logo=linkedin">
-</a>
-
-# Tensor Operations
+﻿# Tensor Operations
 
 In this section are listed all of the **Tensor Operation** methods.
 
@@ -20,11 +13,13 @@ torch.add(a,
 * If one tensor is a scalar, the element-wise sum of the scalar and the tensor is returned.
 * If tensors both are n-dimensional tensors, JS-PyTorch will attempt to broadcast their shapes, and add them element-wise.
 
-#### Parameters
+Parameters
+
    * **a (Tensor | number)** - Input Tensor or number.
    * **b (Tensor | number)** - Other Tensor or number.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.tensor([[1,1,2,3],
                           [6,7,8,9]]);
@@ -48,7 +43,8 @@ torch.add(a,
 ```
 
 > **Note:** `torch.add(a, b)` is the same as `a.add(b)`.
-</br>
+
+<br>
 
 ## torch.sub
 
@@ -61,11 +57,13 @@ torch.sub(a,
 * If one tensor is a scalar, the element-wise subtraction of the scalar and the tensor is returned.
 * If tensors both are n-dimensional tensors, JS-PyTorch will attempt to broadcast their shapes, and subtract them element-wise.
 
-#### Parameters
+Parameters
+
    * **a (Tensor | number)** - Input Tensor or number.
    * **b (Tensor | number)** - Other Tensor or number.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.tensor([[1,1,2,3],
                           [6,7,8,9]]);
@@ -89,7 +87,8 @@ torch.sub(a,
 ```
 
 > **Note:** `torch.sub(a, b)` is the same as `a.sub(b)`.
-</br>
+
+<br>
 
 ## torch.neg
 
@@ -99,10 +98,12 @@ torch.neg(a) → Tensor
 
 Returns the element-wise opposite of the given Tensor.
 
-#### Parameters
+Parameters
+
    * **a (Tensor | number)** - Input Tensor or number.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.tensor([1]);
 >>> let b = torch.neg(a);
@@ -121,7 +122,8 @@ Returns the element-wise opposite of the given Tensor.
 ```
 
 > **Note:** `torch.neg(a)` is the same as `a.neg()`.
-</br>
+
+<br>
 
 ## torch.mul
 
@@ -134,11 +136,13 @@ torch.mul(a,
 * If one tensor is a scalar, the element-wise product of the scalar and the tensor is returned.
 * If tensors both are n-dimensional tensors, JS-PyTorch will attempt to broadcast their shapes, and multiply them element-wise.
 
-#### Parameters
+Parameters
+
    * **a (Tensor | number)** - Input Tensor or number.
    * **b (Tensor | number)** - Other Tensor or number.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.tensor([[1,1,2,3],
                           [6,7,8,9]]);
@@ -162,7 +166,8 @@ torch.mul(a,
 ```
 
 > **Note:** `torch.mul(a, b)` is the same as `a.mul(b)`.
-</br>
+
+<br>
 
 ## torch.div
 
@@ -175,11 +180,13 @@ torch.div(a,
 * If one tensor is a scalar, the element-wise division of the scalar and the tensor is returned.
 * If tensors both are n-dimensional tensors, JS-PyTorch will attempt to broadcast their shapes, and divide them element-wise.
 
-#### Parameters
+Parameters
+
    * **a (Tensor | number)** - Input Tensor or number.
    * **b (Tensor | number)** - Other Tensor or number.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.tensor([[2,-2,4,6],
                           [6,-6,8,8]]);
@@ -203,7 +210,8 @@ torch.div(a,
 ```
 
 > **Note:** `torch.div(a, b)` is the same as `a.div(b)`.
-</br>
+
+<br>
 
 ## torch.matmul
 
@@ -221,11 +229,13 @@ If the two Tensors have more than two dimensions, they can be **broadcast**:
 * `[H,W], [B,N,W,C] => [B,N,H,C]`
 * `[B,N,H,W], [1,1,W,C] => [B,N,H,C]`
 
-#### Parameters
+Parameters
+
    * **a (Tensor | number)** - Input Tensor.
    * **b (Tensor | number)** - Other Tensor.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.tensor([[1,1,1,2], 
                           [3,1,0,0]]); // Shape [2,4]
@@ -240,7 +250,10 @@ If the two Tensors have more than two dimensions, they can be **broadcast**:
 ```
 
 > **Note:** `torch.matmul(a, b)` is the same as `a.matmul(b)`.
-</br>
+
+
+<br>
+
 
 ## torch.sum
 
@@ -252,12 +265,14 @@ torch.sum(a,
 
 Gets the sum of the Tensor over a specified dimension.
 
-#### Parameters
+Parameters
+
    * **a (Tensor)** - Input Tensor.
    * **dim (integer)** - Dimension to perform the sum over.
    * **keepdims (boolean)** - Whether to keep dimensions of original tensor.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.ones([4,3], false, 'gpu');
 >>> a.data;
@@ -283,7 +298,8 @@ Gets the sum of the Tensor over a specified dimension.
 ```
 
 > **Note:** `torch.sum(a)` is the same as `a.sum()`.
-</br>
+
+<br>
 
 ## torch.mean
 
@@ -295,12 +311,14 @@ torch.mean(a,
 
 Gets the mean of the Tensor over a specified dimension.
 
-#### Parameters
+Parameters
+
    * **a (Tensor)** - Input Tensor.
    * **dim (integer)** - Dimension to get the mean of.
    * **keepdims (boolean)** - Whether to keep dimensions of original tensor.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.randint(0, 2, [2,3], false, 'gpu');
 >>> a.data;
@@ -320,7 +338,8 @@ Gets the mean of the Tensor over a specified dimension.
 ```
 
 > **Note:** `torch.mean(a)` is the same as `a.mean()`.
-</br>
+
+<br>
 
 ## torch.variance
 
@@ -332,12 +351,14 @@ torch.variance(a,
 
 Gets the variance of the Tensor over a specified dimension.
 
-#### Parameters
+Parameters
+
    * **a (Tensor)** - Input Tensor.
    * **dim (integer)** - Dimension to get the variance of.
    * **keepdims (boolean)** - Whether to keep dimensions of original tensor.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.randint(0, 3, [3,2], false, 'gpu');
 >>> a.data;
@@ -355,7 +376,8 @@ Gets the variance of the Tensor over a specified dimension.
 ```
 
 > **Note:** `torch.variance(a)` is the same as `a.variance()`.
-</br>
+
+<br>
 
 ## torch.transpose
 
@@ -367,12 +389,14 @@ torch.transpose(a,
 
 Transposes the tensor along two consecutive dimensions.
 
-#### Parameters
+Parameters
+
    * **a (Tensor)** - Input Tensor.
    * **dim1 (integer)** - First dimension.
    * **dim2 (boolean)** - Second dimension.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.randint(0, 3, [3,2], false, 'gpu');
 >>> a.data;
@@ -386,7 +410,8 @@ Transposes the tensor along two consecutive dimensions.
 ```
 
 > **Note:** `torch.transpose(a)` is the same as `a.transpose()`.
-</br>
+
+<br>
 
 ## torch.at
 
@@ -399,12 +424,14 @@ torch.at(a,
 If a single Array `index1` is passed, returns the elements in the tensor indexed by this Array: `tensor[index1]`.
 If a two Arrays `index1` and `index2` are passed, returns the elements in the tensor indexed by `tensor[index1][index2]`.
 
-#### Parameters
+Parameters
+
    * **a (Tensor)** - Input Tensor.
    * **index1 (Array)** - Array containing indexes to extract data from in first dimension.
    * **index2 (Array)** - Array containing indexes to extract data from in second dimension.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.tensor([[1,1,2,3],
                 [6,7,8,9]]);
@@ -419,7 +446,8 @@ If a two Arrays `index1` and `index2` are passed, returns the elements in the te
 ```
 
 > **Note:** `torch.at(a)` is the same as `a.at()`.
-</br>
+
+<br>
 
 ## torch.masked_fill
 
@@ -432,12 +460,14 @@ torch.masked_fill(a,
 A condition function scans the `a` tensor element-wise, returning `true` or `false`.
 In places within the `a` tensor where the "condition" function returns True, we set the value to `value`.
 
-#### Parameters
+Parameters
+
    * **a (Tensor)** - Input Tensor.
    * **condition (function)** - Function that returns True or False element-wise.
    * **value (number)** - Value to fill Tensor when condition is met.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.tensor([[1,5,2,3],
                    [6,7,2,9]]);
@@ -448,7 +478,8 @@ In places within the `a` tensor where the "condition" function returns True, we 
 ```
 
 > **Note:** `torch.masked_fill(a)` is the same as `a.masked_fill()`.
-</br>
+
+<br>
 
 ## torch.pow
 
@@ -459,11 +490,13 @@ torch.pow(a,
 
 Returns tensor to element-wise power of n.
 
-#### Parameters
+Parameters
+
    * **a (Tensor)** - Input Tensor.
    * **n (function)** - Exponent.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.tensor([[1,-5],
                           [6,7]]);
@@ -474,7 +507,8 @@ Returns tensor to element-wise power of n.
 ```
 
 > **Note:** `torch.pow(a)` is the same as `a.pow()`.
-</br>
+
+<br>
 
 ## torch.sqrt
 
@@ -484,10 +518,12 @@ torch.sqrt(a) → Tensor
 
 Returns element-wise square root of the tensor.
 
-#### Parameters
+Parameters
+
    * **a (Tensor)** - Input Tensor.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.tensor([[1,9],
                           [4,16]]);
@@ -498,7 +534,8 @@ Returns element-wise square root of the tensor.
 ```
 
 > **Note:** `torch.sqrt(a)` is the same as `a.sqrt()`.
-</br>
+
+<br>
 
 ## torch.exp
 
@@ -508,10 +545,12 @@ torch.exp(a) → Tensor
 
 Returns element-wise exponentiation of the tensor.
 
-#### Parameters
+Parameters
+
    * **a (Tensor)** - Input Tensor.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.tensor([[1,2],
                           [0,-1]]);
@@ -522,7 +561,8 @@ Returns element-wise exponentiation of the tensor.
 ```
 
 > **Note:** `torch.exp(a)` is the same as `a.exp()`.
-</br>
+
+<br>
 
 ## torch.log
 
@@ -532,10 +572,12 @@ torch.log(a) → Tensor
 
 Returns element-wise natural log of the tensor.
 
-#### Parameters
+Parameters
+
    * **a (Tensor)** - Input Tensor.
 
-#### Example
+Example
+
 ```javascript
 >>> let a = torch.tensor([[1,2],
                           [0.01,3]]);

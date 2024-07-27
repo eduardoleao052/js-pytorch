@@ -7,6 +7,48 @@ nav:
     - Tutorials: tutorials.md
 
 theme:
-  name: readthedocs
+  logo: white_icon.png
+  favicon: icon.png
+  icon:
+    repo: fontawesome/brands/github
+  name: material
   palette:
-    primary: blue
+    - scheme: default
+      primary: deep orange
+      accent: deep orange
+      toggle:
+        icon: material/toggle-switch 
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: deep orange
+      accent: deep orange
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.path
+    - navigation.indexes 
+    - toc.integrate 
+    - toc.follow
+    - navigation.top
+  
+extra:
+  homepage: https://github.com/eduardoleao052/js-pytorch
+  social:
+    - icon: fontawesome/brands/github 
+      link: https://github.com/eduardoleao052/js-pytorch
+    - icon: fontawesome/brands/linkedin 
+      link: https://www.linkedin.com/in/eduardoleao052/
+      
+copyright: Copyright &copy; 2024 Eduardo Leitão da Cunha Opice Leão
+
+repo_url: https://github.com/eduardoleao052/js-pytorch
+repo_name: JS-PyTorch
+
+extra_css:
+  - style.css
