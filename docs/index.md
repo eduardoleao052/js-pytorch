@@ -1,6 +1,6 @@
 # Welcome to JS-Pytorch's documentation
 
-For access to the source code, visit <a href="https://github.com/eduardoleao052", target="_blank">The GitHub repo</a>.
+For access to the source code, visit <a href="https://github.com/eduardoleao052/js-pytorch", target="_blank">The GitHub repo</a>.
 
 ## About
 

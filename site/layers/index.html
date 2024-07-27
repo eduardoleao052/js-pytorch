@@ -20,7 +20,7 @@
     
     
       
-        <title>Layers - JS-PyTorch Documentation</title>
+        <title>Layers - JS-PyTorch</title>
       
     
     
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="https://github.com/eduardoleao052/js-pytorch" title="JS-PyTorch Documentation" class="md-header__button md-logo" aria-label="JS-PyTorch Documentation" data-md-component="logo">
+    <a href="https://github.com/eduardoleao052/js-pytorch" title="JS-PyTorch" class="md-header__button md-logo" aria-label="JS-PyTorch" data-md-component="logo">
       
   <img src="../white_icon.png" alt="logo">
 
@@ -103,7 +103,7 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            JS-PyTorch Documentation
+            JS-PyTorch
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
@@ -322,12 +322,12 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="https://github.com/eduardoleao052/js-pytorch" title="JS-PyTorch Documentation" class="md-nav__button md-logo" aria-label="JS-PyTorch Documentation" data-md-component="logo">
+    <a href="https://github.com/eduardoleao052/js-pytorch" title="JS-PyTorch" class="md-nav__button md-logo" aria-label="JS-PyTorch" data-md-component="logo">
       
   <img src="../white_icon.png" alt="logo">
 
     </a>
-    JS-PyTorch Documentation
+    JS-PyTorch
   </label>
   
     <div class="md-nav__source">
@@ -492,6 +492,69 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#nnembedding" class="md-nav__link">
+    <span class="md-ellipsis">
+      nn.Embedding
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nnpositionalembedding" class="md-nav__link">
+    <span class="md-ellipsis">
+      nn.PositionalEmbedding
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nnrelu" class="md-nav__link">
+    <span class="md-ellipsis">
+      nn.ReLU
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nnsoftmax" class="md-nav__link">
+    <span class="md-ellipsis">
+      nn.Softmax
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nndropout" class="md-nav__link">
+    <span class="md-ellipsis">
+      nn.Dropout
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nnlayernorm" class="md-nav__link">
+    <span class="md-ellipsis">
+      nn.LayerNorm
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nncrossentropyloss" class="md-nav__link">
+    <span class="md-ellipsis">
+      nn.CrossEntropyLoss
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -545,7 +608,7 @@
               out_size,
               device, 
               bias, 
-              xavier) → Tensor
+              xavier)
 </code></pre>
 <p>Applies a linear transformation to the input tensor.
 Input is matrix-multiplied by a <code>w</code> tensor and added to a <code>b</code> tensor.</p>
@@ -563,7 +626,7 @@ Input is matrix-multiplied by a <code>w</code> tensor and added to a <code>b</co
 <li><strong>b</strong> - <em>[output_size]</em> Tensor.</li>
 </ul>
 <p>Example</p>
-<pre><code class="language-javascript">&gt;&gt;&gt; let linear = new nn.Linear(10,15,'gpu');
+<pre><code class="language-javascript">&gt;&gt;&gt; const linear = new nn.Linear(10,15,'gpu');
 &gt;&gt;&gt; let x = torch.randn([100,50,10], true, 'gpu');
 &gt;&gt;&gt; let y = linear.forward(x);
 &gt;&gt;&gt; y.shape
@@ -576,7 +639,7 @@ Input is matrix-multiplied by a <code>w</code> tensor and added to a <code>b</co
                               n_heads,
                               n_timesteps,
                               dropout_prob,
-                              device) → Tensor
+                              device)
 </code></pre>
 <p>Applies a self-attention layer on the input tensor.</p>
 <ul>
@@ -604,7 +667,7 @@ Input is matrix-multiplied by a <code>w</code> tensor and added to a <code>b</co
 <li><strong>residual_proj</strong> - <em>[input_size, output_size]</em> Tensor.</li>
 </ul>
 <p>Example</p>
-<pre><code class="language-javascript">&gt;&gt;&gt; let att = new nn.MultiHeadSelfAttention(10, 15, 2, 32, 0.2, 'gpu');
+<pre><code class="language-javascript">&gt;&gt;&gt; const att = new nn.MultiHeadSelfAttention(10, 15, 2, 32, 0.2, 'gpu');
 &gt;&gt;&gt; let x = torch.randn([100,50,10], true, 'gpu');
 &gt;&gt;&gt; let y = att.forward(x);
 &gt;&gt;&gt; y.shape
@@ -616,7 +679,7 @@ Input is matrix-multiplied by a <code>w</code> tensor and added to a <code>b</co
                       out_size,
                       dropout_prob,
                       device,
-                      bias) → Tensor
+                      bias)
 </code></pre>
 <p>Applies a fully-connected layer on the input tensor.</p>
 <ul>
@@ -643,11 +706,11 @@ Input is matrix-multiplied by a <code>w</code> tensor and added to a <code>b</co
 </ul>
 <p>Learnable Variables</p>
 <ul>
-<li><strong>l1</strong> - <em>[input_size, 4</em>input_size]* Tensor.</li>
-<li><strong>l2</strong> - <em>[4</em>input_size, input_size]* Tensor.</li>
+<li><strong>l1</strong> - <em>[input_size, 4input_size]</em> Tensor.</li>
+<li><strong>l2</strong> - <em>[4input_size, input_size]</em> Tensor.</li>
 </ul>
 <p>Example</p>
-<pre><code class="language-javascript">&gt;&gt;&gt; let fc = new nn.FullyConnected(10, 15, 0.2, 'gpu');
+<pre><code class="language-javascript">&gt;&gt;&gt; const fc = new nn.FullyConnected(10, 15, 0.2, 'gpu');
 &gt;&gt;&gt; let x = torch.randn([100,50,10], true, 'gpu');
 &gt;&gt;&gt; let y = fc.forward(x);
 &gt;&gt;&gt; y.shape
@@ -660,7 +723,7 @@ Input is matrix-multiplied by a <code>w</code> tensor and added to a <code>b</co
              n_heads,
              n_timesteps,
              dropout_prob,
-             device) → Tensor
+             device)
 </code></pre>
 <p>Applies a transformer Block layer on the input tensor.</p>
 <pre><code class="language-javascript">forward(x: Tensor): Tensor {
@@ -687,6 +750,178 @@ Input is matrix-multiplied by a <code>w</code> tensor and added to a <code>b</co
 <li><strong>nn.FullyConnecyed</strong> - <code>l1</code>, <code>l2</code>.</li>
 <li><strong>nn.LayerNorm</strong> - <code>gamma</code>, <code>beta</code>.</li>
 </ul>
+<p><br></p>
+<h2 id="nnembedding">nn.Embedding</h2>
+<pre><code>new nn.Embedding(in_size,
+                 embed_size)
+</code></pre>
+<p>Embedding table, with a number of embeddings equal to the vocabulary size of the model <code>in_size</code>, and size of each embedding equal to <code>embed_size</code>. For each element in the input tensor (integer), returns the embedding indexed by the integer.</p>
+<pre><code class="language-javascript">forward(idx: Tensor): Tensor {
+   // Get embeddings indexed by input (idx):
+   let x = this.E.at(idx);
+   return x;
+}
+</code></pre>
+<p>Parameters</p>
+<ul>
+<li><strong>in_size (number)</strong> - Number of different classes the model can predict (vocabulary size).</li>
+<li><strong>embed_size (number)</strong> - Dimension of each embedding generated.</li>
+</ul>
+<p>Learnable Parameters</p>
+<ul>
+<li><strong>E</strong> - <em>[vocab_size, embed_size]</em> Tensor.</li>
+</ul>
+<p>Example</p>
+<pre><code class="language-javascript">&gt;&gt;&gt; const batch_size = 32;
+&gt;&gt;&gt; const number_of_timesteps = 256;
+&gt;&gt;&gt; const embed = new nn.Embedding(10, 64);
+&gt;&gt;&gt; let x = torch.randint(0, 10, [batch_size, number_of_timesteps]);
+&gt;&gt;&gt; let y = embed.forward(x);
+&gt;&gt;&gt; y.shape
+// [32, 256, 64]
+</code></pre>
+<p><br></p>
+<h2 id="nnpositionalembedding">nn.PositionalEmbedding</h2>
+<pre><code>new nn.PositionalEmbedding(input_size,
+                           embed_size)
+</code></pre>
+<p>Embedding table, with a number of embeddings equal to the input size of the model <code>input_size</code>, and size of each embedding equal to <code>embed_size</code>. For each element in the input tensor, returns the embedding indexed by it's position.</p>
+<pre><code class="language-javascript">forward(idx: Tensor): Tensor {
+   // Get dimension of the input:
+   const [B, T] = idx.shape;
+   // Gets positional embeddings for each element along &quot;T&quot;: (Batch, Timesteps) =&gt; (Batch, Timesteps, Embed)
+   const x = this.E.at([...Array(T).keys()]);
+   return x
+}
+</code></pre>
+<p>Parameters</p>
+<ul>
+<li><strong>input_size (number)</strong> - Number of different embeddings in the lookup table (size of the input).</li>
+<li><strong>embed_size (number)</strong> - Dimension of each embedding generated.</li>
+</ul>
+<p>Learnable Parameters</p>
+<ul>
+<li><strong>E</strong> - <em>[input_size, embed_size]</em> Tensor.</li>
+</ul>
+<p>Example</p>
+<pre><code class="language-javascript">&gt;&gt;&gt; const batch_size = 32;
+&gt;&gt;&gt; const number_of_timesteps = 256;
+&gt;&gt;&gt; const embed = new nn.PositionalEmbedding(number_of_timesteps, 64);
+&gt;&gt;&gt; let x = torch.randint(0, 10, [batch_size, number_of_timesteps]);
+&gt;&gt;&gt; let y = embed.forward(x);
+&gt;&gt;&gt; y.shape
+// [32, 256, 64]
+</code></pre>
+<p><br></p>
+<h2 id="nnrelu">nn.ReLU</h2>
+<pre><code>new nn.ReLU()
+</code></pre>
+<p>Rectified Linear Unit activation function. This implementation is <strong>leaky</strong> for stability.
+For each element in the incoming tensor:</p>
+<ul>
+<li>If element is positive, no change.</li>
+<li>If element is negative, multiply by 0.001.</li>
+</ul>
+<p>Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p>Learnable Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p><br></p>
+<h2 id="nnsoftmax">nn.Softmax</h2>
+<pre><code>new nn.Softmax()
+</code></pre>
+<p>Softmax activation function. Rescales the data in the input tensor, along the <code>dim</code> dimension. The sum of every element along this dimension is one, and every element is between zero and one.</p>
+<pre><code class="language-javascript">forward(x: Tensor, dim = -1): Tensor {
+   z = exp(z);
+   const out = z.div(z.sum(dim, true));
+   return out;
+   return x
+}
+</code></pre>
+<p>Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p>Learnable Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p>Example</p>
+<pre><code class="language-javascript">&gt;&gt;&gt; const softmax = new nn.Softmax();
+&gt;&gt;&gt; let x = torch.randn([2,4]);
+&gt;&gt;&gt; let y = softmax.forward(x, -1);
+&gt;&gt;&gt; y.data
+// [[0.1, 0.2, 0.8, 0.0],
+//  [0.6, 0.1, 0.2, 0.1]]
+</code></pre>
+<p><br></p>
+<h2 id="nndropout">nn.Dropout</h2>
+<pre><code>new nn.Dropout(drop_prob: number)
+</code></pre>
+<p>Dropout class. For each element in input tensor, has a <code>drop_prob</code> chance of setting it to zero.</p>
+<p>Parameters</p>
+<ul>
+<li><strong>drop_prob (number)</strong> - Probability to drop each value in input, from 0 to 1.</li>
+</ul>
+<p>Learnable Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p>Example</p>
+<pre><code class="language-javascript">&gt;&gt;&gt; const dropout = new nn.Dropout(0.5);
+&gt;&gt;&gt; let x = torch.ones([2,4]);
+&gt;&gt;&gt; let y = dropout.forward(x);
+&gt;&gt;&gt; y.data
+// [[1, 0, 0, 1],
+//  [0, 1, 0, 1]]
+</code></pre>
+<p><br></p>
+<h2 id="nnlayernorm">nn.LayerNorm</h2>
+<pre><code>new nn.LayerNorm(n_embed: number)
+</code></pre>
+<p>LayerNorm class. Normalizes the data, with a <strong>mean of 0</strong> and <strong>standard deviation of 1</strong>, across the last dimension. This is done as described in the <a target="_blank" href="https://arxiv.org/abs/1607.06450">LayerNorm paper</a>.</p>
+<p>Parameters</p>
+<ul>
+<li><strong>n_embed (number)</strong> - Size of the last dimension of the input.</li>
+</ul>
+<p>Learnable Parameters</p>
+<ul>
+<li><strong>gamma (number)</strong> - Constant to multiply output by (initialized as 1).</li>
+<li><strong>beta (number)</strong> - Constant to add to output (initialized as 0).</li>
+</ul>
+<p><br></p>
+<h2 id="nncrossentropyloss">nn.CrossEntropyLoss</h2>
+<pre><code>new nn.CrossEntropyLoss()
+</code></pre>
+<p>Cross Entropy Loss function. Computes the cross entropy loss between the target and the input tensor.</p>
+<ul>
+<li>First, calculates softmax of input tensor.</li>
+<li>Then, selects the elements of the input corresponding to the correct class in the target.</li>
+<li>Gets the negative log of these elements.</li>
+<li>Adds all of them, and divides by the number of elemets.</li>
+</ul>
+<p>Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p>Learnable Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p>Example</p>
+<pre><code class="language-javascript">&gt;&gt;&gt; const number_of_classes = 10;
+&gt;&gt;&gt; const input_size = 64;
+&gt;&gt;&gt; const loss_func = new nn.CrossEntropyLoss();
+&gt;&gt;&gt; let x = torch.randn([input_size, number_of_classes]);
+&gt;&gt;&gt; let y = torch.randint(0, number_of_classes, [input_size]);
+&gt;&gt;&gt; let loss = loss_func.forward(x, y);
+&gt;&gt;&gt; loss.data
+// 2.3091357
+</code></pre>
 
 
 
