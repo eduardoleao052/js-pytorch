@@ -25,7 +25,7 @@
 - JS-PyTorch is a Deep Learning **JavaScript library** built from scratch, to closely follow PyTorch's syntax.
 - This library has **GPU support**, using GPU.js.
 - If you want to run it yourself, check out the <a href="https://eduardoleao052.github.io/js-pytorch/site/index.html" target="blank">Documentation</a>.
-- Feel free to try out the <a href="https://eduardoleao052.github.io/js-pytorch/assets/demo/demo.html" target="blank">Web Demo</a>!
+- Feel free to try out the <a href="https://eduardoleao052.github.io/js-pytorch/site/demo/" target="blank">Web Demo</a>!
 
 > **Note:** You can install the package locally with: `npm install js-pytorch`
 
