@@ -1,0 +1,275 @@
+﻿
+
+h1 {
+    margin-top: 25px;
+    text-align: center;
+    color: #333;
+}
+
+h2 {
+    text-align: center;
+    margin: auto;
+    color: #0d0d0d;
+    font-size: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+#upper-container {
+    display: flex;
+    padding-bottom: 1px;
+}
+
+.separator {
+    width: 35%;
+    max-width: 800px;
+    background-color: #f4f4f4;
+    padding: 20px;
+    margin-top: 11px;
+    margin-left: 15px;
+    border-radius: 10px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.left-div {
+    width: 65%;
+    align-content: center;
+}
+
+.right-div {
+    width: 75%;
+    align-content: center;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+#training-buttons {
+    align-self: flex-start;
+    width: 100%;
+    position: absolute;
+    bottom: 19px;
+}
+
+#left-separator {
+    width: 70%;
+    margin-top: 11px;
+    margin-left: 15px;
+    margin-bottom: 20px;
+    align-self: bottom;
+}
+
+#right-separator {
+    width: 95%;
+    margin: 0px;
+    align-content: center;
+    align-self: center;
+    border-radius: 10px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+}
+
+
+label {
+    display: block;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.torch-input[type="number"],
+.torch-input[type="text"] {
+    width: 50%;
+    padding: 8px;
+    margin-bottom: 6px;
+    margin-top: 3px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+#graph-container {
+    width: 100%;
+    height: 300px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+}
+
+.torch-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+}
+
+.torch-button:hover {
+    background-color: #0056b3;
+}
+
+.torch-button:active {
+    background-color: #004793;
+}
+
+
+#reset-button {
+    background-color: #c80f0f;
+}
+
+#reset-button:hover {
+    background-color: #b01212;
+}
+
+#reset-button:active {
+    background-color: #821414;
+}
+
+.device-button {
+    width: 10%;
+    background-color: #818181;
+    padding-right: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 16px;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+    padding-left: 5px;
+}
+
+.device-button:hover {
+    background-color: #5f5f5f;
+}
+
+.device-button:active {
+    background-color: #3a3a3a;
+}
+
+.icon {
+    width: 72%;
+    margin: auto;
+}
+
+#layersBox {
+    width: 60%;
+}
+
+#box-div {
+    width: 100%;
+}
+
+#box-input {
+    width: 100%;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    font-size: large;
+    text-align: center;
+    font-weight: bold;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+#graph {
+    width: 100%;
+}
+
+.torch-li{
+    font-size: 16px;
+    color: #000000;
+}
+
+span {
+    font-size: 16px;
+    font-weight: bolder;
+    color: #181818;
+}
+
+input {
+    font-size: 14.5px;
+}
+
+#iter {
+    margin-left: 50px;
+    margin-top: 0px;
+    font-size: 16px;
+    color:#1b1b1b;
+}
+
+#total-visited {
+    margin-left: 50px;
+    margin-top: 0px;
+    font-size: 16px;
+    color:#1b1b1b;
+}
+
+#loss {
+    margin-left: 50px;
+    font-size: 16px;
+    color:#1b1b1b;
+}
+
+#device-showcase {
+    margin-left: 50px;
+    font-size: 16px;
+    color:#1b1b1b;
+}
+
+#epoch {
+    margin-left: 50px;
+    font-size: 16px;
+    color:#1b1b1b;
+}
+
+#acc {
+    margin-left: 50px;
+    font-size: 16px;
+    color:#1b1b1b;
+}
+
+/* ul {
+    display: inline-block;
+    width: 65%;
+} */
+
+#mnist-and-list {
+    display: flex;
+    align-items: center;
+}
+
+#mnist-div {
+    width: 40%;
+    display: inline-flex;
+    align-self:center;
+    margin-left: 10%;
+}
+
+#mnist {
+    align-self: center;
+    border-radius: 5%;
+    margin-left: auto;
+    margin-right: auto;
+    width: 55%;
+    opacity: .99;
+}
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 40%;
+  }
+

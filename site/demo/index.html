@@ -1,0 +1,1395 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+      <!-- Google tag (gtag.js) -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-7QRVV2J34B"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-7QRVV2J34B');
+      </script>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+      <title>Neural Network Demo</title>
+
+      <script type="module" src="index.js"></script>
+
+      <link rel="stylesheet" href="demo.css">
+      <link rel="icon" type="image/x-icon" href="/assets/icon.png">
+      
+      <link rel="prev" href="../tutorials/">
+      
+      
+      <link rel="icon" href="../icon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.29">
+    
+    
+      
+        <title>Demo - JS-PyTorch</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.76a95c52.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../style.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+  <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#layers" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="https://github.com/eduardoleao052/js-pytorch" title="JS-PyTorch" class="md-header__button md-logo" aria-label="JS-PyTorch" data-md-component="logo">
+      
+  <img src="../white_icon.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Layers
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+  
+    
+  
+</form>
+      
+    
+    
+
+<script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+<label class="md-header__button md-icon" for="__search">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+</label>
+<div class="md-search" data-md-component="search" role="dialog">
+<label class="md-search__overlay" for="__search"></label>
+<div class="md-search__inner" role="search">
+<form class="md-search__form" name="search">
+<input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+<label class="md-search__icon md-icon" for="__search">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+</label>
+<nav class="md-search__options" aria-label="Search">
+  
+  <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+  </button>
+</nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/eduardoleao052/js-pytorch" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    JS-PyTorch
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../tensor/" class="md-tabs__link">
+        
+  
+    
+  
+  Tensor
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../operations/" class="md-tabs__link">
+        
+  
+    
+  
+  Operations
+
+      </a>
+    </li>
+  
+
+    <li class="md-tabs__item">
+      <a href="../operations/" class="md-tabs__link">
+        
+  
+    
+  
+  Layers
+
+      </a>
+    </li>
+        
+  
+    <li class="md-tabs__item">
+      <a href="../tutorials/" class="md-tabs__link">
+        
+  
+    
+  
+  Tutorials
+
+      </a>
+    </li>
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="../layers/" class="md-tabs__link">
+        
+  
+    
+  
+  Demo
+
+      </a>
+    </li>
+  
+
+
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+
+<div class="md-container" data-md-component="container">
+      
+      
+        
+      
+
+
+
+
+
+
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://github.com/eduardoleao052/js-pytorch" title="JS-PyTorch" class="md-nav__button md-logo" aria-label="JS-PyTorch" data-md-component="logo">
+      
+  <img src="../white_icon.png" alt="logo">
+
+    </a>
+    JS-PyTorch
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/eduardoleao052/js-pytorch" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    JS-PyTorch
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tensor/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tensor
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../operations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Operations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    <li class="md-nav__item">
+      <a href="../layers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Layers
+  </span>
+  
+
+      </a>
+    </li>
+      
+      
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+  
+
+      </a>
+    </li>
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis" style="font-size: 19.2px; color: rgb(247, 79, 27);">
+    Demo
+  </span>
+  
+
+          <span class="md-nav__icon md-icon" style="color: rgb(247, 79, 27);"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+  
+
+      </a>
+      
+    </li>
+  
+
+    
+      
+  
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+
+                
+               
+           
+              <script src="bundle.js"></script>
+              <script type="module">
+                  import { torch } from './index.js';
+                  import { train, test } from './data/data.js';
+                  window.train = train;
+                  window.test = test;
+                  window.torch = torch;
+              </script>
+
+              <div style="display: block;">
+                
+                <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+                  <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-orange" data-md-color-accent="deep-orange"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+                  
+                    <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+                    </label>
+                  
+                
+                  
+                  
+                  
+                 
+                  
+                
+              </form>
+
+
+
+              <div style="height: 20px;"></div>
+              <div class="container">
+                  <div class="separator" id="right-separator" style="display: block; padding-bottom: 0px; margin-bottom: 15px;">
+                      <a target="_blank" href="https://github.com/eduardoleao052/js-pytorch"><img style="display: block;" class='icon' src="../../assets/demo_logo.png"></a>
+                      <a target="_blank" href="https://github.com/eduardoleao052/js-pytorch"> <img class="logos" src="../../assets/github.png" style="width: 20px; height: 20px; display: inline-block; margin-bottom: 7px;"></a>
+                  </div>
+              
+                  <div class="separator" id="right-separator" style="margin-top: 10px; display: block;">
+                      <p style="display: block; font-size: 16px; color: #292929; margin-bottom: 25px;">Welcome to <b>JS-PyTorch's Web Demo</b>! You can set the <b>Model Layers</b> on the right (number of layers and hidden dimension of each layer), and choose the <b>Model Hyperparameters</b> in <u>real time</u>. </p>
+                      <div id="mnist-and-list">
+                          <ul> 
+                              <li class="torch-li">This model was trained on <b>MNIST</b>, using <b>2000</b> training and <b>100</b> validation images. </li>
+                              <br>
+                              <li class="torch-li">The images have a dimension of <b>28x28</b>. </li>
+                              <br>
+                              <li class="torch-li">The output is a number from 0 to 9.</li>
+                              <br>
+                              <li class="torch-li">The training uses the <b>Adam Optimizer</b> and a <b>Cross Entropy Loss</b>.</li>
+                          </ul>
+                          <div id="mnist-div">
+                              <img id='mnist' src="data/image1.png">
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          
+              <div class="container" id="upper-container">
+                  <div class="left-div">
+                      <h2 style="display: inline-block; margin-left: 20px; margin-top: 6.5px; margin-bottom: 10px;">Training Hyperparameters</h2>
+                      <div class="separator" id="left-separator">
+          
+                          <label for="batch-size">Batch Size:</label>
+                          <input class="torch-input" type="number" id="batch-size" name="batch-size" min="1" value="32"> 
+          
+                          <label for="learning-rate">Learning Rate:</label>
+                          <input class="torch-input" type="number" id="learning-rate" name="learning-rate" step="0.00001" min="0" value="0.0001" required>
+          
+                          <label for="regularization">L2 Regularization:</label>
+                          <input class="torch-input" type="number" id="regularization" name="regularization" step="0.001" min="0" value="0.001">
+          
+                          <label for="beta1">Beta 1 (Adam):</label>
+                          <input class="torch-input" type="number" id="beta1" name="beta1" step="0.001" min="0" value="0.99">
+          
+                          <label for="beta2">Beta 2 (Adam):</label>
+                          <input class="torch-input" type="number" id="beta2" name="beta2" step="0.0001" min="0" value="0.999">
+          
+                      </div>
+                  </div>
+                  <div class="right-div">
+                      <div>
+                          <h2 style="display: inline-block; margin-right: 15px; margin-left: 20px;">Model Layers</h2>
+                          <button class="torch-button" class='layer-button' onclick="addBox()">+</button>
+                          <button class="torch-button" class='layer-button' onclick="removeBox()">-</button>
+                          <div class="separator" id="layersBox">
+                              
+                          </div>
+                      </div>
+                      <div id="training-buttons">
+                          <button class="torch-button" id="start-button" onclick="trainLoopInitializer()">Train</button>
+                          <button class="torch-button" id="stop-button" onclick="pauseTraining()">Pause</button>
+                          <button class="torch-button" id="reset-button" onclick="resetTraining()">Reset</button>
+                          <div style="width: 25px; display: inline-block;"></div>
+                          <button id="cpu-trigger" class="device-button" onclick="CPUCaller()">CPU</button>
+                          <button id="gpu-trigger" class="device-button" onclick="GPUCaller()">GPU</button>
+                      </div>
+                  </div>
+              </div>
+          
+              <div class="container" style="padding-bottom: 0px; padding-top: 10px;">
+                  <h2>Graph</h2>
+                  <canvas id="graph" width="700" height="300"></canvas>
+                  <div style="display: inline-block; width: 90%; margin-bottom: 15px;">
+                      <p id="loss"> <b>Validation Loss:</b> </p>
+                      <p id="acc"> <b>Validation Accuracy:</b> </p>
+                      <p id="iter"> <b>Iteration:</b> </p>
+                      <p id="epoch"> <b>Epoch:</b> </p>
+                      <p id="total-visited"> <b>Total Training Examples:</b> </p>
+                      <p id="device-showcase"> <b>Device:</b> </p>
+                  </div>
+          </div>
+        </div>
+          
+          
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/BrowserFS/2.0.0/browserfs.min.js"></script>
+              <script src="./gpu-browser.min.js"></script>
+              <script>
+                  let boxCount = [];
+                  let data = [];
+                  let training = false;
+                  let in_loop = true;
+                  let overFlow = 1;
+                  let iter = 0;
+                  let total_visited = 0;
+                  let device = 'cpu';
+                  let smoothAcc = 0.1;
+          
+                  function GPUCaller() {
+                      if (!training) {
+                          device = 'gpu';
+                          let _cpu = document.getElementById('cpu-trigger');
+                          let _gpu = document.getElementById('gpu-trigger');
+                          _gpu.style.backgroundColor = '#3e3e3e';
+                          _cpu.style.backgroundColor = '';
+                      }
+                  }
+                  function CPUCaller() {
+                      if (!training) {
+                          device = 'cpu';
+                          let _cpu = document.getElementById('cpu-trigger');
+                          let _gpu = document.getElementById('gpu-trigger');
+                          _cpu.style.backgroundColor = '#3e3e3e';
+                          _gpu.style.backgroundColor = '';
+                      }
+                  }
+          
+          
+                  function addBox() {
+                      if (boxCount.length < 5 && !training) {
+                          // Find container to add Boxes in:
+                          const container = document.getElementById('layersBox');
+                          // Create the box:
+                          const newBox = document.createElement('div');
+                          newBox.id = `box-div-${boxCount.length}`
+                          newBox.classList.add('box');
+                          // Create a numeric input field inside the box (for number of neurons):
+                          const inputField = document.createElement('input');
+                          inputField.type = 'number';
+                          // The next Box has as many neurons as last current Box:
+                          inputField.value = boxCount[boxCount.length -1] || '64';
+                          inputField.idx = boxCount.length;
+                          inputField.id = `box-input`;
+                          inputField.onchange = function() {
+                              changeDim(this, boxCount);
+                          };
+                          newBox.appendChild(inputField);
+                          container.appendChild(newBox);
+                          boxCount.push(Number(inputField.value));
+                      };
+                  };
+          
+                  function removeBox() {
+                      if (boxCount.length > 1 && !training) {
+                          const container = document.getElementById('layersBox');
+                          container.removeChild(container.lastChild);
+                          boxCount.pop();
+                      };
+                  };
+          
+                  function changeDim(el, boxCount) {
+                      boxCount[el.idx] = Number(el.value);                
+                  };
+          
+                  function getBatch(data, batch_size) {
+                      // Instantiate x_batch and y_batch as empty tensors:
+                      let x_batch = [];
+                      let y_batch = [];
+                      // Iteratively add instances to batch:
+                      for (let i=0 ; i < batch_size ; i++) {
+                          p = Math.floor(Math.random() * data.length);
+                          x_batch.push(Object.entries(data[p])[0][1])
+                          y_batch.push(Number(Object.entries(data[p])[0][0]))
+                      };
+                      return [torch.tensor(x_batch), torch.tensor(y_batch)];
+                  };
+          
+                  function changeMNIST() {
+                      let p = Math.floor(Math.random()*20) + 1;
+                      document.getElementById("mnist").src=`data/image${p}.png`;
+                  };
+          
+                  function trainLoopInitializer() {
+                      in_loop = true;
+                      trainLoop();
+                  };
+          
+                  function trainLoop() {
+                      if (!in_loop) return;
+                      trainStep();
+                      setTimeout(trainLoop, 0.01);
+                  };
+                 
+                  function trainStep() {
+                      if (!training) {
+                          training = true;
+                          buttons = document.getElementsByClassName('layer-button');
+                          for (button of buttons) {
+                              button.style.backgroundColor = '#0056b3';
+                          };
+                          let _cpu = document.getElementById('cpu-trigger');
+                          let _gpu = document.getElementById('gpu-trigger');
+                          if (device === 'cpu') {
+                              _cpu.style.backgroundColor = '#3e3e3e';
+                          } else {
+                              _gpu.style.backgroundColor = '#3e3e3e';
+                          }
+                          // Implement dummy torch.nn.Module class:
+                          class NeuralNet extends torch.nn.Module {
+                              constructor() {
+                                  super();
+                                  // Instantiate Neural Network's Layers:
+                                  this.wIn = new torch.nn.Linear(784,boxCount[0],device);
+                                  this.reluIn = new torch.nn.ReLU();
+                                  if (boxCount.length > 1) {
+                                      this.w1 = new torch.nn.Linear(boxCount[0],boxCount[1],device);
+                                      this.relu1 = new torch.nn.ReLU();
+                                  } if (boxCount.length > 2) {
+                                      this.w2 = new torch.nn.Linear(boxCount[1],boxCount[2],device);
+                                      this.relu2 = new torch.nn.ReLU();
+                                  } if (boxCount.length > 3) {
+                                      this.w3 = new torch.nn.Linear(boxCount[2],boxCount[3],device);
+                                      this.relu3 = new torch.nn.ReLU();
+                                  } if (boxCount.length > 4) {
+                                      this.w4 = new torch.nn.Linear(boxCount[3],boxCount[4],device);
+                                      this.relu4 = new torch.nn.ReLU();
+                                  };
+                                  this.wOut = new torch.nn.Linear(boxCount[boxCount.length-1], 10, device);
+                              
+                              };
+          
+                              forward(x) {
+                                  let z;
+                                  z = this.wIn.forward(x);
+                                  z = this.reluIn.forward(z);
+                                  
+                                  if (boxCount.length > 1) {
+                                      z = this.w1.forward(z);
+                                      z = this.relu1.forward(z);
+                                  } if (boxCount.length > 2) {
+                                      z = this.w2.forward(z);
+                                      z = this.relu2.forward(z);
+                                  } if (boxCount.length > 3) {
+                                      z = this.w3.forward(z);
+                                      z = this.relu3.forward(z);
+                                  } if (boxCount.length > 4) {
+                                      z = this.w4.forward(z);
+                                      z = this.relu4.forward(z);
+                                  };
+                                  z = this.wOut.forward(z);
+                                  z = z.div(100);
+          
+                                  return z;
+                              };
+                          };
+                          globalThis.model = new NeuralNet();
+          
+                          // Define loss function and optimizer:
+                          globalThis.loss_func = new torch.nn.CrossEntropyLoss();
+                      }; 
+          
+                      // Get live learning rate and regularization values.
+                      let batch_size = Number(document.getElementById('batch-size').value)
+                      let lr = Number(document.getElementById('learning-rate').value)
+                      let reg = Number(document.getElementById('regularization').value )
+                      let beta1 = Number(document.getElementById('beta1').value )
+                      let beta2 = Number(document.getElementById('beta2').value )
+                      let eps = Number(0.000001)
+          
+                      // Build optimizer:
+                      let optimizer = new torch.optim.Adam(model.parameters(), lr=lr, reg=reg, betas=[beta1, beta2], eps=eps)
+                      let loss;
+                      let loss_test;
+          
+                      // Training Loop:
+                      for(let i=0 ; i < 1 ; i++) {
+                          let [x_batch, y_batch] = getBatch(train, batch_size)
+                          
+                          let z = model.forward(x_batch)
+          
+                          // Get loss:
+                          loss = loss_func.forward(z, y_batch)
+          
+                          // Backpropagate the loss using neuralforge.tensor's backward() method:
+                          loss.backward()
+          
+                          // Update the weights:
+                          optimizer.step()
+                          
+                          // Reset the gradients to zero after each training step:
+                          optimizer.zero_grad()
+                          
+                          // Now, get a batch of test data:
+                          let [x_test, y_test] = getBatch(test, batch_size)
+          
+                          // Run the batch of test data through the model:
+                          let z_test = model.forward(x_test)
+          
+                          // Get the test loss and accuracy:
+                          acc_test = getAccuracy(z_test, y_test)
+                          loss_test = loss_func.forward(z_test, y_test)
+                          smoothAcc = acc_test * 0.02 + smoothAcc * 0.98
+          
+                          // If loss went to infinity (model way too large for training size), represent that in the graph:
+                          if (isNaN(loss_test.data[0])) {
+                              overFlow = overFlow * 1.5;
+                              data.push(overFlow + (Math.random() - 0.5) * 15);
+                          // If not, just keep adding the loss to the graph:
+                          } else {data.push(loss_test.data)}
+          
+                          // Display iteration and loss on the screen:
+                          document.getElementById('iter').innerHTML = `<b>Iteration:</b> ${iter}`;
+                          document.getElementById('total-visited').innerHTML = `<b>Total Training Examples:</b> ${total_visited}`;
+                          document.getElementById('loss').innerHTML = `<b>Validation Loss:</b> ${loss_test.data[0].toFixed(3)}`;
+                          document.getElementById('device-showcase').innerHTML = `<b>Device:</b> ${device}`
+                          document.getElementById('epoch').innerHTML = `<b>Epoch:</b> ${Math.floor(total_visited/train.length)}`;
+                          document.getElementById('acc').innerHTML = `<b>Validation Accuracy:</b> ${smoothAcc.toFixed(3)}`;
+                          iter += 1;
+                          total_visited += batch_size;
+                      
+                          plotGraph()
+          
+                          optimizer.zero_grad()
+                      };
+                  };
+          
+                  function getAccuracy(z, y) {
+                      const [B, D] = z.shape;
+                      let acc = 0;
+                      for (let i = 0; i < B; i+=1) {
+                          let biggest = 0;
+                          let biggestIndex = 0;
+                          for (let j = 0; j < D; j+=1) {
+                              if (z.data[i][j] > biggest) {
+                                  biggestIndex = j;
+                                  biggest = z.data[i][j];
+                              }
+                          }
+                          if (biggestIndex === y.data[i]) {acc += 1}
+                      }
+                      return acc / B
+                  }
+          
+                  function pauseTraining() {
+                      in_loop = false;
+                  };
+          
+                  function resetTraining() {
+                      in_loop = false;
+                      training = false;
+                      smoothAcc = 0.1;
+                      iter = 0;
+                      total_visited = 0;
+                      data = [];
+                      plotGraph();
+                      buttons = document.getElementsByClassName('layer-button');
+                      for (button of buttons) {
+                          button.style.backgroundColor = '';
+          
+                      }
+                      buttons = document.getElementsByClassName('device-button');
+                      for (button of buttons) {
+                          button.style.backgroundColor = '';
+                      }
+                  };
+          
+                  function plotGraph() {
+                      var canvas = document.getElementById('graph');
+                      var ctx = canvas.getContext('2d');
+                      ctx.clearRect(0, 0, canvas.width, canvas.height);
+          
+                      var startX = 50;
+                      var startY = canvas.height - 30;
+                      var maxX = data.length - 1;
+                      var maxY = Math.max(...data);
+                      var stepX = (canvas.width - 2 * startX) / maxX;
+                      var stepY = (startY - 30) / maxY;
+          
+                      // Set default stroke style and line width
+                      ctx.strokeStyle = 'black';
+                      ctx.lineWidth = 1;
+          
+                      // Draw x-axis label
+                      ctx.fillStyle = 'black';
+                      ctx.font = '12px Arial';
+                      ctx.textAlign = 'center';
+                      ctx.fillText('Iterations', canvas.width / 2, startY +29);
+          
+                      // Draw y-axis label
+                      ctx.save();
+                      ctx.translate(8, canvas.height / 2);
+                      ctx.rotate(-Math.PI / 2);
+                      ctx.fillStyle = 'black';
+                      ctx.font = '12px Arial';
+                      ctx.textAlign = 'center';
+                      ctx.fillText('Cross-Entropy Loss', 0, 5);
+                      ctx.restore();
+          
+                      // Draw grid lines
+                      ctx.beginPath();
+                      for (var i = 1; i < 5; i += 1) {
+                          var y = (startY * i )/ 5
+                          ctx.moveTo(startX, y);
+                          ctx.lineTo(canvas.width - startX, y);
+                      };
+                      ctx.stroke();
+          
+                      // Draw x-axis
+                      ctx.beginPath();
+                      ctx.moveTo(startX, startY);
+                      ctx.lineTo(canvas.width - startX, startY);
+                      ctx.stroke();
+          
+                      // Draw y-axis
+                      ctx.beginPath();
+                      ctx.moveTo(startX, startY);
+                      ctx.lineTo(startX, 30);
+                      ctx.stroke();
+          
+                      // Draw ticks and labels on x-axis
+                      for (var i = 0; i <= maxX; i++) {
+                          var x = startX + i * stepX * 100;
+                          ctx.beginPath();
+                          ctx.moveTo(x, startY);
+                          ctx.lineTo(x, startY + 5);
+                          ctx.stroke();
+                          ctx.fillText((i*100).toString(), x - 5, startY + 17);
+                      };
+          
+                      // Draw ticks and labels on y-axis
+                      for (var i = 0; i < 4; i += 1) {
+                          var y = (startY * i) / 5 + startY/5;
+                          ctx.beginPath();
+                          ctx.moveTo(startX, y);
+                          ctx.lineTo(startX - 5, y );
+                          ctx.stroke();
+                          if (stepY != 0) {
+                              ctx.fillText((y * maxY / stepY * 2 / 5).toFixed(2), startX - 20, startY - (y) + 5 );
+                          }
+                          
+                      };
+          
+                      // Draw line plot
+                      ctx.beginPath();
+                      ctx.strokeStyle = 'blue';
+                      ctx.lineWidth = 2;
+                      ctx.moveTo(startX, startY - data[0] * stepY);
+                      for (var i = 1; i <= maxX; i++) {
+                          var x = startX + i * stepX;
+                          var y = startY - data[i] * stepY;
+                          ctx.lineTo(x, y);
+                      };
+                      ctx.stroke();
+                  };
+          
+                  // Initial setup
+                  addBox(); // Add one box initially
+                  setInterval(changeMNIST , 1200);
+          </script>
+          
+           
+          
+          
+          
+          
+          
+          
+          
+                                        
+              
+              
+              
+              
+              
+                              
+
+
+          
+<!-- <div class="md-content" data-md-component="content">
+  <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="layers">Layers</h1>
+<p>In this section are listed all of the <strong>Layers</strong> and <strong>Modules</strong>.</p>
+<h2 id="nnlinear">nn.Linear</h2>
+<pre><code>new nn.Linear(in_size,
+              out_size,
+              device, 
+              bias, 
+              xavier)
+</code></pre>
+<p>Applies a linear transformation to the input tensor.
+Input is matrix-multiplied by a <code>w</code> tensor and added to a <code>b</code> tensor.</p>
+<p>Parameters</p>
+<ul>
+<li><strong>in_size (number)</strong> - Size of the last dimension of the input data.</li>
+<li><strong>out_size (number)</strong> - Size of the last dimension of the output data.</li>
+<li><strong>device (string)</strong> - Device on which the model's calculations will run. Either <code>'cpu'</code> or <code>'gpu'</code>.</li>
+<li><strong>bias (boolean)</strong> - Whether to use a bias term <code>b</code>.</li>
+<li><strong>xavier (boolean)</strong> - Whether to use Xavier initialization on the weights.</li>
+</ul>
+<p>Learnable Variables</p>
+<ul>
+<li><strong>w</strong> - <em>[input_size, output_size]</em> Tensor.</li>
+<li><strong>b</strong> - <em>[output_size]</em> Tensor.</li>
+</ul>
+<p>Example</p>
+<pre><code class="language-javascript">&gt;&gt;&gt; const linear = new nn.Linear(10,15,'gpu');
+&gt;&gt;&gt; let x = torch.randn([100,50,10], true, 'gpu');
+&gt;&gt;&gt; let y = linear.forward(x);
+&gt;&gt;&gt; y.shape
+// [100, 50, 15]
+</code></pre>
+<p></br></p>
+<h2 id="nnmultiheadselfattention">nn.MultiHeadSelfAttention</h2>
+<pre><code>new nn.MultiHeadSelfAttention(in_size,
+                              out_size,
+                              n_heads,
+                              n_timesteps,
+                              dropout_prob,
+                              device)
+</code></pre>
+<p>Applies a self-attention layer on the input tensor.</p>
+<ul>
+<li>Matrix-multiplies input by <code>Wk</code>, <code>Wq</code>, <code>Wv</code>, resulting in Key, Query and Value tensors.</li>
+<li>Computes attention multiplying Query and transpose Key.</li>
+<li>Applies Mask, Dropout and Softmax to attention activations.</li>
+<li>Multiplies result by Values.</li>
+<li>Multiplies result by <code>residual_proj</code>.</li>
+<li>Applies final Dropout.</li>
+</ul>
+<p>Parameters</p>
+<ul>
+<li><strong>in_size (number)</strong> - Size of the last dimension of the input data.</li>
+<li><strong>out_size (number)</strong> - Size of the last dimension of the output data.</li>
+<li><strong>n_heads (boolean)</strong> - Number of parallel attention heads the data is divided into. In_size must be divided evenly by n_heads.</li>
+<li><strong>n_timesteps (boolean)</strong> - Number of timesteps computed in parallel by the transformer.</li>
+<li><strong>dropout_prob (boolean)</strong> - probability of randomly dropping an activation during training (to improve regularization).</li>
+<li><strong>device (string)</strong> - Device on which the model's calculations will run. Either <code>'cpu'</code> or <code>'gpu'</code>.</li>
+</ul>
+<p>Learnable Variables</p>
+<ul>
+<li><strong>Wk</strong> - <em>[input_size, input_size]</em> Tensor.</li>
+<li><strong>Wq</strong> - <em>[input_size, input_size]</em> Tensor.</li>
+<li><strong>Wv</strong> - <em>[input_size, input_size]</em> Tensor.</li>
+<li><strong>residual_proj</strong> - <em>[input_size, output_size]</em> Tensor.</li>
+</ul>
+<p>Example</p>
+<pre><code class="language-javascript">&gt;&gt;&gt; const att = new nn.MultiHeadSelfAttention(10, 15, 2, 32, 0.2, 'gpu');
+&gt;&gt;&gt; let x = torch.randn([100,50,10], true, 'gpu');
+&gt;&gt;&gt; let y = att.forward(x);
+&gt;&gt;&gt; y.shape
+// [100, 50, 15]
+</code></pre>
+<p></br></p>
+<h2 id="nnfullyconnected">nn.FullyConnected</h2>
+<pre><code>new nn.FullyConnected(in_size,
+                      out_size,
+                      dropout_prob,
+                      device,
+                      bias)
+</code></pre>
+<p>Applies a fully-connected layer on the input tensor.</p>
+<ul>
+<li>Matrix-multiplies input by Linear layer <code>l1</code>, upscaling the input.</li>
+<li>Passes tensor through ReLU.</li>
+<li>Matrix-multiplies tensor by Linear layer <code>l2</code>, downscaling the input.</li>
+<li>Passes tensor through Dropout.</li>
+</ul>
+<pre><code class="language-javascript">forward(x: Tensor): Tensor {
+    let z = this.l1.forward(x);
+    z = this.relu.forward(z);
+    z = this.l2.forward(z);
+    z = this.dropout.forward(z);
+    return z;
+}
+</code></pre>
+<p>Parameters</p>
+<ul>
+<li><strong>in_size (number)</strong> - Size of the last dimension of the input data.</li>
+<li><strong>out_size (number)</strong> - Size of the last dimension of the output data.</li>
+<li><strong>dropout_prob (boolean)</strong> - probability of randomly dropping an activation during training (to improve regularization).</li>
+<li><strong>device (string)</strong> - Device on which the model's calculations will run. Either <code>'cpu'</code> or <code>'gpu'</code>.</li>
+<li><strong>bias (boolean)</strong> - Whether to use a bias term <code>b</code>.</li>
+</ul>
+<p>Learnable Variables</p>
+<ul>
+<li><strong>l1</strong> - <em>[input_size, 4input_size]</em> Tensor.</li>
+<li><strong>l2</strong> - <em>[4input_size, input_size]</em> Tensor.</li>
+</ul>
+<p>Example</p>
+<pre><code class="language-javascript">&gt;&gt;&gt; const fc = new nn.FullyConnected(10, 15, 0.2, 'gpu');
+&gt;&gt;&gt; let x = torch.randn([100,50,10], true, 'gpu');
+&gt;&gt;&gt; let y = fc.forward(x);
+&gt;&gt;&gt; y.shape
+// [100, 50, 15]
+</code></pre>
+<p></br></p>
+<h2 id="nnblock">nn.Block</h2>
+<pre><code>new nn.Block(in_size,
+             out_size,
+             n_heads,
+             n_timesteps,
+             dropout_prob,
+             device)
+</code></pre>
+<p>Applies a transformer Block layer on the input tensor.</p>
+<pre><code class="language-javascript">forward(x: Tensor): Tensor {
+    // Pass through Layer Norm and Self Attention:
+    let z = x.add(this.att.forward(this.ln1.forward(x)));
+    // Pass through Layer Norm and Fully Connected:
+    z = z.add(this.fcc.forward(this.ln2.forward(z)));
+    return z;
+}
+</code></pre>
+<p>Parameters</p>
+<ul>
+<li><strong>in_size (number)</strong> - Size of the last dimension of the input data.</li>
+<li><strong>out_size (number)</strong> - Size of the last dimension of the output data.</li>
+<li><strong>n_heads (boolean)</strong> - Number of parallel attention heads the data is divided into. In_size must be divided evenly by n_heads.</li>
+<li><strong>n_timesteps (boolean)</strong> - Number of timesteps computed in parallel by the transformer.</li>
+<li><strong>dropout_prob (boolean)</strong> - probability of randomly dropping an activation during training (to improve regularization).</li>
+<li><strong>device (string)</strong> - Device on which the model's calculations will run. Either <code>'cpu'</code> or <code>'gpu'</code>.</li>
+</ul>
+<p>Learnable Modules</p>
+<ul>
+<li><strong>nn.MultiHeadSelfAttention</strong> - <code>Wk</code>, <code>Wq</code>, <code>Wv</code>, <code>residual_proj</code>.</li>
+<li><strong>nn.LayerNorm</strong> - <code>gamma</code>, <code>beta</code>.</li>
+<li><strong>nn.FullyConnecyed</strong> - <code>l1</code>, <code>l2</code>.</li>
+<li><strong>nn.LayerNorm</strong> - <code>gamma</code>, <code>beta</code>.</li>
+</ul>
+<p><br></p>
+<h2 id="nnembedding">nn.Embedding</h2>
+<pre><code>new nn.Embedding(in_size,
+                 embed_size)
+</code></pre>
+<p>Embedding table, with a number of embeddings equal to the vocabulary size of the model <code>in_size</code>, and size of each embedding equal to <code>embed_size</code>. For each element in the input tensor (integer), returns the embedding indexed by the integer.</p>
+<pre><code class="language-javascript">forward(idx: Tensor): Tensor {
+   // Get embeddings indexed by input (idx):
+   let x = this.E.at(idx);
+   return x;
+}
+</code></pre>
+<p>Parameters</p>
+<ul>
+<li><strong>in_size (number)</strong> - Number of different classes the model can predict (vocabulary size).</li>
+<li><strong>embed_size (number)</strong> - Dimension of each embedding generated.</li>
+</ul>
+<p>Learnable Parameters</p>
+<ul>
+<li><strong>E</strong> - <em>[vocab_size, embed_size]</em> Tensor.</li>
+</ul>
+<p>Example</p>
+<pre><code class="language-javascript">&gt;&gt;&gt; const batch_size = 32;
+&gt;&gt;&gt; const number_of_timesteps = 256;
+&gt;&gt;&gt; const embed = new nn.Embedding(10, 64);
+&gt;&gt;&gt; let x = torch.randint(0, 10, [batch_size, number_of_timesteps]);
+&gt;&gt;&gt; let y = embed.forward(x);
+&gt;&gt;&gt; y.shape
+// [32, 256, 64]
+</code></pre>
+<p><br></p>
+<h2 id="nnpositionalembedding">nn.PositionalEmbedding</h2>
+<pre><code>new nn.PositionalEmbedding(input_size,
+                           embed_size)
+</code></pre>
+<p>Embedding table, with a number of embeddings equal to the input size of the model <code>input_size</code>, and size of each embedding equal to <code>embed_size</code>. For each element in the input tensor, returns the embedding indexed by it's position.</p>
+<pre><code class="language-javascript">forward(idx: Tensor): Tensor {
+   // Get dimension of the input:
+   const [B, T] = idx.shape;
+   // Gets positional embeddings for each element along &quot;T&quot;: (Batch, Timesteps) =&gt; (Batch, Timesteps, Embed)
+   const x = this.E.at([...Array(T).keys()]);
+   return x
+}
+</code></pre>
+<p>Parameters</p>
+<ul>
+<li><strong>input_size (number)</strong> - Number of different embeddings in the lookup table (size of the input).</li>
+<li><strong>embed_size (number)</strong> - Dimension of each embedding generated.</li>
+</ul>
+<p>Learnable Parameters</p>
+<ul>
+<li><strong>E</strong> - <em>[input_size, embed_size]</em> Tensor.</li>
+</ul>
+<p>Example</p>
+<pre><code class="language-javascript">&gt;&gt;&gt; const batch_size = 32;
+&gt;&gt;&gt; const number_of_timesteps = 256;
+&gt;&gt;&gt; const embed = new nn.PositionalEmbedding(number_of_timesteps, 64);
+&gt;&gt;&gt; let x = torch.randint(0, 10, [batch_size, number_of_timesteps]);
+&gt;&gt;&gt; let y = embed.forward(x);
+&gt;&gt;&gt; y.shape
+// [32, 256, 64]
+</code></pre>
+<p><br></p>
+<h2 id="nnrelu">nn.ReLU</h2>
+<pre><code>new nn.ReLU()
+</code></pre>
+<p>Rectified Linear Unit activation function. This implementation is <strong>leaky</strong> for stability.
+For each element in the incoming tensor:</p>
+<ul>
+<li>If element is positive, no change.</li>
+<li>If element is negative, multiply by 0.001.</li>
+</ul>
+<p>Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p>Learnable Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p><br></p>
+<h2 id="nnsoftmax">nn.Softmax</h2>
+<pre><code>new nn.Softmax()
+</code></pre>
+<p>Softmax activation function. Rescales the data in the input tensor, along the <code>dim</code> dimension. The sum of every element along this dimension is one, and every element is between zero and one.</p>
+<pre><code class="language-javascript">forward(x: Tensor, dim = -1): Tensor {
+   z = exp(z);
+   const out = z.div(z.sum(dim, true));
+   return out;
+   return x
+}
+</code></pre>
+<p>Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p>Learnable Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p>Example</p>
+<pre><code class="language-javascript">&gt;&gt;&gt; const softmax = new nn.Softmax();
+&gt;&gt;&gt; let x = torch.randn([2,4]);
+&gt;&gt;&gt; let y = softmax.forward(x, -1);
+&gt;&gt;&gt; y.data
+// [[0.1, 0.2, 0.8, 0.0],
+//  [0.6, 0.1, 0.2, 0.1]]
+</code></pre>
+<p><br></p>
+<h2 id="nndropout">nn.Dropout</h2>
+<pre><code>new nn.Dropout(drop_prob: number)
+</code></pre>
+<p>Dropout class. For each element in input tensor, has a <code>drop_prob</code> chance of setting it to zero.</p>
+<p>Parameters</p>
+<ul>
+<li><strong>drop_prob (number)</strong> - Probability to drop each value in input, from 0 to 1.</li>
+</ul>
+<p>Learnable Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p>Example</p>
+<pre><code class="language-javascript">&gt;&gt;&gt; const dropout = new nn.Dropout(0.5);
+&gt;&gt;&gt; let x = torch.ones([2,4]);
+&gt;&gt;&gt; let y = dropout.forward(x);
+&gt;&gt;&gt; y.data
+// [[1, 0, 0, 1],
+//  [0, 1, 0, 1]]
+</code></pre>
+<p><br></p>
+<h2 id="nnlayernorm">nn.LayerNorm</h2>
+<pre><code>new nn.LayerNorm(n_embed: number)
+</code></pre>
+<p>LayerNorm class. Normalizes the data, with a <strong>mean of 0</strong> and <strong>standard deviation of 1</strong>, across the last dimension. This is done as described in the <a target="_blank" href="https://arxiv.org/abs/1607.06450">LayerNorm paper</a>.</p>
+<p>Parameters</p>
+<ul>
+<li><strong>n_embed (number)</strong> - Size of the last dimension of the input.</li>
+</ul>
+<p>Learnable Parameters</p>
+<ul>
+<li><strong>gamma (number)</strong> - Constant to multiply output by (initialized as 1).</li>
+<li><strong>beta (number)</strong> - Constant to add to output (initialized as 0).</li>
+</ul>
+<p><br></p>
+<h2 id="nncrossentropyloss">nn.CrossEntropyLoss</h2>
+<pre><code>new nn.CrossEntropyLoss()
+</code></pre>
+<p>Cross Entropy Loss function. Computes the cross entropy loss between the target and the input tensor.</p>
+<ul>
+<li>First, calculates softmax of input tensor.</li>
+<li>Then, selects the elements of the input corresponding to the correct class in the target.</li>
+<li>Gets the negative log of these elements.</li>
+<li>Adds all of them, and divides by the number of elemets.</li>
+</ul>
+<p>Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p>Learnable Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p>Example</p>
+<pre><code class="language-javascript">&gt;&gt;&gt; const number_of_classes = 10;
+&gt;&gt;&gt; const input_size = 64;
+&gt;&gt;&gt; const loss_func = new nn.CrossEntropyLoss();
+&gt;&gt;&gt; let x = torch.randn([input_size, number_of_classes]);
+&gt;&gt;&gt; let y = torch.randint(0, number_of_classes, [input_size]);
+&gt;&gt;&gt; let loss = loss_func.forward(x, y);
+&gt;&gt;&gt; loss.data
+// 2.3091357
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div> -->
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2024 Eduardo Leitão da Cunha Opice Leão
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/eduardoleao052/js-pytorch" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/in/eduardoleao052/" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.path", "navigation.indexes", "toc.integrate", "toc.follow", "navigation.top"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      
+    
+  </body>
+</html>
