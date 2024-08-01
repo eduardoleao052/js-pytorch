@@ -2,6 +2,8 @@
 <!doctype html>
 <html lang="en" class="no-js">
   <head>
+      <!-- Widget tag (GitHub:buttons). -->
+      <script async defer src="https://buttons.github.io/buttons.js"></script>
       <!-- Google tag (gtag.js) -->
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-7QRVV2J34B"></script>
       <script>
@@ -511,8 +513,13 @@
               <div class="container">
                   <div class="separator" id="right-separator" style="display: block; padding-bottom: 0px; margin-bottom: 15px;">
                       <a target="_blank" href="https://github.com/eduardoleao052/js-pytorch"><img style="display: block;" class='icon' src="../../assets/demo_logo.png"></a>
-                      <a target="_blank" href="https://github.com/eduardoleao052/js-pytorch"> <img class="logos" src="../../assets/github.png" style="width: 20px; height: 20px; display: inline-block; margin-bottom: 7px;"></a>
-                  </div>
+                      <!-- Github:Buttons tag. -->
+                      <div style="display: flex; align-items: center; margin-top: 15px; margin-bottom: 10px; justify-content: center;">
+                        <a class="github-button" href="https://github.com/eduardoleao052/js-pytorch" data-color-scheme="no-preference: light; light: light; dark: light;" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star eduardoleao052/js-pytorch on GitHub">Star</a>
+                        <div style="width: 25px;"></div>
+                        <a class="github-button" href="https://github.com/eduardoleao052/js-pytorch/issues" data-color-scheme="no-preference: light; light: light; dark: light;" data-icon="octicon-issue-opened" data-size="large" data-show-count="true" aria-label="Issue eduardoleao052/js-pytorch on GitHub">Issue</a>
+                      </div>
+                    </div>
               
                   <div class="separator" id="right-separator" style="margin-top: 10px; display: block;">
                       <p style="display: block; font-size: 16px; color: #292929; margin-bottom: 25px;">Welcome to <b>JS-PyTorch's Web Demo</b>! You can set the <b>Model Layers</b> on the right (number of layers and hidden dimension of each layer), and choose the <b>Model Hyperparameters</b> in <u>real time</u>. </p>
@@ -576,7 +583,6 @@
               </div>
           
               <div class="container" style="padding-bottom: 0px; padding-top: 10px;">
-                  <h2>Graph</h2>
                   <canvas id="graph" width="700" height="300"></canvas>
                   <div style="display: inline-block; width: 90%; margin-bottom: 15px;">
                       <p id="loss"> <b>Validation Loss:</b> </p>
