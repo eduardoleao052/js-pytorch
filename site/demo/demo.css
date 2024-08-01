@@ -122,6 +122,17 @@ label {
     background-color: #004793;
 }
 
+#clearing-button {
+    background-color: #818181;
+}
+
+#clearing-button:hover {
+    background-color: #5f5f5f;
+}
+
+#clearing-button:active {
+    background-color: #3a3a3a;
+}
 
 #reset-button {
     background-color: #c80f0f;
@@ -133,18 +144,6 @@ label {
 
 #reset-button:active {
     background-color: #821414;
-}
-
-#clear-button {
-    background-color: #818181;
-}
-
-#clear-button:hover {
-    background-color: #5f5f5f;
-}
-
-#clear-button:active {
-    background-color: #3a3a3a;
 }
 
 .device-button {
