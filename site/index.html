@@ -608,6 +608,15 @@
 <h2 id="installation">Installation</h2>
 <p>This is a <strong>node</strong> package, and can be installed with  <strong>npm</strong> (Node Package Manager). It has full sopport of node 20.15.1, which is the latest LTS (Long-Term Support) node version. </p>
 <p>In most operating systems, it should also work for <strong>more recent</strong> versions.</p>
+<p>To install in the <b>browser</b>, link js-pytorch-browser.js to your HTML file:</p>
+<pre>
+  <code class="language-html line-numbers">
+  &lt;script src="dist/js-pytorch-browser.js"&gt;&lt;/script&gt;
+    &lt;script type="module"&gt;
+      import { torch } from 'dist/js-pytorch-browser.js';
+    &lt;/script&gt;
+  </code>
+</pre>
 <h3 id="macos">MacOS</h3>
 <ul>
 <li>First, install <strong>node</strong> with the command line, as described on the <a href="https://nodejs.org/en/download/package-manager" target="_blank">node website</a>:</li>
