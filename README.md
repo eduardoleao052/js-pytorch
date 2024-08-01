@@ -233,7 +233,7 @@ const newModel = torch.load(placeHolder, 'model.json')
 ## 5. Future Work
 
 - This package is not as optimized as PyTorch yet, but I tried making it more interpretable. Efficiency improvements are incoming!
-- Feel free to **contribute**! Create a merge request to the `develop` branch, and also feel free to reach out. I will try to answer as soon as possible.
+- Feel free to **contribute**! Create a merge request to the `develop` branch, and also feel free to reach out. I'll try to answer as soon as possible.
 - Hope you enjoy!
 
 
