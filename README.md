@@ -89,7 +89,7 @@
 
 - On **MacOS**, **Windows**, and **Ubuntu**, you can install the library with `npm install js-pytorch`.
 - On **Windows**, if you run into an error, you might need to install the latest version of [Visual Studio](https://visualstudio.microsoft.com/downloads/?cid=learn-navbar-download-cta), including the "Desktop development with C++" workload.
-- To run in the **Browser**, `npm install` the latest version of **js-pytorch**, and link the distribution files in your HTML file:
+- To run in the **Browser**, `npm install` the latest version of **JS-PyTorch**, and link the distribution files in your HTML file:
   
 ```html
 <script src="./node_modules/js-pytorch/dist/utils.js"></script>
@@ -99,6 +99,8 @@
 </script>
 ```
 
+- After that, you can use JS-PyTorch freely in any `<script>` in your HTML file.
+- 
 ## 3. Running it Yourself
 
 ### Simple Autograd Example:
