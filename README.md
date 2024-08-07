@@ -100,7 +100,7 @@
 ```
 
 - After that, you can use JS-PyTorch freely in any `<script>` in your HTML file.
-- 
+
 ## 3. Running it Yourself
 
 ### Simple Autograd Example:
