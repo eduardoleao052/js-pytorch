@@ -1780,12 +1780,12 @@ class Embedding extends Module {
   /**
    * Embedding class, turns indexes into vectors.
    *
-   * @param {number} in_size - number of different indexes (vocabulary size).
-   * @param {number} out_size - size of the embedding vector generated.
+   * @param {number} vocab_size - number of different indexes (vocabulary size).
+   * @param {number} embed_size - size of the embedding vector generated.
    */
-  constructor(in_size, embed_size) {
+  constructor(vocab_size, embed_size) {
     super();
-    this.E = randn([in_size, embed_size], true, "cpu", false);
+    this.E = randn([vocab_size, embed_size], true, "cpu", false);
   }
   /**
    * Extracts embedding from rows in "idx":
@@ -1802,14 +1802,14 @@ class Embedding extends Module {
 class PositionalEmbedding extends Module {
   E;
   /**
-   * Embedding class, turns indexes into vectors.
+   * Embedding class, turns indexes into vectors based on it's position through an optimized lookup table.
    *
-   * @param {number} n_timesteps - number of different embeddings (number of timesteps in each instance in batch).
+   * @param {number} input_size - number of different embeddings (size of the input).
    * @param {number} embed_size - size of the embedding vector generated.
    */
-  constructor(n_timesteps, embed_size) {
+  constructor(input_size, embed_size) {
     super();
-    this.E = randn([n_timesteps, embed_size], true, "cpu", false);
+    this.E = randn([input_size, embed_size], true, "cpu", false);
   }
   /**
    * Gets embedding for timesteps in "idx" array.

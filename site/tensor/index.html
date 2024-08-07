@@ -753,7 +753,8 @@
 <h2 id="torchrandn">torch.randn</h2>
 <pre><code>torch.randn(*shape,
             requires_grad=false,
-            device='cpu') → Tensor
+            device='cpu',
+            xavier=false) → Tensor
 </code></pre>
 <p>Returns a tensor filled with randomly sampled data with dimensions like <code>shape</code>. The sample is from a normal distribution.</p>
 <p>Parameters</p>
@@ -761,6 +762,7 @@
 <li><strong>shape (Array)</strong> - Javascript Array containing the shape of the Tensor.</li>
 <li><strong>requires_grad (boolean)</strong> - Whether to keep track of this tensor's gradients. Set this to true if you want to <strong>learn</strong> this parameter in your model. Default: <code>false</code>.</li>
 <li><strong>device (string)</strong> - Device to store Tensor. Either "gpu" or "cpu". If your device has a gpu, large models will train faster on it.</li>
+<li><strong>xavier (boolean)</strong> - Whether to use <a target="_blank" href="https://prateekvishnu.medium.com/xavier-and-he-normal-he-et-al-initialization-8e3d7a087528">Xavier Initialization</a> on this tensor. Default: <code>false</code>.</li>
 </ul>
 <p>Example</p>
 <pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randn([3,2], false, 'gpu');
