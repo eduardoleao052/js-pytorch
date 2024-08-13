@@ -196,7 +196,7 @@ function test_transformer(): number {
   let loss!: Tensor;
 
   // Training Loop:
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 75; i++) {
     const z = model.forward(x);
 
     // Get loss:
