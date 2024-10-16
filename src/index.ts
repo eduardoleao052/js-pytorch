@@ -39,6 +39,7 @@ import {
   Dropout,
   LayerNorm,
   CrossEntropyLoss,
+  MSELoss,
   save,
   load
 } from "./layers.js";
@@ -57,7 +58,8 @@ const nn = {
   Softmax,
   Dropout,
   LayerNorm,
-  CrossEntropyLoss
+  CrossEntropyLoss,
+  MSELoss
 };
 
 const optim = { Adam };

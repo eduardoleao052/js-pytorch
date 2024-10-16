@@ -570,6 +570,14 @@
   </a>
   
 </li>
+        <li class="md-nav__item">
+  <a href="#nnmseloss" class="md-nav__link">
+    <span class="md-ellipsis">
+      nn.MSELoss
+    </span>
+  </a>
+  
+</li>
       
     </ul>
   
@@ -929,6 +937,24 @@ For each element in the incoming tensor:</p>
 <li>Then, selects the elements of the input corresponding to the correct class in the target.</li>
 <li>Gets the negative log of these elements.</li>
 <li>Adds all of them, and divides by the number of elemets.</li>
+</ul>
+<p>Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p>Learnable Parameters</p>
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<p><br></p>
+<h2 id="nnmseloss">nn.MSELoss</h2>
+<pre><code>new nn.MSELoss()
+</code></pre>
+<p>Mean Squared Error Loss function. This function calculates the mean squared error between the target and the input tensor, which is a measure of the average squared difference between predictions and actual values.</p>
+<ul>
+<li>First, computes the element-wise difference between the target and the input tensor.</li>
+<li>Next, squares each of these differences to eliminate negative values and emphasize larger errors.</li>
+<li>Finally, sums all the squared differences and divides by the total number of elements to calculate the mean.</li>
 </ul>
 <p>Parameters</p>
 <ul>
