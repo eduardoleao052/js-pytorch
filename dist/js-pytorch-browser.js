@@ -1871,15 +1871,44 @@ class CrossEntropyLoss extends Module {
     const logits = logitsExp.div(logitsSum);
     const y_array = _reshape(y.data, [B]);
     const at_logits = logits.at([...Array(B).keys()], y_array);
-    // const myz = torch.tensor(z.data,false)
-    // console.log('logits')
-    // console.log(at_logits.data)
-    // const softmax = new torch.nn.Softmax()
-    // const mylogits2 = softmax.forward(myz).at([...Array(B).keys()], y_array);
-    // console.log('>>.>>>>>')
-    // console.log(mylogits2.data)
     const log_losses = log(at_logits);
     let loss = log_losses.sum(-1).neg();
+    loss = loss.div(B);
+    return loss;
+  }
+}
+/**
+ * Mean Squared Error Loss class, returns the loss given the network output and the expected output.
+ */
+export class MSELoss extends Module {
+  /**
+   * Constructor.
+   */
+  constructor() {
+    super();
+  }
+
+  /**
+   * Performs forward pass through MSELoss, returns loss.
+   * @param {Tensor} z - Output from the last layer of the network.
+   * @param {object} y - Correct outputs expected from the model.
+   * @returns {object} Mean Squared Error loss of the model output.
+   */
+  forward(z, y) {
+    // Get data's shape:
+    let zDims = z.shape;
+    // Get last dimension:
+    const D = zDims.slice(zDims.length - 1, zDims.length)[0];
+    // Get product of all batch dimensions:
+    zDims = zDims.slice(0, zDims.length - 1);
+    const B = zDims.reduce((a, b) => a * b, 1);
+    // Flatten out the batch dimensions:
+    z = z.reshape([B, D]);
+    y = y.reshape([B, D]);
+    const S = z.sub(y);
+    const P = S.pow(2);
+    const Su = P.sum();
+    let loss = Su.mean();
     loss = loss.div(B);
     return loss;
   }
@@ -1963,7 +1992,8 @@ const nn = {
   Softmax,
   Dropout,
   LayerNorm,
-  CrossEntropyLoss
+  CrossEntropyLoss,
+  MSELoss
 };
 const optim = { Adam };
 const torch = {
