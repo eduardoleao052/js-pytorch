@@ -793,7 +793,7 @@
 </code></pre>
 <p><br></p>
 <h2 id="torchrandint">torch.randint</h2>
-<pre><code>torch.rand(low,
+<pre><code>torch.randint(low,
             high,
             *shape,
             requires_grad=false,
@@ -809,7 +809,7 @@
 <li><strong>device (string)</strong> - Device to store Tensor. Either "gpu" or "cpu". If your device has a gpu, large models will train faster on it.</li>
 </ul>
 <p>Example</p>
-<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.rand([3,2], false, 'gpu');
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randint([3,2], false, 'gpu');
 &gt;&gt;&gt; console.log(a.data);
 //[[0.011, 0.122],
 // [-0.03, 0.105]
