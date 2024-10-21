@@ -1913,8 +1913,33 @@ export class MSELoss extends Module {
     return loss;
   }
 }
+/**
+ * Saves the model to a JSON file.
+ * @param {Module} model - Model to be saved in JSON file.
+ * @param {string} file - JSON file.
+ */
 function save(model, file) {
-  const data = JSON.stringify(model);
+  /**
+   * Filters object, returning 'null' instead of 'value' for certain keys.
+   * @param {object} obj - Objects with keys and values that we have to filter.
+   * @returns {object} Filtered object.
+   */
+  function recursiveReplacer(obj){
+    let result = {};
+    for (var x in obj) {
+      if (x !== "forwardKernel" && x !== "backwardKernelA" && x !== "backwardKernelB" && x !== "gpu") {
+        if (typeof obj[x] === 'object' && !Array.isArray(obj[x])) {
+          result[x] = recursiveReplacer(obj[x]);
+        } else {
+          result[x] = obj[x];
+        }
+      } else {
+        result[x] = null;
+      }
+    }
+    return result 
+  }
+  const data = JSON.stringify(recursiveReplacer(model));
   fs.writeFileSync(file, data);
 }
 function load(model, file) {

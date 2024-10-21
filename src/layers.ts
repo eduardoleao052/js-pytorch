@@ -580,7 +580,27 @@ export class MSELoss extends Module {
  * @param {string} file - JSON file.
  */
 export function save(model: Module, file: string) {
-  const data = JSON.stringify(model);
+  /**
+   * Filters object, returning 'null' instead of 'value' for certain keys.
+   * @param {object} obj - Objects with keys and values that we have to filter.
+   * @returns {object} Filtered object.
+   */
+  function recursiveReplacer(obj: { [key: string]: any; }): { [key: string]: any; }{
+    let result: { [key: string]: any; } = {};
+    for (var x in obj) {
+      if (x !== "forwardKernel" && x !== "backwardKernelA" && x !== "backwardKernelB" && x !== "gpu") {
+        if (typeof obj[x] === 'object' && !Array.isArray(obj[x])) {
+          result[x] = recursiveReplacer(obj[x]);
+        } else {
+          result[x] = obj[x];
+        }
+      } else {
+        result[x] = null;
+      }
+    }
+    return result 
+  }
+  const data = JSON.stringify(recursiveReplacer(model));
   fs.writeFileSync(file, data);
 }
 
