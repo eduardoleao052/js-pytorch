@@ -537,6 +537,42 @@ export class CrossEntropyLoss extends Module {
     return loss;
   }
 }
+/**
+ * Mean Squared Error Loss class, returns the loss given the network output and the expected output.
+ */
+export class MSELoss extends Module {
+  /**
+   * Constructor.
+   */
+  constructor() {
+    super();
+  }
+
+  /**
+   * Performs forward pass through MSELoss, returns loss.
+   * @param {Tensor} z - Output from the last layer of the network.
+   * @param {object} y - Correct outputs expected from the model.
+   * @returns {object} Mean Squared Error loss of the model output.
+   */
+  forward(z: Tensor, y: Tensor): Tensor {
+    // Get data's shape:
+    let zDims = z.shape;
+    // Get last dimension:
+    const D = zDims.slice(zDims.length - 1, zDims.length)[0];
+    // Get product of all batch dimensions:
+    zDims = zDims.slice(0, zDims.length - 1);
+    const B = zDims.reduce((a, b) => a * b, 1);
+    // Flatten out the batch dimensions:
+    z = z.reshape([B, D]);
+    y = y.reshape([B, D]);
+    const S = z.sub(y);
+    const P = S.pow(2);
+    const Su = P.sum();
+    let loss = Su.mean();
+    loss = loss.div(B);
+    return loss;
+  }
+}
 
 /**
  * Saves the model to a JSON file.

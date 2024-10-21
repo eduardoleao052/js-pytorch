@@ -3,6 +3,7 @@ import { randn, randint, matmul, add, Tensor } from "../src/tensor";
 import {
   ReLU,
   CrossEntropyLoss,
+  MSELoss,
   Module,
   Linear,
   Embedding,
@@ -20,12 +21,12 @@ import { Adam } from "../src/optim";
  */
 function test_autograd(): number {
   // Define loss function as Cross Entropy Loss and learning rate:
-  const loss_func = new CrossEntropyLoss();
+  const loss_func = new MSELoss();
   const learning_rate = 3e-3;
 
   //  Instantiate input and output:
   const x = randn([8, 4, 16]);
-  const y = randint(0, 10, [8, 4]);
+  const y = randn([8, 4, 10]);
   let loss!: Tensor;
 
   // Instantiate Neural Network's Layers:
@@ -33,7 +34,7 @@ function test_autograd(): number {
   const relu1 = new ReLU();
   const w2 = randn([32, 32], true, 'cpu', true);
   const relu2 = new ReLU();
-  const w3 = randn([32, 50], true, 'cpu', true);
+  const w3 = randn([32, 10], true, 'cpu', true);
 
   // Training Loop:
   for (let i = 0; i < 128; i++) {
@@ -45,6 +46,7 @@ function test_autograd(): number {
 
     // Get loss:
     loss = loss_func.forward(z, y);
+    
     // Backpropagate the loss using neuralforge.tensor:
     loss.backward();
 
