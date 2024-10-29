@@ -1955,8 +1955,51 @@ class CrossEntropyLoss extends Module {
     return loss;
   }
 }
+class MSELoss extends Module {
+  /**
+   * Constructor.
+   */
+  constructor() {
+    super();
+  }
+  /**
+   * Performs forward pass through MSELoss, returns loss.
+   * @param {Tensor} z - Output from the last layer of the network.
+   * @param {object} y - Correct outputs expected from the model.
+   * @returns {object} Mean Squared Error loss of the model output.
+   */
+  forward(z, y) {
+    let zDims = z.shape;
+    const D = zDims.slice(zDims.length - 1, zDims.length)[0];
+    zDims = zDims.slice(0, zDims.length - 1);
+    const B = zDims.reduce((a, b) => a * b, 1);
+    z = z.reshape([B, D]);
+    y = y.reshape([B, D]);
+    const S = z.sub(y);
+    const P = S.pow(2);
+    const Su = P.sum();
+    let loss = Su.mean();
+    loss = loss.div(B);
+    return loss;
+  }
+}
 function save(model, file) {
-  const data = JSON.stringify(model);
+  function recursiveReplacer(obj) {
+    let result = {};
+    for (var x in obj) {
+      if (x !== "forwardKernel" && x !== "backwardKernelA" && x !== "backwardKernelB" && x !== "gpu") {
+        if (typeof obj[x] === "object" && !Array.isArray(obj[x])) {
+          result[x] = recursiveReplacer(obj[x]);
+        } else {
+          result[x] = obj[x];
+        }
+      } else {
+        result[x] = null;
+      }
+    }
+    return result;
+  }
+  const data = JSON.stringify(recursiveReplacer(model));
   fs.writeFileSync(file, data);
 }
 function load(model, file) {
@@ -2042,7 +2085,8 @@ const nn = {
   Softmax,
   Dropout,
   LayerNorm,
-  CrossEntropyLoss
+  CrossEntropyLoss,
+  MSELoss
 };
 const optim = { Adam };
 const torch = {
