@@ -1880,7 +1880,7 @@ class CrossEntropyLoss extends Module {
 /**
  * Mean Squared Error Loss class, returns the loss given the network output and the expected output.
  */
-export class MSELoss extends Module {
+class MSELoss extends Module {
   /**
    * Constructor.
    */
