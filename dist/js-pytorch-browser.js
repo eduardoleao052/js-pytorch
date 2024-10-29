@@ -2057,4 +2057,4 @@ const torch = {
   getShape
 };
 
-export { torch };
+exports.torch = torch;
