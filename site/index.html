@@ -603,18 +603,15 @@
 <ul>
   <li>JS-PyTorch is a <strong>Deep Learning</strong> JavaScript library, which uses the seamless PyTorch syntax.</li>
   <li>This means that you can use this library to <strong>train, test and deploy Neural Networks</strong>, with node.js or on a web browser.</li>
-<li>For access to the source code, visit <a href="https://github.com/eduardoleao052/js-pytorch", target="_blank">The GitHub repo</a>.</li>
+<li>For access to the source code, visit <a href="https://github.com/eduardoleao052/js-pytorch", target="_blank">the GitHub repo</a>.</li>
 </ul>
 <h2 id="installation">Installation</h2>
 <p>This is a <strong>node</strong> package, and can be installed with  <strong>npm</strong> (Node Package Manager). It has full support of node 20.15.1, which is the latest LTS (Long-Term Support) node version, and more recent versions. </p>
-<p>To run JS-PyTorch in the <b>browser</b>, first install it using npm, then link it to your HTML file:</p>
-<pre><code class="language-html line-numbers">&lt;script src="./node_modules/js-pytorch/dist/utils.js"&gt;&lt;/script&gt;
-&lt;script type="module"&gt;
-  import { torch } from './node_modules/js-pytorch/dist/js-pytorch-browser.js';
-  window.torch = torch;
-&lt;/script&gt;
-</code></pre>
-<p>After that, you can use JS-PyTorch freely in any <b>script</b> in your HTML file.</p>
+<p>To run JS-PyTorch in the <b>browser</b>, paste the following tag in the <strong>head</strong> of your HTML file. You can also get the latest tag from the <a href="https://cdnjs.com/libraries/js-pytorch" target="_blank">cdnjs</a> website:</p>
+<pre><code class="language-html line-numbers">
+  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/js-pytorch/0.7.2/js-pytorch-browser.js" integrity="sha512-l22t7GnqXvHBMCBvPUBdFO2TEYxnb1ziCGcDQcpTB2un16IPA4FE5SIZ8bUR+RwoDZGikQkWisO+fhnakXt9rg==" crossorigin="anonymous" referrerpolicy="no-referrer"&gt;&lt;/script&gt;
+  </code></pre>
+<p>After that, you can use JS-PyTorch freely in any <strong>script</strong> tag in your HTML file.</p>
 
 <h3 id="macos">MacOS</h3>
 <ul>
@@ -700,12 +697,7 @@ const optim = torch.optim;
 <ul>
 <li>If you have <strong>detected a bug</strong> on the library, please file a <a href="https://github.com/eduardoleao052/js-pytorch/issues/new?assignees=&labels=02+Bug+Report&projects=&template=bug-report.yml", target="_blank">Bug Report</a> using a GitHub issue, and feel free to reach out to me on my LinkedIn or email.</li>
 <li>If you would like to see a <strong>new feature</strong> in Js-PyTorch, file a <a href="https://github.com/eduardoleao052/js-pytorch/issues/new?assignees=&labels=enhancement&projects=&template=feature-request.yml", target="_blank">New Feature</a> issue.</li>
-<li>Finally, if you would like to contribute, create a merge request to the <code>develop</code> branch. I will try to answer as soon as possible. All help is really appreciated! Here is a list of the <strong>developer tools</strong>:<ul>
-<li><strong>Build for Distribution</strong> by running <code>npm run build</code>. CJS and ESM modules and <code>index.d.ts</code> will be output in the <code>dist/</code> folder.</li>
-<li><strong>Check the Code</strong> with ESLint at any time, running <code>npm run lint</code>.</li>
-<li><strong>Run tests</strong> run <code>npm test</code>.</li>
-<li><strong>Improve Code Formatting</strong> with prettier, running <code>npm run prettier</code>.</li>
-<li><strong>Performance Benchmarks</strong> are also included in the <code>tests/benchmarks/</code> directory. Run all benchmarks with <code>npm run bench</code> and save new benchmarks with <code>npm run bench:update</code>.</li>
+<li>Finally, if you would like to <strong>contribute</strong>, create a merge request to the <code>develop</code> branch. I will try to answer as soon as possible. All help is really appreciated! 
 </ul>
 </li>
 </ul>
