@@ -89,14 +89,10 @@
 
 - On **MacOS**, **Windows**, and **Ubuntu**, you can install the library with `npm install js-pytorch`.
 - On **Windows**, if you run into an error, you might need to install the latest version of [Visual Studio](https://visualstudio.microsoft.com/downloads/?cid=learn-navbar-download-cta), including the "Desktop development with C++" workload.
-- To run in the **Browser**, `npm install` the latest version of **JS-PyTorch**, and link the distribution files in your HTML file:
+- To run in the **Browser**, paste the following tag in the `head` of your HTML file:
   
 ```html
-<script src="./node_modules/js-pytorch/dist/utils.js"></script>
-<script type="module">
-  import { torch } from './node_modules/js-pytorch/dist/js-pytorch-browser.js';
-  window.torch = torch;
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-pytorch/0.7.2/js-pytorch-browser.js" integrity="sha512-l22t7GnqXvHBMCBvPUBdFO2TEYxnb1ziCGcDQcpTB2un16IPA4FE5SIZ8bUR+RwoDZGikQkWisO+fhnakXt9rg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 ```
 
 - After that, you can use JS-PyTorch freely in any `<script>` in your HTML file.
