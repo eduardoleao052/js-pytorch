@@ -777,7 +777,7 @@
             requires_grad=false,
             device='cpu') → Tensor
 </code></pre>
-<p>Creates new instance of the Tensor class filled with numbers in a uniform distribution in ]0,1[.</p>
+<p>Creates new instance of the Tensor class filled with numbers in a uniform distribution in [0,1).</p>
 <p>Parameters</p>
 <ul>
 <li><strong>shape (Array)</strong> - Javascript Array containing the shape of the Tensor.</li>
@@ -787,9 +787,9 @@
 <p>Example</p>
 <pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.rand([3,2], false, 'gpu');
 &gt;&gt;&gt; console.log(a.data);
-//[[0.011, 0.122],
-// [-0.03, 0.105]
-// [-0.90,-0.202]]
+//[[0.110, 0.122],
+// [0.033, 0.105],
+// [0.907, 0.202]]
 </code></pre>
 <p><br></p>
 <h2 id="torchrandint">torch.randint</h2>
@@ -799,7 +799,7 @@
             requires_grad=false,
             device='cpu') → Tensor
 </code></pre>
-<p>Creates new instance of the Tensor class filled with random integers between <code>low</code> and <code>high</code>.</p>
+<p>Creates new instance of the Tensor class filled with random integers between <code>low</code> and <code>high - 1</code>.</p>
 <p>Parameters</p>
 <ul>
 <li><strong>low</strong> - Lowest integer that can be sampled.</li>
@@ -809,11 +809,11 @@
 <li><strong>device (string)</strong> - Device to store Tensor. Either "gpu" or "cpu". If your device has a gpu, large models will train faster on it.</li>
 </ul>
 <p>Example</p>
-<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randint([3,2], false, 'gpu');
+<pre><code class="language-javascript">&gt;&gt;&gt; let a = torch.randint(2, 5, [3,2], false, 'gpu');
 &gt;&gt;&gt; console.log(a.data);
-//[[0.011, 0.122],
-// [-0.03, 0.105]
-// [-0.90,-0.202]]
+//[[4, 3],
+// [2, 3],
+// [3, 4]]
 </code></pre>
 <p><br></p>
 <h2 id="tensorbackward">tensor.backward</h2>
