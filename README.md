@@ -92,10 +92,34 @@
 - To run in the **Browser**, paste the following tag in the `<head>` of your HTML file:
   
 ```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-pytorch/0.7.2/js-pytorch-browser.js" integrity="sha512-l22t7GnqXvHBMCBvPUBdFO2TEYxnb1ziCGcDQcpTB2un16IPA4FE5SIZ8bUR+RwoDZGikQkWisO+fhnakXt9rg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-pytorch/0.7.2/js-pytorch-browser.js"
+        integrity="sha512-l22t7GnqXvHBMCBvPUBdFO2TEYxnb1ziCGcDQcpTB2un16IPA4FE5SIZ8bUR+RwoDZGikQkWisO+fhnakXt9rg=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
 ```
 
-- After that, you can use JS-PyTorch freely in any `<script>` in your HTML file.
+- After that, you can use JS-PyTorch freely in any `<script>` in your HTML file:
+
+```html
+<head>
+    <title>My Project</title>
+    <!-- New script goes here -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-pytorch/0.7.2/js-pytorch-browser.js" 
+            integrity="sha512-l22t7GnqXvHBMCBvPUBdFO2TEYxnb1ziCGcDQcpTB2un16IPA4FE5SIZ8bUR+RwoDZGikQkWisO+fhnakXt9rg=="
+            crossorigin="anonymous" 
+            referrerpolicy="no-referrer">
+    </script>
+    <!---->
+</head>
+<body>
+    <script>
+        let x = torch.randn([10,5])
+        let linear = new torch.nn.Linear(5,1,'gpu',true)
+        let z = linear.forward(x)
+        console.log(z.data)
+    </script>
+</body>
+```
 
 ## 3. Running it Yourself
 
