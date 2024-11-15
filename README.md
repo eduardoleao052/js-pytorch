@@ -126,6 +126,7 @@
 ### Simple Autograd Example:
 
 ```typescript
+// Require the Library if running in node (not necessary in the browser):
 const { torch } = require("js-pytorch");
 
 // Pass device as an argument to a Tensor or nn.Module (same as PyTorch):
@@ -151,9 +152,11 @@ console.log(b.grad);
 ### Complex Autograd Example (Transformer):
 
 ```typescript
+// Require the Library if running in node (not necessary in the browser):
 const { torch } = require("js-pytorch");
 const nn = torch.nn;
 const optim = torch.optim;
+
 const device = 'gpu';
 
 // Define training hyperparameters:
