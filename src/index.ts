@@ -41,7 +41,9 @@ import {
   CrossEntropyLoss,
   MSELoss,
   save,
-  load
+  load,
+  Conv2D,
+  MaxPool2D
 } from "./layers.js";
 import { Adam } from "./optim.js";
 import { getShape } from "./utils.js";
@@ -59,7 +61,9 @@ const nn = {
   Dropout,
   LayerNorm,
   CrossEntropyLoss,
-  MSELoss
+  MSELoss,
+  Conv2D,
+  MaxPool2D
 };
 
 const optim = { Adam };

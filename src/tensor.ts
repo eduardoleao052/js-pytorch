@@ -418,6 +418,16 @@ export class Tensor {
     const operation = new Reshape();
     return operation.forward(this, shape);
   }
+
+  img2col(kernel_height: number, kernel_width: number, stride: [number, number], padding: [number, number]): Tensor {
+    const operation = new Img2Col();
+    return operation.forward(this, kernel_height,kernel_width,stride,padding);
+  }
+
+  maxpool(kernel_size: [number, number], stride: [number, number]):Tensor {
+    const operation = new MaxPool();
+    return operation.forward(this, kernel_size, stride);
+  }
 }
 
 // <<< Parameter class, tensor that always tracks gradients >>> //
@@ -1236,6 +1246,213 @@ export class Reshape {
     }
   }
 }
+
+export class MaxPool {
+  cache: any;
+
+  forward(a: Tensor, kernel_size: [number, number], stride: [number, number]): Tensor {
+    const [batch, channels, height, width] = a.shape;
+    const [kh, kw] = kernel_size;
+    const [sh, sw] = stride;
+
+    const out_height = Math.floor((height - kh) / sh + 1);
+    const out_width = Math.floor((width - kw) / sw + 1);
+    const outputData = new Array(batch).fill(0).map(() =>
+      new Array(channels).fill(0).map(() =>
+        new Array(out_height).fill(0).map(() => new Array(out_width).fill(0))
+      )
+    );
+
+    // Store max indices for backpropagation
+    const maxIndices = new Array(batch).fill(0).map(() =>
+      new Array(channels).fill(0).map(() =>
+        new Array(out_height).fill(0).map(() => new Array(out_width).fill([0, 0]))
+      )
+    );
+
+    // Perform max pooling operation using plain arrays
+    for (let b = 0; b < batch; b++) {
+      for (let c = 0; c < channels; c++) {
+        for (let i = 0; i < out_height; i++) {
+          for (let j = 0; j < out_width; j++) {
+            const h_start = i * sh;
+            const w_start = j * sw;
+            const h_end = h_start + kh;
+            const w_end = w_start + kw;
+
+            // Extract the region to pool
+            let max_val = -Infinity;
+            let max_idx = [0, 0];
+            for (let ki = h_start; ki < h_end; ki++) {
+              for (let kj = w_start; kj < w_end; kj++) {
+                if (ki >= 0 && ki < height && kj >= 0 && kj < width) {
+                  const val = a.data[b][c][ki][kj];
+                  if (val > max_val) {
+                    max_val = val;
+                    max_idx = [ki - h_start, kj - w_start]; // Store relative indices
+                  }
+                }
+              }
+            }
+
+            outputData[b][c][i][j] = max_val;
+            maxIndices[b][c][i][j] = max_idx; // Store indices relative to the window
+          }
+        }
+      }
+    }
+
+    // Create output tensor
+    this.cache = { x: a, maxIndices, kernel_size, stride };
+
+    const z = new Tensor(outputData, requiresGrad(a));
+    if (a instanceof Tensor && requiresGrad(a)) {
+      z.parents.push(a);
+      a.children.push(z);
+    }
+
+    z.operation = this;
+
+    return z;
+  }
+
+  backward(dz: Tensor, z: Tensor) {
+    const { x, maxIndices, kernel_size, stride } = this.cache;
+    const [kh, kw] = kernel_size;
+    const [sh, sw] = stride;
+    const [batch, channels, out_height, out_width] = dz.shape;
+
+    // Initialize gradient tensor for input
+    const dx = new Array(batch).fill(0).map(() =>
+      new Array(channels).fill(0).map(() =>
+        new Array(x.shape[2]).fill(0).map(() => new Array(x.shape[3]).fill(0))
+      )
+    );
+
+    // Propagate gradients based on stored max indices
+    for (let b = 0; b < batch; b++) {
+      for (let c = 0; c < channels; c++) {
+        for (let i = 0; i < out_height; i++) {
+          for (let j = 0; j < out_width; j++) {
+            const [h_idx, w_idx] = maxIndices[b][c][i][j];
+            const h_start = i * sh;
+            const w_start = j * sw;
+
+            // Assign gradient to the max index position
+            dx[b][c][h_start + h_idx][w_start + w_idx] += dz.data[b][c][i][j];
+          }
+        }
+      }
+    }
+
+    // Use the `backward()` call to propagate gradients further
+    if (x.requires_grad) {
+      const dxTensor = new Tensor(dx);
+      x.backward(dxTensor, z);
+    }
+  }
+
+}
+
+export class Img2Col {
+  cache: any;
+
+  forward(a: Tensor, kernel_height: number, kernel_width: number, stride: [number, number], padding:  [number, number]): Tensor {
+    this.cache = [a, kernel_height, kernel_width, stride, padding]; // Cache all relevant data
+
+    const [batch, channels, height, width] = a.shape;
+    const out_height = Math.floor((height + 2 * padding[0] - kernel_height) / stride[0]) + 1;
+    const out_width = Math.floor((width + 2 * padding[1] - kernel_width) / stride[1]) + 1;
+
+    const col_data = [];
+
+
+    for (let b = 0; b < batch; b++) {
+      for (let i = 0; i < out_height; i++) {
+        for (let j = 0; j < out_width; j++) {
+
+          const patch = [];
+          for (let c = 0; c < channels; c++) {
+            for (let kh = 0; kh < kernel_height; kh++) {
+              for (let kw = 0; kw < kernel_width; kw++) {
+
+                const h_idx = i * stride[0] - padding[0] + kh;
+                const w_idx = j * stride[1] - padding[1] + kw;
+                if (h_idx >= 0 && h_idx < height && w_idx >= 0 && w_idx < width) {
+                  patch.push(a.data[b][c][h_idx][w_idx]);
+                } else {
+                  patch.push(0); // Zero-padding
+                }
+              }
+            }
+          }
+          col_data.push(patch);
+        }
+      }
+    }
+
+    const z = new Tensor(col_data,requiresGrad(a));
+    if (a instanceof Tensor &&  requiresGrad(a)) {
+      z.parents.push(a);
+      a.children.push(z);
+    }
+
+    z.operation = this;
+
+    return z;
+  }
+
+
+backward(dz: Tensor, z: Tensor) {
+  const [a, kernel_height, kernel_width, stride, padding] = this.cache;
+  const [batch, channels, height, width] = a.shape;
+  const out_height = Math.floor((height + 2 * padding[0] - kernel_height) / stride[0]) + 1;
+  const out_width = Math.floor((width + 2 * padding[1] - kernel_width) / stride[1]) + 1;
+
+  // Initialize gradient tensor for dx with the same shape as input a
+  const dx = new Tensor(new Array(batch).fill(0).map(() =>
+    new Array(channels).fill(0).map(() =>
+      new Array(height).fill(0).map(() => new Array(width).fill(0))
+    )
+  ));
+
+  // Calculate the number of elements in each patch (channels * kernel_height * kernel_width)
+  const patch_size = channels * kernel_height * kernel_width;
+
+  let col_index = 0;
+  for (let b = 0; b < batch; b++) {
+    for (let i = 0; i < out_height; i++) {
+      for (let j = 0; j < out_width; j++) {
+        // Extract the gradient patch for this output position
+        const gradient_patch = dz.data[col_index];
+        let patch_index = 0; // Index to iterate through the patch values
+
+        for (let c = 0; c < channels; c++) {
+          for (let kh = 0; kh < kernel_height; kh++) {
+            for (let kw = 0; kw < kernel_width; kw++) {
+              const h_idx = i * stride[0] - padding[0] + kh;
+              const w_idx = j * stride[1] - padding[1] + kw;
+
+              if (h_idx >= 0 && h_idx < height && w_idx >= 0 && w_idx < width) {
+                // Accumulate the gradient from the current patch position
+                dx.data[b][c][h_idx][w_idx] += gradient_patch[patch_index];
+              }
+              patch_index++;
+            }
+          }
+        }
+
+        col_index++;
+      }
+    }
+  }
+  if (a.requires_grad) {
+    a.backward(dx, z);
+  }
+}
+}
+
+
 
 // <<< Tensor Operation Aliases >>> //
 
