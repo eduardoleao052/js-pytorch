@@ -574,6 +574,78 @@ export class MSELoss extends Module {
   }
 }
 
+
+export class Conv2D extends Module {
+  constructor(
+    in_channels, out_channels, kernel_size, stride = 1, padding = "same",
+    dilation = 1, groups = 1, bias = true, device = "cpu"
+  ) {
+    super();
+
+    const [kh, kw] = Array.isArray(kernel_size) ? kernel_size : [kernel_size, kernel_size];
+    const [sh, sw] = Array.isArray(stride) ? stride : [stride, stride];
+    const [dh, dw] = Array.isArray(dilation) ? dilation : [dilation, dilation];
+
+    let ph, pw;
+    if (padding === "same") {
+      ph = Math.floor(((kh - 1) * dh + 1 - sh) / 2);
+      pw = Math.floor(((kw - 1) * dw + 1 - sw) / 2);
+    } else if (Array.isArray(padding)) {
+      [ph, pw] = padding;
+    } else {
+      ph = pw = padding;
+    }
+
+    const weight_shape = [out_channels, Math.floor(in_channels / groups), kh, kw];
+    this.W = randn(weight_shape, true, device, false);
+    this.b = bias ? zeros([out_channels], true) : null;
+    this.has_bias = bias;
+
+    this.stride = [sh, sw];
+    this.padding = [ph, pw];
+    this.dilation = [dh, dw];
+    this.groups = groups;
+  }
+
+  forward(x) {
+    const [kernel_height, kernel_width] = [this.W.shape[2], this.W.shape[3]];
+    const [batch, out_channels] = [x.shape[0], this.W.shape[0]];
+    const out_height = Math.floor((x.shape[2] + 2 * this.padding[0] - kernel_height) / this.stride[0]) + 1;
+    const out_width = Math.floor((x.shape[3] + 2 * this.padding[1] - kernel_width) / this.stride[1]) + 1;
+
+
+    x = x.img2col(kernel_height, kernel_width, this.stride, this.padding);
+
+    let reshaped_weights = this.W.reshape([this.W.shape[0], this.W.shape[1] * kernel_height * kernel_width]).transpose(0, 1);
+
+    x = x.matmul(reshaped_weights);
+
+    x = x.reshape([batch, out_channels, out_height, out_width]);
+
+    if (this.has_bias && this.b) {
+      x = x.add(this.b);//not sure bias is working correctly
+    }
+
+    return x;
+  }
+}
+
+export class MaxPool2D extends Module {
+  public kernel_size: [number, number];
+  public stride: [number, number];
+
+  constructor(kernel_size: number | [number, number], stride?: number | [number, number]) {
+    super();
+    this.kernel_size = Array.isArray(kernel_size) ? kernel_size : [kernel_size, kernel_size];
+    this.stride = stride ? (Array.isArray(stride) ? stride : [stride, stride]) : this.kernel_size;
+  }
+
+  forward(x: Tensor): Tensor {
+      x=x.maxpool(this.kernel_size,this.stride);
+      return x;
+  }
+}
+
 /**
  * Saves the model to a JSON file.
  * @param {Module} model - Model to be saved in JSON file.
