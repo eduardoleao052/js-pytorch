@@ -608,11 +608,32 @@
 <h2 id="installation">Installation</h2>
 <p>This is a <strong>node</strong> package, and can be installed with  <strong>npm</strong> (Node Package Manager). It has full support of node 20.15.1, which is the latest LTS (Long-Term Support) node version, and more recent versions. </p>
 <p>To run JS-PyTorch in the <b>browser</b>, paste the following tag in the <strong>head</strong> of your HTML file. You can also get the latest tag from the <a href="https://cdnjs.com/libraries/js-pytorch" target="_blank">cdnjs</a> website:</p>
-<pre><code class="language-html line-numbers">
-  &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/js-pytorch/0.7.2/js-pytorch-browser.js" integrity="sha512-l22t7GnqXvHBMCBvPUBdFO2TEYxnb1ziCGcDQcpTB2un16IPA4FE5SIZ8bUR+RwoDZGikQkWisO+fhnakXt9rg==" crossorigin="anonymous" referrerpolicy="no-referrer"&gt;&lt;/script&gt;
-  </code></pre>
+<pre><code class="language-html line-numbers"> &lt;script src="https://cdnjs.cloudflare.com/ajax/libs/js-pytorch/0.7.2/js-pytorch-browser.js" 
+         integrity="sha512-l22t7GnqXvHBMCBvPUBdFO2TEYxnb1ziCGcDQcpTB2un16IPA4FE5SIZ8bUR+RwoDZGikQkWisO+fhnakXt9rg==" 
+         crossorigin="anonymous" 
+         referrerpolicy="no-referrer"&gt;&lt;/script&gt;
+</code></pre>
 <p>After that, you can use JS-PyTorch freely in any <strong>script</strong> tag in your HTML file.</p>
-
+<pre><code class="language-html line-numbers">&lt;head&gt;
+  &lt;title&gt;My Project&lt;/title&gt;
+  &lt;!-- New tag goes here --&gt;
+  &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/js-pytorch/0.7.2/js-pytorch-browser.js&quot; 
+          integrity=&quot;sha512-l22t7GnqXvHBMCBvPUBdFO2TEYxnb1ziCGcDQcpTB2un16IPA4FE5SIZ8bUR+RwoDZGikQkWisO+fhnakXt9rg==&quot;
+          crossorigin=&quot;anonymous&quot; 
+          referrerpolicy=&quot;no-referrer&quot;&gt;
+  &lt;/script&gt;
+  &lt;!----&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script&gt;
+      &lt;!-- Write JS-Pytorch code here, no need to install or require --&gt;
+      let x = torch.randn([10,5])
+      let linear = new torch.nn.Linear(5,1,'gpu',true)
+      let z = linear.forward(x)
+      console.log(z.data)
+  &lt;/script&gt;
+&lt;/body&gt;
+</code></pre>
 <h3 id="macos">MacOS</h3>
 <ul>
 <li>First, install <strong>node</strong> with the command line, as described on the <a href="https://nodejs.org/en/download/package-manager" target="_blank">node website</a>:</li>
